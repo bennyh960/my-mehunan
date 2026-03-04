@@ -14,6 +14,9 @@ import { Progress } from './screens/Progress';
 import { Settings } from './screens/Settings';
 import { AdminLogin } from './screens/AdminLogin';
 import { Admin } from './screens/Admin';
+import { PracticeGames } from './screens/PracticeGames';
+import { ArithmeticGame } from './screens/ArithmeticGame';
+import { DEFAULT_GAME_PROGRESS } from './constants/games';
 
 export default function App() {
   const [screen, setScreen] = useState("home");
@@ -35,6 +38,7 @@ export default function App() {
   const [editingQ, setEditingQ] = useState(null);
   const [gradeSelected, setGradeSelected] = useState(false);
   const [adminTopic, setAdminTopic] = useState(1);
+  const [gameProgress, setGameProgress] = useState(DEFAULT_GAME_PROGRESS);
   const [loaded, setLoaded] = useState(false);
   const [testInstructionTopic, setTestInstructionTopic] = useState(null);
   const [attemptNum, setAttemptNum] = useState(1);
@@ -49,6 +53,7 @@ export default function App() {
     try { const s = localStorage.getItem("gp_settings"); if (s) { setSettings(p=>({...p,...JSON.parse(s)})); setGradeSelected(true); } } catch {}
     try { const p = localStorage.getItem("gp_progress"); if (p) setProgress(JSON.parse(p)); } catch {}
     try { const q = localStorage.getItem("gp_questions"); if (q) setCustomQuestions(JSON.parse(q)); } catch {}
+    try { const g = localStorage.getItem("gp_games"); if (g) setGameProgress(JSON.parse(g)); } catch {}
     setLoaded(true);
   }, []);
 
@@ -56,6 +61,7 @@ export default function App() {
   const saveSettings = useCallback(s => { setSettings(s); save("gp_settings", s); }, [save]);
   const saveProgress = useCallback(p => { setProgress(p); save("gp_progress", p); }, [save]);
   const saveCQ = useCallback(q => { setCustomQuestions(q); save("gp_questions", q); }, [save]);
+  const saveGameProgress = useCallback(g => { setGameProgress(g); save("gp_games", g); }, [save]);
 
   const allQ = useMemo(() => [...QUESTIONS, ...customQuestions], [customQuestions]);
   const gradeQ = useMemo(() => allQ.filter(q => {
@@ -287,6 +293,14 @@ export default function App() {
 
   if (screen==="progress") {
     return <Progress progress={progress} getTopicStats={getTopicStats} goHome={goHome} />;
+  }
+
+  if (screen === "practice-games") {
+    return <PracticeGames settings={settings} gameProgress={gameProgress} setScreen={setScreen} />;
+  }
+
+  if (screen === "arithmetic-game") {
+    return <ArithmeticGame settings={settings} gameProgress={gameProgress} saveGameProgress={saveGameProgress} playSound={playSound} setScreen={setScreen} />;
   }
 
   if (screen==="settings") {

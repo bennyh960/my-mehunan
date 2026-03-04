@@ -15,7 +15,9 @@ export function Practice({
 }) {
   const isTopic4 = currentQuestion.topic===4;
   const isTopic5 = currentQuestion.topic===5;
+  const isImage = currentQuestion.type==="image";
   const timerSecs = settings.timerEnabled ? (settings.timerSeconds[currentQuestion.topic]||60) : 0;
+  const basePath = isImage ? `${import.meta.env.BASE_URL}/${currentQuestion.imagePath}`.replace("//","/") : "";
 
   return (
     <div className="container">
@@ -59,7 +61,12 @@ export function Practice({
         {/* Question area - stable height container */}
         <div className="question-area">
         <div className="question-card">
-          {isTopic4 && currentQuestion.visual ? (
+          {isImage ? (
+            <div>
+              <p className="visual-prompt">{currentQuestion.question}</p>
+              <img src={`${basePath}/q.png`} alt="שאלה" style={{maxWidth:"100%",borderRadius:8}} />
+            </div>
+          ) : isTopic4 && currentQuestion.visual ? (
             <div>
               <p className="visual-prompt">מצאו את המספר החסר (?)</p>
               <Topic4Visual visual={currentQuestion.visual} />
@@ -93,7 +100,7 @@ export function Practice({
             const isDisabled = showResult || wasFirstWrong;
 
             let cls = "option-btn";
-            if (isTopic5) cls += " topic5";
+            if (isTopic5 || isImage) cls += " topic5";
             if (wasFirstWrong && !showResult) cls += " first-wrong";
             else if (isSelected && !showResult) cls += " selected";
             if (isCorrect) cls += " correct";
@@ -108,7 +115,8 @@ export function Practice({
                 {isCorrect&&<span style={{color:"#4ade80"}}>✓</span>}
                 {isWrong&&<span style={{color:"#f87171"}}>✗</span>}
                 {wasFirstWrong&&!showResult&&<span className="first-wrong-x">✗</span>}
-                {isTopic5 && typeof opt === "object" ? <Topic5Option opt={opt} size={40} />
+                {isImage ? <img src={`${basePath}/a${i+1}.png`} alt={`תשובה ${i+1}`} style={{maxWidth:"100%",maxHeight:80,objectFit:"contain"}} />
+                  : isTopic5 && typeof opt === "object" ? <Topic5Option opt={opt} size={40} />
                   : <span className={`option-text${wasFirstWrong&&!showResult?" disabled":""}`} style={{color:wasFirstWrong&&!showResult?undefined:"#e2e8f0"}}>{typeof opt==="string"?opt:opt?.label||""}</span>}
               </button>
             );

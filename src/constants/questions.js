@@ -1028,4 +1028,27 @@ export const QUESTIONS = [
     ],
     correct:0,
     explanation:"שורות: אותו צבע (אדום, כחול, ירוק). עמודות: אותו סיבוב (0°, 90°, 180°). חסר: פקמן ירוק 180°." },
+
+  // =================== IMAGE-BASED QUESTIONS ===================
+  { id:"5-93",topic:5,grades:[2,3],difficulty:"medium",type:"image",
+    imagePath:"visual-questions/5-93",
+    question:"מה הבא בסדרה?",
+    options:["1","2","3","4"], correct:1,
+    explanation:"בכל תיבה: הלבבות יורדים ב-1, הפלוסים יורדים ב-1, והכוכבים עולים ב-1. התיבה הבאה: 1 לב, 0 פלוסים, 5 כוכבים." },
+  { id:"5-94",topic:5,grades:[2,3],difficulty:"hard",type:"image",
+    imagePath:"visual-questions/5-94",
+    question:"מה חסר במטריצה?",
+    options:["1","2","3","4"], correct:3,
+    explanation:"בכל שורה ועמודה, הצורות משתלבות זו בזו. השורה השלישית משלבת את דפוסי החיצים עם דפוסי הקווים." },
+  { id:"5-95",topic:5,grades:[2,3],difficulty:"hard",type:"image",
+    imagePath:"visual-questions/5-95",
+    question:"מה חסר במטריצה?",
+    options:["1","2","3","4"], correct:0,
+    explanation:"עמודה 1: פקמן מסתובב. עמודה 2: ריבוע בהיר יותר בכל שורה. עמודה 3: שילוב של פקמן+ריבוע. בשורה 3: פקמן קטן, ריבוע בהיר, השילוב שלהם." }
+,
+  { id:"5-96",topic:5,grades:[2,3],difficulty:"hard",type:"image",
+    imagePath:"visual-questions/5-96",
+    question:"קרא את השאלה וענה על התשובה הנכונה",
+    options:["1","2","3","4"], correct:3,
+    explanation:"לא יודע איך להסביר אורי יא נסיך" },
 ];
