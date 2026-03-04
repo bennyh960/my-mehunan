@@ -4,11 +4,13 @@ export const STAR_THRESHOLDS = { 1: 7, 2: 9, 3: 10 };
 export const GAME_LIST = [
   { id: "arithmetic", nameHe: "חשבון מהיר", icon: "🧮", color: "#818cf8", description: "תרגול פעולות חשבון בזמן מוגבל" },
   { id: "adventure", nameHe: "הרפתקת החשיבה", icon: "🏰", color: "#f59e0b", description: "פתרו חידות בחדרים מסתוריים" },
+  { id: "clock", nameHe: "לימוד השעון", icon: "🕐", color: "#06b6d4", description: "תרגול קריאת שעון וחישובי זמן" },
 ];
 
 export const DEFAULT_GAME_PROGRESS = {
   arithmetic: {},
   adventure: {},
+  clock: {},
 };
 
 export const ADVENTURE_ROOM_THEMES = [

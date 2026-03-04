@@ -17,6 +17,7 @@ import { Admin } from './screens/Admin';
 import { PracticeGames } from './screens/PracticeGames';
 import { ArithmeticGame } from './screens/ArithmeticGame';
 import { AdventureGame } from './screens/AdventureGame';
+import { ClockGame } from './screens/ClockGame';
 import { DEFAULT_GAME_PROGRESS } from './constants/games';
 
 export default function App() {
@@ -306,6 +307,10 @@ export default function App() {
 
   if (screen === "adventure-game") {
     return <AdventureGame settings={settings} gradeQ={gradeQ} gameProgress={gameProgress} saveGameProgress={saveGameProgress} playSound={playSound} setScreen={setScreen} />;
+  }
+
+  if (screen === "clock-game") {
+    return <ClockGame settings={settings} gameProgress={gameProgress} saveGameProgress={saveGameProgress} playSound={playSound} setScreen={setScreen} />;
   }
 
   if (screen==="settings") {
