@@ -48,6 +48,22 @@ export function Settings({ settings, saveSettings, resetProgress, goHome }) {
             </div>)}
           </div>}
           <div className="setting-row">
+            <label className="setting-label">טיימר במשחקים</label>
+            <button onClick={()=>saveSettings({...settings,gameTimerEnabled:!settings.gameTimerEnabled})}
+              className={`toggle-btn ${settings.gameTimerEnabled?"on":"off"}`}>{settings.gameTimerEnabled?"מופעל":"כבוי"}</button>
+          </div>
+          {settings.gameTimerEnabled&&<div className="timer-panel">
+            <label className="setting-label" style={{marginBottom:8,display:"block"}}>⏱️ זמן לשאלה במשחקים (שניות)</label>
+            <div className="flex-row gap-4" style={{flexWrap:'wrap',justifyContent:'center'}}>
+              {[{v:0,l:"ברירת מחדל"},{v:15,l:"15"},{v:20,l:"20"},{v:25,l:"25"},{v:30,l:"30"},{v:40,l:"40"},{v:60,l:"60"}].map(({v,l})=>
+                <button key={v} onClick={()=>saveSettings({...settings,gameTimerSeconds:v})}
+                  className={`chip-sm${(settings.gameTimerSeconds||0)===v?" active":""}`}>{l}</button>)}
+            </div>
+            <span className="text-muted" style={{fontSize:10,display:'block',textAlign:'center',marginTop:6}}>
+              {(settings.gameTimerSeconds||0)===0?"כל משחק משתמש בזמן שלו":"זמן אחיד לכל המשחקים"}
+            </span>
+          </div>}
+          <div className="setting-row">
             <label className="setting-label">מצב מהיר (הורה לחוץ)</label>
             <button onClick={()=>saveSettings({...settings,rushMode:!settings.rushMode})}
               className={`toggle-btn ${settings.rushMode?"danger-on":"off"}`}>{settings.rushMode?"מופעל":"כבוי"}</button>

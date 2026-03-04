@@ -85,6 +85,8 @@ export function ClockGame({ settings, gameProgress, saveGameProgress, playSound,
   const questionStartRef = useRef(null);
 
   const gp = gameProgress.clock || {};
+  const gameTimerOn = settings.gameTimerEnabled !== false;
+  const getTime = (config) => !gameTimerOn ? 9999 : (settings.gameTimerSeconds || 0) > 0 ? settings.gameTimerSeconds : getTime(config);
 
   const isUnlocked = (lvl) => lvl === 1 || (gp[lvl - 1]?.stars > 0);
   const getStars = (lvl) => gp[lvl]?.stars || 0;
@@ -105,7 +107,7 @@ export function ClockGame({ settings, gameProgress, saveGameProgress, playSound,
     setResults([]);
     setFeedback(null);
     setFeedbackIdx(null);
-    setTimeLeft(config.timePerQuestion);
+    setTimeLeft(getTime(config));
     questionStartRef.current = Date.now();
     setPhase("playing");
   }, []);
@@ -164,7 +166,7 @@ export function ClockGame({ settings, gameProgress, saveGameProgress, playSound,
       earnedPoints = 10;
       const elapsed = (Date.now() - questionStartRef.current) / 1000;
       const config = CLOCK_LEVELS[selectedLevel - 1];
-      if (elapsed < config.timePerQuestion / 3) earnedPoints += 5;
+      if (elapsed < getTime(config) / 3) earnedPoints += 5;
       newStreak = streak + 1;
       if (newStreak > 0 && newStreak % 3 === 0) earnedPoints += 5;
     } else {
@@ -203,7 +205,7 @@ export function ClockGame({ settings, gameProgress, saveGameProgress, playSound,
     setFeedback(null);
     setFeedbackIdx(null);
     const config = CLOCK_LEVELS[selectedLevel - 1];
-    setTimeLeft(config.timePerQuestion);
+    setTimeLeft(getTime(config));
     questionStartRef.current = Date.now();
   };
 
@@ -290,7 +292,7 @@ export function ClockGame({ settings, gameProgress, saveGameProgress, playSound,
   if (phase === "playing") {
     const q = questions[qIdx];
     const config = CLOCK_LEVELS[selectedLevel - 1];
-    const timerPct = (timeLeft / config.timePerQuestion) * 100;
+    const timerPct = (timeLeft / getTime(config)) * 100;
     const timerColor = timerPct > 50 ? "#4ade80" : timerPct > 25 ? "#fbbf24" : "#f87171";
 
     return (
@@ -326,9 +328,9 @@ export function ClockGame({ settings, gameProgress, saveGameProgress, playSound,
           </div>
 
           {/* Timer bar */}
-          <div className="game-timer-bar">
+          {gameTimerOn && <div className="game-timer-bar">
             <div className="game-timer-fill" style={{ width: `${timerPct}%`, backgroundColor: timerColor }} />
-          </div>
+          </div>}
 
           {/* Progress dots */}
           <div className="game-dots">

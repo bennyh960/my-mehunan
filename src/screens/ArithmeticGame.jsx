@@ -28,6 +28,8 @@ export function ArithmeticGame({ settings, gameProgress, saveGameProgress, playS
   const grade = settings.grade;
   const levels = ARITHMETIC_LEVELS[grade] || [];
   const gp = gameProgress.arithmetic || {};
+  const gameTimerOn = settings.gameTimerEnabled !== false;
+  const getTime = (config) => !gameTimerOn ? 9999 : (settings.gameTimerSeconds || 0) > 0 ? settings.gameTimerSeconds : getTime(config);
 
   const isUnlocked = (lvl) => lvl === 1 || (gp[lvl - 1]?.stars > 0);
   const getStars = (lvl) => gp[lvl]?.stars || 0;
@@ -58,7 +60,7 @@ export function ArithmeticGame({ settings, gameProgress, saveGameProgress, playS
     else if (config.answerMode === "input") setAnswerMode("input");
     else setAnswerMode("choice"); // mixed defaults to choice, user can toggle
 
-    setTimeLeft(config.timePerQuestion);
+    setTimeLeft(getTime(config));
     questionStartRef.current = Date.now();
     setPhase("playing");
   }, [levels]);
@@ -122,7 +124,7 @@ export function ArithmeticGame({ settings, gameProgress, saveGameProgress, playS
       // Speed bonus
       const elapsed = (Date.now() - questionStartRef.current) / 1000;
       const config = levels[selectedLevel - 1];
-      if (elapsed < config.timePerQuestion / 3) earnedPoints += 5;
+      if (elapsed < getTime(config) / 3) earnedPoints += 5;
 
       // Streak
       newStreak = streak + 1;
@@ -166,7 +168,7 @@ export function ArithmeticGame({ settings, gameProgress, saveGameProgress, playS
       earnedPoints = 10;
       const elapsed = (Date.now() - questionStartRef.current) / 1000;
       const config = levels[selectedLevel - 1];
-      if (elapsed < config.timePerQuestion / 3) earnedPoints += 5;
+      if (elapsed < getTime(config) / 3) earnedPoints += 5;
       newStreak = streak + 1;
       if (newStreak > 0 && newStreak % 3 === 0) earnedPoints += 5;
     } else {
@@ -215,7 +217,7 @@ export function ArithmeticGame({ settings, gameProgress, saveGameProgress, playS
     setFeedbackIdx(null);
     setInputValue("");
     const config = levels[selectedLevel - 1];
-    setTimeLeft(config.timePerQuestion);
+    setTimeLeft(getTime(config));
     questionStartRef.current = Date.now();
   };
 
@@ -303,7 +305,7 @@ export function ArithmeticGame({ settings, gameProgress, saveGameProgress, playS
   if (phase === "playing") {
     const q = questions[qIdx];
     const config = levels[selectedLevel - 1];
-    const timerPct = (timeLeft / config.timePerQuestion) * 100;
+    const timerPct = (timeLeft / getTime(config)) * 100;
     const timerColor = timerPct > 50 ? "#4ade80" : timerPct > 25 ? "#fbbf24" : "#f87171";
     const isMixed = config.answerMode === "mixed";
     const showChoice = answerMode === "choice";
@@ -341,9 +343,9 @@ export function ArithmeticGame({ settings, gameProgress, saveGameProgress, playS
           </div>
 
           {/* Timer bar */}
-          <div className="game-timer-bar">
+          {gameTimerOn && <div className="game-timer-bar">
             <div className="game-timer-fill" style={{ width: `${timerPct}%`, backgroundColor: timerColor }} />
-          </div>
+          </div>}
 
           {/* Progress dots */}
           <div className="game-dots">

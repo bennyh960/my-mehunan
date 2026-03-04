@@ -507,14 +507,14 @@ export function generateClockRound(levelNum, count = 10) {
 }
 
 export const CLOCK_LEVELS = [
-  { level: 1, nameHe: "קריאת שעות עגולות", icon: "🕐", questionsPerRound: 10, timePerQuestion: 15 },
-  { level: 2, nameHe: "חצי שעות", icon: "🕧", questionsPerRound: 10, timePerQuestion: 15 },
-  { level: 3, nameHe: "רבעי שעות", icon: "🕞", questionsPerRound: 10, timePerQuestion: 15 },
-  { level: 4, nameHe: "כמה זמן עבר?", icon: "⏱️", questionsPerRound: 10, timePerQuestion: 20 },
-  { level: 5, nameHe: "עוד כמה זמן נשאר?", icon: "⏳", questionsPerRound: 10, timePerQuestion: 20 },
-  { level: 6, nameHe: "לוח זמנים", icon: "📺", questionsPerRound: 10, timePerQuestion: 25 },
-  { level: 7, nameHe: "חישוב שבועי", icon: "📅", questionsPerRound: 10, timePerQuestion: 30 },
-  { level: 8, nameHe: "שעון 24 שעות", icon: "🔢", questionsPerRound: 10, timePerQuestion: 20 },
-  { level: 9, nameHe: "מה תהיה השעה?", icon: "🔮", questionsPerRound: 10, timePerQuestion: 20 },
-  { level: 10, nameHe: "אתגר הזמן", icon: "🏆", questionsPerRound: 10, timePerQuestion: 30 },
+  { level: 1, nameHe: "קריאת שעות עגולות", icon: "🕐", questionsPerRound: 10, timePerQuestion: 25 },
+  { level: 2, nameHe: "חצי שעות", icon: "🕧", questionsPerRound: 10, timePerQuestion: 25 },
+  { level: 3, nameHe: "רבעי שעות", icon: "🕞", questionsPerRound: 10, timePerQuestion: 25 },
+  { level: 4, nameHe: "כמה זמן עבר?", icon: "⏱️", questionsPerRound: 10, timePerQuestion: 30 },
+  { level: 5, nameHe: "עוד כמה זמן נשאר?", icon: "⏳", questionsPerRound: 10, timePerQuestion: 30 },
+  { level: 6, nameHe: "לוח זמנים", icon: "📺", questionsPerRound: 10, timePerQuestion: 35 },
+  { level: 7, nameHe: "חישוב שבועי", icon: "📅", questionsPerRound: 10, timePerQuestion: 40 },
+  { level: 8, nameHe: "שעון 24 שעות", icon: "🔢", questionsPerRound: 10, timePerQuestion: 30 },
+  { level: 9, nameHe: "מה תהיה השעה?", icon: "🔮", questionsPerRound: 10, timePerQuestion: 30 },
+  { level: 10, nameHe: "אתגר הזמן", icon: "🏆", questionsPerRound: 10, timePerQuestion: 40 },
 ];

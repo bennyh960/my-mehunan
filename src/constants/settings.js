@@ -10,6 +10,8 @@ export const DEFAULT_SETTINGS = {
   testTimeMinutes: 30,
   explanationMode: "full",
   rushMode: false,
+  gameTimerEnabled: true,
+  gameTimerSeconds: 0,
   adminPassword: "1234",
 };
 
