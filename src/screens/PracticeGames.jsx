@@ -1,11 +1,19 @@
-import { GAME_LIST, ARITHMETIC_LEVELS } from '../constants/games';
+import { GAME_LIST, ARITHMETIC_LEVELS, ADVENTURE_CONFIGS } from '../constants/games';
 
 export function PracticeGames({ settings, gameProgress, setScreen }) {
   const getGameProgress = (gameId) => {
     const gp = gameProgress[gameId] || {};
-    const levels = ARITHMETIC_LEVELS[settings.grade] || [];
-    const completed = levels.filter((_, i) => gp[i + 1]?.stars > 0).length;
-    return `שלב ${completed}/${levels.length}`;
+    if (gameId === "arithmetic") {
+      const levels = ARITHMETIC_LEVELS[settings.grade] || [];
+      const completed = levels.filter((_, i) => gp[i + 1]?.stars > 0).length;
+      return `שלב ${completed}/${levels.length}`;
+    }
+    if (gameId === "adventure") {
+      const levels = ADVENTURE_CONFIGS[settings.grade] || [];
+      const completed = levels.filter((_, i) => gp[i + 1]?.stars > 0).length;
+      return `הרפתקה ${completed}/${levels.length}`;
+    }
+    return "";
   };
 
   return (
@@ -21,7 +29,7 @@ export function PracticeGames({ settings, gameProgress, setScreen }) {
             <button
               key={game.id}
               className="game-card"
-              onClick={() => setScreen("arithmetic-game")}
+              onClick={() => setScreen(`${game.id}-game`)}
             >
               <span className="game-card-icon">{game.icon}</span>
               <div className="game-card-info">

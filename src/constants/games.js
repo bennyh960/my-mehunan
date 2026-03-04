@@ -3,10 +3,75 @@ export const STAR_THRESHOLDS = { 1: 7, 2: 9, 3: 10 };
 
 export const GAME_LIST = [
   { id: "arithmetic", nameHe: "חשבון מהיר", icon: "🧮", color: "#818cf8", description: "תרגול פעולות חשבון בזמן מוגבל" },
+  { id: "adventure", nameHe: "הרפתקת החשיבה", icon: "🏰", color: "#f59e0b", description: "פתרו חידות בחדרים מסתוריים" },
 ];
 
 export const DEFAULT_GAME_PROGRESS = {
   arithmetic: {},
+  adventure: {},
+};
+
+export const ADVENTURE_ROOM_THEMES = [
+  { emoji: "🏰", name: "טירת המילים", narrative: "דלת עץ עתיקה נפתחת לאולם טירה מלא באותיות מרחפות..." },
+  { emoji: "🌊", name: "מערת הים", narrative: "גלים זוהרים מאירים מערה תת-ימית עם חידה על הקיר..." },
+  { emoji: "🌋", name: "הר הגעש", narrative: "לבה זורמת סביב שביל צר. שלט אבן חוסם את הדרך..." },
+  { emoji: "🌙", name: "יער הלילה", narrative: "עצים זוהרים מקיפים פינה קסומה. ינשוף חכם שואל..." },
+  { emoji: "🏛️", name: "המקדש העתיק", narrative: "עמודים ענקיים מעוטרים בסמלים. מנגנון סודי דורש פתרון..." },
+  { emoji: "❄️", name: "ארמון הקרח", narrative: "קירות קריסטל נוצצים. פתית שלג ענק מסתיר חידה..." },
+  { emoji: "🎪", name: "הקרקס הקסום", narrative: "ליצן מסתורי מציג חידה לפני שהוא מרשה לעבור..." },
+  { emoji: "🚀", name: "תחנת החלל", narrative: "מסכים מהבהבים בתחנת חלל. המחשב דורש תשובה נכונה..." },
+  { emoji: "🏜️", name: "מדבר הסודות", narrative: "סופת חול נרגעת וחושפת ספינקס עם חידה..." },
+  { emoji: "🌈", name: "גשר הקשת", narrative: "גשר צבעוני מוביל לענן. שומר הענן מציב תנאי..." },
+  { emoji: "🗝️", name: "מבוך המפתחות", narrative: "מסדרונות מתפתלים בכל כיוון. דלת נעולה חוסמת את הדרך..." },
+  { emoji: "🐉", name: "מאורת הדרקון", narrative: "דרקון ישן שומר על אוצר. רק תשובה נכונה תעיר אותו בשלום..." },
+];
+
+const makeLevelConfigs = (difficulty) => {
+  return Array.from({ length: 10 }, (_, i) => ({
+    level: i + 1,
+    nameHe: `הרפתקה ${i + 1}`,
+    themeStart: (i * 6) % 12,
+    difficulty: difficulty[Math.min(i, difficulty.length - 1)],
+  }));
+};
+
+export const ADVENTURE_CONFIGS = {
+  2: makeLevelConfigs([
+    ["easy","easy","easy","easy","easy","easy"],
+    ["easy","easy","easy","easy","easy","medium"],
+    ["easy","easy","easy","medium","easy","medium"],
+    ["easy","easy","medium","medium","easy","medium"],
+    ["easy","medium","medium","medium","easy","medium"],
+    ["medium","medium","medium","medium","medium","medium"],
+    ["medium","medium","medium","medium","medium","hard"],
+    ["medium","medium","medium","hard","medium","hard"],
+    ["medium","medium","hard","hard","medium","hard"],
+    ["medium","hard","hard","hard","hard","hard"],
+  ]),
+  3: makeLevelConfigs([
+    ["easy","easy","easy","easy","easy","easy"],
+    ["easy","easy","easy","easy","easy","medium"],
+    ["easy","easy","medium","medium","easy","medium"],
+    ["easy","medium","medium","medium","medium","medium"],
+    ["medium","medium","medium","medium","medium","medium"],
+    ["medium","medium","medium","medium","medium","hard"],
+    ["medium","medium","hard","hard","medium","hard"],
+    ["medium","hard","hard","hard","medium","hard"],
+    ["hard","hard","hard","hard","medium","hard"],
+    ["hard","hard","hard","hard","hard","hard"],
+  ]),
+  4: makeLevelConfigs([
+    ["easy","easy","easy","easy","easy","medium"],
+    ["easy","easy","medium","medium","easy","medium"],
+    ["easy","medium","medium","medium","medium","medium"],
+    ["medium","medium","medium","medium","medium","medium"],
+    ["medium","medium","medium","medium","medium","hard"],
+    ["medium","medium","hard","hard","medium","hard"],
+    ["medium","hard","hard","hard","medium","hard"],
+    ["hard","hard","hard","hard","medium","hard"],
+    ["hard","hard","hard","hard","hard","hard"],
+    ["hard","hard","hard","hard","hard","hard"],
+  ]),
 };
 
 // Grade 2: small numbers, build up to all 4 ops

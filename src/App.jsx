@@ -16,6 +16,7 @@ import { AdminLogin } from './screens/AdminLogin';
 import { Admin } from './screens/Admin';
 import { PracticeGames } from './screens/PracticeGames';
 import { ArithmeticGame } from './screens/ArithmeticGame';
+import { AdventureGame } from './screens/AdventureGame';
 import { DEFAULT_GAME_PROGRESS } from './constants/games';
 
 export default function App() {
@@ -301,6 +302,10 @@ export default function App() {
 
   if (screen === "arithmetic-game") {
     return <ArithmeticGame settings={settings} gameProgress={gameProgress} saveGameProgress={saveGameProgress} playSound={playSound} setScreen={setScreen} />;
+  }
+
+  if (screen === "adventure-game") {
+    return <AdventureGame settings={settings} gradeQ={gradeQ} gameProgress={gameProgress} saveGameProgress={saveGameProgress} playSound={playSound} setScreen={setScreen} />;
   }
 
   if (screen==="settings") {
