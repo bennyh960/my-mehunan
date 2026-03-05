@@ -1,4 +1,5 @@
-import { GAME_LIST, ARITHMETIC_LEVELS, ADVENTURE_CONFIGS } from '../constants/games';
+import { GAME_LIST, ARITHMETIC_LEVELS, ADVENTURE_CONFIGS, NINJA_CONFIGS } from '../constants/games';
+import { CLOCK_LEVELS } from '../utils/clock';
 
 export function PracticeGames({ settings, gameProgress, setScreen }) {
   const getGameProgress = (gameId) => {
@@ -12,6 +13,15 @@ export function PracticeGames({ settings, gameProgress, setScreen }) {
       const levels = ADVENTURE_CONFIGS[settings.grade] || [];
       const completed = levels.filter((_, i) => gp[i + 1]?.stars > 0).length;
       return `הרפתקה ${completed}/${levels.length}`;
+    }
+    if (gameId === "clock") {
+      const completed = CLOCK_LEVELS.filter((_, i) => gp[i + 1]?.stars > 0).length;
+      return `שלב ${completed}/${CLOCK_LEVELS.length}`;
+    }
+    if (gameId === "ninja") {
+      const levels = NINJA_CONFIGS[settings.grade] || [];
+      const completed = levels.filter((_, i) => gp[i + 1]?.stars > 0).length;
+      return `שלב ${completed}/${levels.length}`;
     }
     return "";
   };

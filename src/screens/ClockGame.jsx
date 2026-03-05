@@ -86,7 +86,7 @@ export function ClockGame({ settings, gameProgress, saveGameProgress, playSound,
 
   const gp = gameProgress.clock || {};
   const gameTimerOn = settings.gameTimerEnabled !== false;
-  const getTime = (config) => !gameTimerOn ? 9999 : (settings.gameTimerSeconds || 0) > 0 ? settings.gameTimerSeconds : getTime(config);
+  const getTime = (config) => !gameTimerOn ? 9999 : (settings.gameTimerSeconds || 0) > 0 ? settings.gameTimerSeconds : config.timePerQuestion;
 
   const isUnlocked = (lvl) => lvl === 1 || (gp[lvl - 1]?.stars > 0);
   const getStars = (lvl) => gp[lvl]?.stars || 0;
@@ -373,7 +373,7 @@ export function ClockGame({ settings, gameProgress, saveGameProgress, playSound,
                 }
                 return (
                   <button key={i} className={cls} onClick={() => handleChoiceAnswer(c, i)} disabled={!!feedback}
-                    style={{ fontSize: 15, padding: '12px 8px', minHeight: 48, textAlign: 'right' }}>
+                    style={{ fontSize: 15, padding: '12px 8px', minHeight: 48, textAlign: 'right', direction: 'rtl' }}>
                     {c}
                   </button>
                 );

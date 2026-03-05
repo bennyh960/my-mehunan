@@ -4,7 +4,10 @@ const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 
 const pad = n => String(n).padStart(2, '0');
-const fmt24 = (h, m) => `${pad(h)}:${pad(m)}`;
+const LRI = '\u2066'; // Left-to-Right Isolate
+const PDI = '\u2069'; // Pop Directional Isolate
+const ltr = s => `${LRI}${s}${PDI}`;
+const fmt24 = (h, m) => ltr(`${pad(h)}:${pad(m)}`);
 
 // Period labels for Hebrew time description
 const getPeriod = (h) => {
@@ -25,16 +28,16 @@ const h12 = (h) => {
 const fmtHebrewDesc = (h, m) => {
   const hour = h12(h);
   const period = getPeriod(h);
-  if (m === 0) return `${hour}:00 ${period}`;
-  if (m === 30) return `${hour} וחצי ${period}`;
-  if (m === 15) return `${hour} ורבע ${period}`;
+  if (m === 0) return `${ltr(`${hour}:00`)} ${period}`;
+  if (m === 30) return `${ltr(hour)} וחצי ${period}`;
+  if (m === 15) return `${ltr(hour)} ורבע ${period}`;
   if (m === 45) {
     const nextH24 = (h + 1) % 24;
     const nextHour = h12(nextH24);
     const nextPeriod = getPeriod(nextH24);
-    return `רבע ל-${nextHour} ${nextPeriod}`;
+    return `רבע ל-${ltr(nextHour)} ${nextPeriod}`;
   }
-  return `${hour}:${pad(m)} ${period}`;
+  return `${ltr(`${hour}:${pad(m)}`)} ${period}`;
 };
 
 // Shuffle array
@@ -79,20 +82,20 @@ const durationChoices = (correctMins, count = 3) => {
 };
 
 const formatDuration = (mins) => {
-  if (mins < 60) return `${mins} דקות`;
+  if (mins < 60) return `${ltr(mins)} דקות`;
   const h = Math.floor(mins / 60);
   const m = mins % 60;
-  if (m === 0) return h === 1 ? `שעה` : `${h} שעות`;
-  if (h === 1) return `שעה ו-${m} דקות`;
-  return `${h} שעות ו-${m} דקות`;
+  if (m === 0) return h === 1 ? `שעה` : `${ltr(h)} שעות`;
+  if (h === 1) return `שעה ו-${ltr(m)} דקות`;
+  return `${ltr(h)} שעות ו-${ltr(m)} דקות`;
 };
 
 const formatDurationShort = (mins) => {
-  if (mins < 60) return `${mins} דק׳`;
+  if (mins < 60) return `${ltr(mins)} דק׳`;
   const h = Math.floor(mins / 60);
   const m = mins % 60;
-  if (m === 0) return `${h} שע׳`;
-  return `${h}:${pad(m)}`;
+  if (m === 0) return `${ltr(h)} שע׳`;
+  return ltr(`${h}:${pad(m)}`);
 };
 
 // Names and activities for word problems
@@ -349,11 +352,11 @@ function gen24hConversion() {
   const type = rand(1, 2);
   if (type === 1) {
     // 24h to description
-    const correct = `${h12}:${pad(m)} ${period}`;
+    const correct = `${ltr(`${h12}:${pad(m)}`)} ${period}`;
     const wrongs = [
-      `${h12 + 1}:${pad(m)} ${period}`,
-      `${h12 - 1}:${pad(m)} ${period}`,
-      `${h12}:${pad((m + 30) % 60)} ${period}`,
+      `${ltr(`${h12 + 1}:${pad(m)}`)} ${period}`,
+      `${ltr(`${h12 - 1}:${pad(m)}`)} ${period}`,
+      `${ltr(`${h12}:${pad((m + 30) % 60)}`)} ${period}`,
     ].filter(w => w !== correct);
     const allChoices = shuffle([correct, ...wrongs.slice(0, 3)]);
     return {
@@ -368,7 +371,7 @@ function gen24hConversion() {
     const wrongs = timeChoices(h24, m);
     const allChoices = shuffle([correct, ...wrongs]);
     return {
-      question: `השעה ${h12}:${pad(m)} בערב. מה השעה בשעון דיגיטלי (24 שעות)?`,
+      question: `השעה ${ltr(`${h12}:${pad(m)}`)} בערב. מה השעה בשעון דיגיטלי (${ltr(24)} שעות)?`,
       choices: allChoices,
       answer: correct,
       answerIdx: allChoices.indexOf(correct),
@@ -388,9 +391,9 @@ function genTimeAfter() {
   const resultH = Math.floor(totalM / 60) % 24;
   const resultM = totalM % 60;
 
-  const addStr = addH > 0 && addM > 0 ? `${addH} שעות ו-${addM} דקות`
-    : addH > 0 ? (addH === 1 ? `שעה` : `${addH} שעות`)
-    : `${addM} דקות`;
+  const addStr = addH > 0 && addM > 0 ? `${ltr(addH)} שעות ו-${ltr(addM)} דקות`
+    : addH > 0 ? (addH === 1 ? `שעה` : `${ltr(addH)} שעות`)
+    : `${ltr(addM)} דקות`;
 
   const correct = fmt24(resultH, resultM);
   const wrongs = timeChoices(resultH, resultM);
@@ -426,7 +429,7 @@ function genComplexProblem() {
     const allChoices = shuffle([correct, ...wrongs]);
 
     return {
-      question: `${kid} יצא מהבית ב-${fmt24(startH, startM)}. הנסיעה לקחה ${leg1} דקות, עצר ל-${stopDur} דקות הפסקה, ואז נסע עוד ${leg2} דקות. מתי הגיע?`,
+      question: `${kid} יצא מהבית ב-${fmt24(startH, startM)}. הנסיעה לקחה ${ltr(leg1)} דקות, עצר ל-${ltr(stopDur)} דקות הפסקה, ואז נסע עוד ${ltr(leg2)} דקות. מתי הגיע?`,
       choices: allChoices,
       answer: correct,
       answerIdx: allChoices.indexOf(correct),
@@ -451,7 +454,7 @@ function genComplexProblem() {
     const allChoices = shuffle([correct, ...wrongs]);
 
     return {
-      question: `${kid} קם ב-${fmt24(wakeH, 0)}. הכין שיעורים ${formatDuration(act1Dur)}, הלך לחוג ${formatDuration(act2Dur)}, ואכל ארוחה ${formatDuration(act3Dur)}. כמה זמן עבר בסה״כ?`,
+      question: `${kid} קם ב-${fmt24(wakeH, 0)}. הכין שיעורים ${formatDuration(act1Dur)}, הלך לחוג ${formatDuration(act2Dur)}, ואכל ארוחה ${formatDuration(act3Dur)}. כמה זמן עבר בסה"כ?`,
       choices: allChoices,
       answer: correct,
       answerIdx: allChoices.indexOf(correct),

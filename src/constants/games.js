@@ -5,12 +5,14 @@ export const GAME_LIST = [
   { id: "arithmetic", nameHe: "חשבון מהיר", icon: "🧮", color: "#818cf8", description: "תרגול פעולות חשבון בזמן מוגבל" },
   { id: "adventure", nameHe: "הרפתקת החשיבה", icon: "🏰", color: "#f59e0b", description: "פתרו חידות בחדרים מסתוריים" },
   { id: "clock", nameHe: "לימוד השעון", icon: "🕐", color: "#06b6d4", description: "תרגול קריאת שעון וחישובי זמן" },
+  { id: "ninja", nameHe: "נינג'ה ירוק", icon: "🥷", color: "#22c55e", description: "קפצו בין פלטפורמות ופתרו חידות!" },
 ];
 
 export const DEFAULT_GAME_PROGRESS = {
   arithmetic: {},
   adventure: {},
   clock: {},
+  ninja: {},
 };
 
 export const ADVENTURE_ROOM_THEMES = [
@@ -122,4 +124,65 @@ export const ARITHMETIC_LEVELS = {
   2: GRADE_2_LEVELS,
   3: GRADE_3_LEVELS,
   4: GRADE_4_LEVELS,
+};
+
+const NINJA_LEVEL_NAMES = [
+  "שביל הבמבוק",
+  "גשר הענן",
+  "מגדל הצל",
+  "יער הסתרים",
+  "נהר הדרקון",
+  "מערת הרוח",
+  "גג המקדש",
+  "שדה הכוכבים",
+  "ארמון הקרח",
+  "פסגת הנינג'ה",
+];
+
+const makeNinjaConfigs = (difficulty) => {
+  return Array.from({ length: 10 }, (_, i) => ({
+    level: i + 1,
+    nameHe: NINJA_LEVEL_NAMES[i],
+    gates: 3 + Math.floor(i / 2),
+    difficulty: difficulty[Math.min(i, difficulty.length - 1)],
+  }));
+};
+
+export const NINJA_CONFIGS = {
+  2: makeNinjaConfigs([
+    ["easy","easy","easy"],
+    ["easy","easy","medium"],
+    ["easy","medium","medium","medium"],
+    ["easy","medium","medium","medium","medium"],
+    ["medium","medium","medium","medium","hard"],
+    ["medium","medium","medium","hard","hard","hard"],
+    ["medium","medium","hard","hard","hard","hard"],
+    ["medium","hard","hard","hard","hard","hard"],
+    ["hard","hard","hard","hard","hard","hard","hard"],
+    ["hard","hard","hard","hard","hard","hard","hard"],
+  ]),
+  3: makeNinjaConfigs([
+    ["easy","easy","easy"],
+    ["easy","easy","medium"],
+    ["easy","medium","medium","medium"],
+    ["medium","medium","medium","medium","medium"],
+    ["medium","medium","medium","hard","hard"],
+    ["medium","medium","hard","hard","hard","hard"],
+    ["medium","hard","hard","hard","hard","hard"],
+    ["hard","hard","hard","hard","hard","hard"],
+    ["hard","hard","hard","hard","hard","hard","hard"],
+    ["hard","hard","hard","hard","hard","hard","hard"],
+  ]),
+  4: makeNinjaConfigs([
+    ["easy","easy","medium"],
+    ["easy","medium","medium"],
+    ["medium","medium","medium","medium"],
+    ["medium","medium","medium","hard","hard"],
+    ["medium","medium","hard","hard","hard"],
+    ["medium","hard","hard","hard","hard","hard"],
+    ["hard","hard","hard","hard","hard","hard"],
+    ["hard","hard","hard","hard","hard","hard"],
+    ["hard","hard","hard","hard","hard","hard","hard"],
+    ["hard","hard","hard","hard","hard","hard","hard"],
+  ]),
 };

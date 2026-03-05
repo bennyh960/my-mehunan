@@ -1299,3 +1299,73 @@ body { margin: 0; }
   font-size: 20px;
   justify-content: center;
 }
+
+/* ===== Ninja Game ===== */
+.ninja-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.ninja-ctrl-btn {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 2px solid rgba(34, 197, 94, 0.4);
+  background-color: rgba(34, 197, 94, 0.15);
+  color: #4ade80;
+  font-size: 22px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  transition: all 0.1s;
+}
+
+.ninja-ctrl-btn:active {
+  background-color: rgba(34, 197, 94, 0.35);
+  transform: scale(0.92);
+}
+
+.ninja-jump-btn {
+  width: 80px;
+  height: 80px;
+  font-size: 26px;
+  border-color: rgba(251, 191, 36, 0.4);
+  background-color: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+}
+
+.ninja-jump-btn:active {
+  background-color: rgba(251, 191, 36, 0.35);
+}
+
+.ninja-gate-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.85);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.ninja-gate-card {
+  background-color: rgba(15, 23, 42, 0.95);
+  border: 2px solid rgba(251, 191, 36, 0.4);
+  border-radius: 20px;
+  padding: 20px 16px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  direction: rtl;
+}
