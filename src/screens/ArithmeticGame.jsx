@@ -29,7 +29,7 @@ export function ArithmeticGame({ settings, gameProgress, saveGameProgress, playS
   const levels = ARITHMETIC_LEVELS[grade] || [];
   const gp = gameProgress.arithmetic || {};
   const gameTimerOn = settings.gameTimerEnabled !== false;
-  const getTime = (config) => !gameTimerOn ? 9999 : (settings.gameTimerSeconds || 0) > 0 ? settings.gameTimerSeconds : getTime(config);
+  const getTime = (config) => !gameTimerOn ? 9999 : (settings.gameTimerSeconds || 0) > 0 ? settings.gameTimerSeconds : config.timePerQuestion;
 
   const isUnlocked = (lvl) => lvl === 1 || (gp[lvl - 1]?.stars > 0);
   const getStars = (lvl) => gp[lvl]?.stars || 0;
