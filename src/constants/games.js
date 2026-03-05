@@ -3,8 +3,8 @@ export const STAR_THRESHOLDS = { 1: 7, 2: 9, 3: 10 };
 
 export const GAME_LIST = [
   { id: "arithmetic", nameHe: "חשבון מהיר", icon: "🧮", color: "#818cf8", description: "תרגול פעולות חשבון בזמן מוגבל" },
-  { id: "adventure", nameHe: "הרפתקת החשיבה", icon: "🏰", color: "#f59e0b", description: "פתרו חידות בחדרים מסתוריים" },
   { id: "clock", nameHe: "לימוד השעון", icon: "🕐", color: "#06b6d4", description: "תרגול קריאת שעון וחישובי זמן" },
+  { id: "adventure", nameHe: "הרפתקת החשיבה", icon: "🏰", color: "#f59e0b", description: "פתרו חידות בחדרים מסתוריים" },
   { id: "ninja", nameHe: "נינג'ה ירוק", icon: "🥷", color: "#22c55e", description: "קפצו בין פלטפורמות ופתרו חידות!" },
 ];
 
