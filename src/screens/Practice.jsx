@@ -4,6 +4,8 @@ import { Topic5Visual } from '../components/visuals/Topic5Visual';
 import { Topic5Option } from '../components/visuals/Topic5Option';
 import { Timer } from '../components/ui/Timer';
 import { Confetti } from '../components/ui/Confetti';
+import { SparksPopup } from '../components/ui/SparksPopup';
+import { SPARKS_REWARDS } from '../constants/ninjago';
 
 export function Practice({
   currentQuestion, currentQuestionIdx, totalQs, testMode,
@@ -22,6 +24,7 @@ export function Practice({
   return (
     <div className="container">
       <Confetti active={showConfetti} />
+      <SparksPopup amount={attemptNum === 1 ? SPARKS_REWARDS.practiceCorrectFirst : SPARKS_REWARDS.practiceCorrectSecond} trigger={showConfetti} />
       <div className="page-content">
         <div className="practice-header">
           <button onClick={goHome} className="back-btn">← חזרה</button>

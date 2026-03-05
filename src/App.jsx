@@ -20,6 +20,7 @@ import { AdventureGame } from './screens/AdventureGame';
 import { ClockGame } from './screens/ClockGame';
 import { NinjaGame } from './screens/NinjaGame';
 import { DEFAULT_GAME_PROGRESS } from './constants/games';
+import { SPARKS_REWARDS, ADMIN_USERNAME, isGameUnlocked } from './constants/ninjago';
 
 export default function App() {
   const [screen, setScreen] = useState("home");
@@ -42,6 +43,7 @@ export default function App() {
   const [gradeSelected, setGradeSelected] = useState(false);
   const [adminTopic, setAdminTopic] = useState(1);
   const [gameProgress, setGameProgress] = useState(DEFAULT_GAME_PROGRESS);
+  const [sparks, setSparks] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const [testInstructionTopic, setTestInstructionTopic] = useState(null);
   const [attemptNum, setAttemptNum] = useState(1);
@@ -57,6 +59,7 @@ export default function App() {
     try { const p = localStorage.getItem("gp_progress"); if (p) setProgress(JSON.parse(p)); } catch {}
     try { const q = localStorage.getItem("gp_questions"); if (q) setCustomQuestions(JSON.parse(q)); } catch {}
     try { const g = localStorage.getItem("gp_games"); if (g) setGameProgress(JSON.parse(g)); } catch {}
+    try { const sp = localStorage.getItem("gp_sparks"); if (sp) setSparks(JSON.parse(sp)); } catch {}
     setLoaded(true);
   }, []);
 
@@ -65,6 +68,15 @@ export default function App() {
   const saveProgress = useCallback(p => { setProgress(p); save("gp_progress", p); }, [save]);
   const saveCQ = useCallback(q => { setCustomQuestions(q); save("gp_questions", q); }, [save]);
   const saveGameProgress = useCallback(g => { setGameProgress(g); save("gp_games", g); }, [save]);
+  const addSparks = useCallback((amount) => {
+    setSparks(prev => {
+      const next = prev + amount;
+      try { localStorage.setItem("gp_sparks", JSON.stringify(next)); } catch {}
+      return next;
+    });
+  }, []);
+
+  const isAdmin = settings.playerName?.trim().toLowerCase() === ADMIN_USERNAME;
 
   const allQ = useMemo(() => [...QUESTIONS, ...customQuestions], [customQuestions]);
   const gradeQ = useMemo(() => allQ.filter(q => {
@@ -169,7 +181,11 @@ export default function App() {
     const k = currentQuestion.id;
     if (!newProg.answers[k]) newProg.answers[k] = {attempts:0,correct:0};
     newProg.answers[k].attempts += 1;
-    if (isCorrect) { newProg.answers[k].correct += 1; newProg.points += attemptNum===1?10:5; }
+    if (isCorrect) {
+      newProg.answers[k].correct += 1;
+      newProg.points += attemptNum===1?10:5;
+      addSparks(attemptNum === 1 ? SPARKS_REWARDS.practiceCorrectFirst : SPARKS_REWARDS.practiceCorrectSecond);
+    }
     saveProgress(newProg);
 
     if (testMode) setTestAnswers(prev=>({...prev,[currentQuestionIdx]:selectedAnswer}));
@@ -222,8 +238,11 @@ export default function App() {
         const cc = testQuestions.filter((q,i)=>fa[i]===q.correct).length;
         const pct = Math.round(cc/testQuestions.length*100);
         saveProgress({...progress, tests:[...progress.tests,{date:new Date().toISOString(),pct,time:totalTime,correct:cc,total:testQuestions.length}]});
+        addSparks(SPARKS_REWARDS.testComplete);
+        if (pct >= 80) addSparks(SPARKS_REWARDS.testHighScore);
         setScreen("test-results");
       } else {
+        addSparks(SPARKS_REWARDS.topicComplete);
         setScreen("topic-done");
       }
     }
@@ -248,8 +267,10 @@ export default function App() {
         const cc = testQuestions.filter((q,i)=>fa[i]===q.correct).length;
         const pct = Math.round(cc/testQuestions.length*100);
         saveProgress({...progress, tests:[...progress.tests,{date:new Date().toISOString(),pct,time:totalTime,correct:cc,total:testQuestions.length}]});
+        addSparks(SPARKS_REWARDS.testComplete);
+        if (pct >= 80) addSparks(SPARKS_REWARDS.testHighScore);
         setScreen("test-results");
-      } else { setScreen("topic-done"); }
+      } else { addSparks(SPARKS_REWARDS.topicComplete); setScreen("topic-done"); }
     }
   };
 
@@ -268,7 +289,7 @@ export default function App() {
   }
 
   if (screen === "home") {
-    return <Home settings={settings} progress={progress} getTopicStats={getTopicStats} startTopic={startTopic} startTest={startTest} setScreen={setScreen} />;
+    return <Home settings={settings} progress={progress} getTopicStats={getTopicStats} startTopic={startTopic} startTest={startTest} setScreen={setScreen} sparks={sparks} isAdmin={isAdmin} />;
   }
 
   if ((screen==="practice"||screen==="test") && currentQuestion) {
@@ -299,23 +320,23 @@ export default function App() {
   }
 
   if (screen === "practice-games") {
-    return <PracticeGames settings={settings} gameProgress={gameProgress} setScreen={setScreen} />;
+    return <PracticeGames settings={settings} gameProgress={gameProgress} setScreen={setScreen} sparks={sparks} isAdmin={isAdmin} />;
   }
 
   if (screen === "arithmetic-game") {
-    return <ArithmeticGame settings={settings} gameProgress={gameProgress} saveGameProgress={saveGameProgress} playSound={playSound} setScreen={setScreen} />;
+    return <ArithmeticGame settings={settings} gameProgress={gameProgress} saveGameProgress={saveGameProgress} playSound={playSound} setScreen={setScreen} addSparks={addSparks} isAdmin={isAdmin} />;
   }
 
   if (screen === "adventure-game") {
-    return <AdventureGame settings={settings} gradeQ={gradeQ} gameProgress={gameProgress} saveGameProgress={saveGameProgress} playSound={playSound} setScreen={setScreen} />;
+    return <AdventureGame settings={settings} gradeQ={gradeQ} gameProgress={gameProgress} saveGameProgress={saveGameProgress} playSound={playSound} setScreen={setScreen} addSparks={addSparks} isAdmin={isAdmin} />;
   }
 
   if (screen === "clock-game") {
-    return <ClockGame settings={settings} gameProgress={gameProgress} saveGameProgress={saveGameProgress} playSound={playSound} setScreen={setScreen} />;
+    return <ClockGame settings={settings} gameProgress={gameProgress} saveGameProgress={saveGameProgress} playSound={playSound} setScreen={setScreen} addSparks={addSparks} isAdmin={isAdmin} />;
   }
 
-  if (screen === "ninja-game") {
-    return <NinjaGame settings={settings} gradeQ={gradeQ} gameProgress={gameProgress} saveGameProgress={saveGameProgress} playSound={playSound} setScreen={setScreen} />;
+  if (screen === "ninja-game" || screen === "ninjago-game") {
+    return <NinjaGame settings={settings} gradeQ={gradeQ} gameProgress={gameProgress} saveGameProgress={saveGameProgress} playSound={playSound} setScreen={setScreen} addSparks={addSparks} isAdmin={isAdmin} sparks={sparks} />;
   }
 
   if (screen==="settings") {

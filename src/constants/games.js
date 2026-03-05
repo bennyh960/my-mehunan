@@ -5,7 +5,7 @@ export const GAME_LIST = [
   { id: "arithmetic", nameHe: "חשבון מהיר", icon: "🧮", color: "#818cf8", description: "תרגול פעולות חשבון בזמן מוגבל" },
   { id: "clock", nameHe: "לימוד השעון", icon: "🕐", color: "#06b6d4", description: "תרגול קריאת שעון וחישובי זמן" },
   { id: "adventure", nameHe: "הרפתקת החשיבה", icon: "🏰", color: "#f59e0b", description: "פתרו חידות בחדרים מסתוריים" },
-  { id: "ninja", nameHe: "נינג'ה ירוק", icon: "🥷", color: "#22c55e", description: "קפצו בין פלטפורמות ופתרו חידות!" },
+  { id: "ninjago", nameHe: "נינג'גו", icon: "🥷", color: "#22c55e", description: "קפצו בין פלטפורמות ופתרו חידות!" },
 ];
 
 export const DEFAULT_GAME_PROGRESS = {
@@ -13,6 +13,7 @@ export const DEFAULT_GAME_PROGRESS = {
   adventure: {},
   clock: {},
   ninja: {},
+  ninjago: {},
 };
 
 export const ADVENTURE_ROOM_THEMES = [
@@ -126,52 +127,101 @@ export const ARITHMETIC_LEVELS = {
   4: GRADE_4_LEVELS,
 };
 
+// Ninjago: 20 levels across 4 themed worlds
 const NINJA_LEVEL_NAMES = [
+  // World 1: Training Dojo (1-5)
   "שביל הבמבוק",
   "גשר הענן",
   "מגדל הצל",
   "יער הסתרים",
+  "חצר הדוג'ו",
+  // World 2: Serpentine Caves (6-10)
+  "מערת הנחשים",
   "נהר הדרקון",
   "מערת הרוח",
+  "מנהרת הארס",
+  "מאורת הסרפנטין",
+  // World 3: Dark Island (11-15)
+  "חוף האי האפל",
+  "יער הצללים",
   "גג המקדש",
   "שדה הכוכבים",
+  "מבצר החושך",
+  // World 4: Overlord's Tower (16-20)
+  "שער המגדל",
+  "מדרגות הלהבה",
   "ארמון הקרח",
-  "פסגת הנינג'ה",
+  "חדר השליט",
+  "פסגת הנינג'גו",
+];
+
+// World themes for level-select UI
+export const NINJA_WORLDS = [
+  { name: "דוג'ו האימונים", levels: [1,5],  emoji: "🏯", color: "#22c55e" },
+  { name: "מערות הסרפנטין", levels: [6,10], emoji: "🐍", color: "#a855f7" },
+  { name: "האי האפל",       levels: [11,15], emoji: "🌑", color: "#64748b" },
+  { name: "מגדל השליט",     levels: [16,20], emoji: "🗼", color: "#ef4444" },
 ];
 
 const makeNinjaConfigs = (difficulty) => {
-  return Array.from({ length: 10 }, (_, i) => ({
+  return Array.from({ length: 20 }, (_, i) => ({
     level: i + 1,
     nameHe: NINJA_LEVEL_NAMES[i],
-    gates: 3 + Math.floor(i / 2),
+    gates: 3 + Math.floor(i / 3),
     difficulty: difficulty[Math.min(i, difficulty.length - 1)],
+    world: i < 5 ? 0 : i < 10 ? 1 : i < 15 ? 2 : 3,
+    hasEnemyDragon: i >= 10, // Dark Island and beyond
   }));
 };
 
 export const NINJA_CONFIGS = {
   2: makeNinjaConfigs([
+    // World 1: Training Dojo
     ["easy","easy","easy"],
     ["easy","easy","medium"],
     ["easy","medium","medium","medium"],
     ["easy","medium","medium","medium","medium"],
+    ["medium","medium","medium","medium","medium"],
+    // World 2: Serpentine Caves
     ["medium","medium","medium","medium","hard"],
     ["medium","medium","medium","hard","hard","hard"],
     ["medium","medium","hard","hard","hard","hard"],
     ["medium","hard","hard","hard","hard","hard"],
+    ["medium","hard","hard","hard","hard","hard","hard"],
+    // World 3: Dark Island
+    ["hard","hard","hard","hard","hard","hard"],
     ["hard","hard","hard","hard","hard","hard","hard"],
     ["hard","hard","hard","hard","hard","hard","hard"],
+    ["hard","hard","hard","hard","hard","hard","hard","hard"],
+    ["hard","hard","hard","hard","hard","hard","hard","hard"],
+    // World 4: Overlord's Tower
+    ["hard","hard","hard","hard","hard","hard","hard","hard"],
+    ["hard","hard","hard","hard","hard","hard","hard","hard","hard"],
+    ["hard","hard","hard","hard","hard","hard","hard","hard","hard"],
+    ["hard","hard","hard","hard","hard","hard","hard","hard","hard"],
+    ["hard","hard","hard","hard","hard","hard","hard","hard","hard","hard"],
   ]),
   3: makeNinjaConfigs([
     ["easy","easy","easy"],
     ["easy","easy","medium"],
     ["easy","medium","medium","medium"],
     ["medium","medium","medium","medium","medium"],
+    ["medium","medium","medium","medium","hard"],
     ["medium","medium","medium","hard","hard"],
     ["medium","medium","hard","hard","hard","hard"],
     ["medium","hard","hard","hard","hard","hard"],
     ["hard","hard","hard","hard","hard","hard"],
     ["hard","hard","hard","hard","hard","hard","hard"],
     ["hard","hard","hard","hard","hard","hard","hard"],
+    ["hard","hard","hard","hard","hard","hard","hard","hard"],
+    ["hard","hard","hard","hard","hard","hard","hard","hard"],
+    ["hard","hard","hard","hard","hard","hard","hard","hard"],
+    ["hard","hard","hard","hard","hard","hard","hard","hard","hard"],
+    ["hard","hard","hard","hard","hard","hard","hard","hard","hard"],
+    ["hard","hard","hard","hard","hard","hard","hard","hard","hard"],
+    ["hard","hard","hard","hard","hard","hard","hard","hard","hard","hard"],
+    ["hard","hard","hard","hard","hard","hard","hard","hard","hard","hard"],
+    ["hard","hard","hard","hard","hard","hard","hard","hard","hard","hard"],
   ]),
   4: makeNinjaConfigs([
     ["easy","easy","medium"],
@@ -184,5 +234,15 @@ export const NINJA_CONFIGS = {
     ["hard","hard","hard","hard","hard","hard"],
     ["hard","hard","hard","hard","hard","hard","hard"],
     ["hard","hard","hard","hard","hard","hard","hard"],
+    ["hard","hard","hard","hard","hard","hard","hard","hard"],
+    ["hard","hard","hard","hard","hard","hard","hard","hard"],
+    ["hard","hard","hard","hard","hard","hard","hard","hard"],
+    ["hard","hard","hard","hard","hard","hard","hard","hard","hard"],
+    ["hard","hard","hard","hard","hard","hard","hard","hard","hard"],
+    ["hard","hard","hard","hard","hard","hard","hard","hard","hard"],
+    ["hard","hard","hard","hard","hard","hard","hard","hard","hard","hard"],
+    ["hard","hard","hard","hard","hard","hard","hard","hard","hard","hard"],
+    ["hard","hard","hard","hard","hard","hard","hard","hard","hard","hard"],
+    ["hard","hard","hard","hard","hard","hard","hard","hard","hard","hard"],
   ]),
 };

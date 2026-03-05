@@ -1,13 +1,15 @@
 import { useState, useCallback } from 'react';
 import { ADVENTURE_CONFIGS, ADVENTURE_ROOM_THEMES } from '../constants/games';
+import { SPARKS_REWARDS } from '../constants/ninjago';
 import { buildAdventureRooms } from '../utils/adventure';
 import { Topic4Visual } from '../components/visuals/Topic4Visual';
 import { Topic5Visual } from '../components/visuals/Topic5Visual';
 import { Topic5Option } from '../components/visuals/Topic5Option';
 import { Confetti } from '../components/ui/Confetti';
 
-export function AdventureGame({ settings, gradeQ, gameProgress, saveGameProgress, playSound, setScreen }) {
+export function AdventureGame({ settings, gradeQ, gameProgress, saveGameProgress, playSound, setScreen, addSparks, isAdmin }) {
   const [phase, setPhase] = useState("levelSelect"); // levelSelect | playing | result
+  const [sparksEarned, setSparksEarned] = useState(0);
   const [selectedLevel, setSelectedLevel] = useState(null);
   const [hoveredLevel, setHoveredLevel] = useState(null);
   const [rooms, setRooms] = useState([]);
@@ -26,7 +28,7 @@ export function AdventureGame({ settings, gradeQ, gameProgress, saveGameProgress
   const levels = ADVENTURE_CONFIGS[grade] || [];
   const gp = gameProgress.adventure || {};
 
-  const isUnlocked = (lvl) => lvl === 1 || (gp[lvl - 1]?.stars > 0);
+  const isUnlocked = (lvl) => isAdmin || lvl === 1 || (gp[lvl - 1]?.stars > 0);
   const getStars = (lvl) => gp[lvl]?.stars || 0;
   const getStarsDisplay = (stars) => "⭐".repeat(stars) + "☆".repeat(3 - stars);
 
@@ -122,6 +124,11 @@ export function AdventureGame({ settings, gradeQ, gameProgress, saveGameProgress
       playSound("celebrate");
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 2500);
+      const earned = SPARKS_REWARDS.gameLevelPass + (stars === 3 ? SPARKS_REWARDS.gameLevelThreeStars : 0);
+      setSparksEarned(earned);
+      if (addSparks) addSparks(earned);
+    } else {
+      setSparksEarned(0);
     }
 
     // Save progress
@@ -398,6 +405,12 @@ export function AdventureGame({ settings, gradeQ, gameProgress, saveGameProgress
             <div style={{ color: '#f59e0b', fontSize: 16, fontWeight: 600, margin: '8px 0' }}>
               {"🔑".repeat(keys)} {keys > 0 ? `${keys} מפתחות נותרו` : "אין מפתחות"}
             </div>
+
+            {sparksEarned > 0 && (
+              <div style={{ color: '#fbbf24', fontWeight: 700, fontSize: 16, marginTop: 4 }}>
+                ✨ +{sparksEarned} ניצוצות
+              </div>
+            )}
 
             <div className="flex-col gap-8" style={{ marginTop: 16 }}>
               <button className="primary-btn w-full" onClick={() => startLevel(selectedLevel)}>

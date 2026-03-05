@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { NINJA_CONFIGS } from '../constants/games';
+import { SPARKS_REWARDS, getUnlockedNinjas, getNinjaById, NINJAS } from '../constants/ninjago';
 import { Topic4Visual } from '../components/visuals/Topic4Visual';
 import { Topic5Visual } from '../components/visuals/Topic5Visual';
 import { Topic5Option } from '../components/visuals/Topic5Option';
@@ -32,32 +33,60 @@ function buildNinjaQuestions(config, gradeQuestions) {
   return questions;
 }
 
-// ─── Level themes (10 unique backgrounds) ───
+// ─── Level themes (20 unique backgrounds) ───
 const LEVEL_THEMES = [
+  // World 1: Training Dojo (green/peaceful)
   { sky: ["#0c1445","#1a1a3e"], mountain: "#1a2744", hill: "#1e3a2f", treeTrunk: "#3d5a17", treeCanopy: "#2d6b1e", ground: "#3b5249", grass: "#4ade80", elevated: "#4a6fa5" }, // 1: Bamboo Trail
   { sky: ["#6bb3e0","#2563eb"], mountain: "#4a7ab5", hill: "#5a8fcf", treeTrunk: "#6b5b3e", treeCanopy: "#7ec89a", ground: "#5a7a8f", grass: "#93c5fd", elevated: "#7da8c9" }, // 2: Cloud Bridge
   { sky: ["#581c87","#0f0524"], mountain: "#2a1050", hill: "#1f0a3a", treeTrunk: "#2a1a3a", treeCanopy: "#4a2060", ground: "#2d1b4e", grass: "#a855f7", elevated: "#6b3fa0" }, // 3: Shadow Tower
   { sky: ["#0d9488","#064e3b"], mountain: "#0a3d2f", hill: "#0c5a3e", treeTrunk: "#5c3a1a", treeCanopy: "#15803d", ground: "#1a5c3a", grass: "#34d399", elevated: "#2d8a5e" }, // 4: Hidden Forest
-  { sky: ["#ea580c","#1e3a5f"], mountain: "#2a4a6a", hill: "#1a3a5a", treeTrunk: "#5a3a1a", treeCanopy: "#4a6a3a", ground: "#3a4a5a", grass: "#fb923c", elevated: "#5a7a9a" }, // 5: Dragon River
-  { sky: ["#78573a","#2a1a0e"], mountain: "#3a2a1a", hill: "#4a3a2a", treeTrunk: "#5a4a3a", treeCanopy: "#6a5a4a", ground: "#4a3828", grass: "#a8845a", elevated: "#6a5a4a" }, // 6: Wind Cave
-  { sky: ["#ea580c","#7e22ce"], mountain: "#5a2a3a", hill: "#6a3a4a", treeTrunk: "#7a3a2a", treeCanopy: "#c44a2a", ground: "#5a2a2a", grass: "#fb923c", elevated: "#8a4a5a" }, // 7: Temple Roof
-  { sky: ["#030712","#0c1445"], mountain: "#0a0f2a", hill: "#0c1230", treeTrunk: "#1a2a3a", treeCanopy: "#0a1a2a", ground: "#1a2a3a", grass: "#6366f1", elevated: "#2a3a5a" }, // 8: Star Field
-  { sky: ["#e0f2fe","#7dd3fc"], mountain: "#b0d4f1", hill: "#93c5fd", treeTrunk: "#94a3b8", treeCanopy: "#bae6fd", ground: "#7aa4c8", grass: "#e0f2fe", elevated: "#93c5fd" }, // 9: Ice Palace
-  { sky: ["#dc2626","#450a0a"], mountain: "#5a1a0a", hill: "#6a2a1a", treeTrunk: "#4a1a0a", treeCanopy: "#7a2a0a", ground: "#4a1a0a", grass: "#f87171", elevated: "#7a3a2a" }, // 10: Ninja Summit
+  { sky: ["#22c55e","#064e3b"], mountain: "#0a4d2f", hill: "#0c6a3e", treeTrunk: "#4c3a1a", treeCanopy: "#22c55e", ground: "#1a5c3a", grass: "#86efac", elevated: "#2d8a5e" }, // 5: Dojo Courtyard
+  // World 2: Serpentine Caves (purple/dark)
+  { sky: ["#78573a","#2a1a0e"], mountain: "#3a2a1a", hill: "#4a3a2a", treeTrunk: "#5a4a3a", treeCanopy: "#6a5a4a", ground: "#4a3828", grass: "#a8845a", elevated: "#6a5a4a" }, // 6: Snake Caves
+  { sky: ["#ea580c","#1e3a5f"], mountain: "#2a4a6a", hill: "#1a3a5a", treeTrunk: "#5a3a1a", treeCanopy: "#4a6a3a", ground: "#3a4a5a", grass: "#fb923c", elevated: "#5a7a9a" }, // 7: Dragon River
+  { sky: ["#581c87","#1a0a3e"], mountain: "#2a1050", hill: "#1f0a3a", treeTrunk: "#3a1a4a", treeCanopy: "#5a2070", ground: "#2d1b4e", grass: "#c084fc", elevated: "#7b4fb0" }, // 8: Wind Cave
+  { sky: ["#4c1d95","#1e0a4e"], mountain: "#2a1060", hill: "#1f0a4a", treeTrunk: "#3a1a5a", treeCanopy: "#5a2080", ground: "#2d1b5e", grass: "#a78bfa", elevated: "#6b3fb0" }, // 9: Venom Tunnel
+  { sky: ["#7e22ce","#1a0530"], mountain: "#3a1070", hill: "#2f0a5a", treeTrunk: "#4a1a6a", treeCanopy: "#6a2090", ground: "#3d1b6e", grass: "#c084fc", elevated: "#8b4fc0" }, // 10: Serpentine Lair
+  // World 3: Dark Island (gray/ominous)
+  { sky: ["#1e293b","#0f172a"], mountain: "#1a2030", hill: "#1c2535", treeTrunk: "#2a3040", treeCanopy: "#3a4050", ground: "#2a3040", grass: "#64748b", elevated: "#4a5a6a" }, // 11: Dark Beach
+  { sky: ["#0f172a","#030712"], mountain: "#0a0f20", hill: "#0c1225", treeTrunk: "#1a2030", treeCanopy: "#2a3040", ground: "#1a2530", grass: "#475569", elevated: "#3a4a5a" }, // 12: Shadow Forest
+  { sky: ["#ea580c","#7e22ce"], mountain: "#5a2a3a", hill: "#6a3a4a", treeTrunk: "#7a3a2a", treeCanopy: "#c44a2a", ground: "#5a2a2a", grass: "#fb923c", elevated: "#8a4a5a" }, // 13: Temple Roof
+  { sky: ["#030712","#0c1445"], mountain: "#0a0f2a", hill: "#0c1230", treeTrunk: "#1a2a3a", treeCanopy: "#0a1a2a", ground: "#1a2a3a", grass: "#6366f1", elevated: "#2a3a5a" }, // 14: Star Field
+  { sky: ["#1e1b4b","#0c0a1e"], mountain: "#15132a", hill: "#1a1835", treeTrunk: "#2a2840", treeCanopy: "#1a1830", ground: "#201e3a", grass: "#818cf8", elevated: "#3a385a" }, // 15: Dark Fortress
+  // World 4: Overlord's Tower (red/fiery)
+  { sky: ["#dc2626","#450a0a"], mountain: "#5a1a0a", hill: "#6a2a1a", treeTrunk: "#4a1a0a", treeCanopy: "#7a2a0a", ground: "#4a1a0a", grass: "#f87171", elevated: "#7a3a2a" }, // 16: Tower Gate
+  { sky: ["#f97316","#7c2d12"], mountain: "#6a2a0a", hill: "#7a3a1a", treeTrunk: "#5a2a0a", treeCanopy: "#8a3a0a", ground: "#5a2a0a", grass: "#fdba74", elevated: "#8a4a2a" }, // 17: Flame Stairs
+  { sky: ["#e0f2fe","#7dd3fc"], mountain: "#b0d4f1", hill: "#93c5fd", treeTrunk: "#94a3b8", treeCanopy: "#bae6fd", ground: "#7aa4c8", grass: "#e0f2fe", elevated: "#93c5fd" }, // 18: Ice Palace
+  { sky: ["#991b1b","#3b0000"], mountain: "#4a0a0a", hill: "#5a1a1a", treeTrunk: "#3a0a0a", treeCanopy: "#6a1a0a", ground: "#3a0a0a", grass: "#ef4444", elevated: "#6a2a1a" }, // 19: Ruler's Chamber
+  { sky: ["#facc15","#dc2626"], mountain: "#8a4a0a", hill: "#9a5a1a", treeTrunk: "#6a3a0a", treeCanopy: "#aa5a0a", ground: "#6a3a0a", grass: "#fde047", elevated: "#9a5a2a" }, // 20: Ninjago Summit
 ];
 
 // ─── Enemy waves per level ───
 const ENEMY_WAVES = [
-  { skulkin: 2, serpentine: 0, stoneWarrior: 0 }, // Level 1
-  { skulkin: 4, serpentine: 0, stoneWarrior: 0 }, // Level 2
-  { skulkin: 3, serpentine: 1, stoneWarrior: 0 }, // Level 3
-  { skulkin: 3, serpentine: 2, stoneWarrior: 0 }, // Level 4
-  { skulkin: 0, serpentine: 5, stoneWarrior: 0 }, // Level 5
-  { skulkin: 0, serpentine: 4, stoneWarrior: 1 }, // Level 6
-  { skulkin: 0, serpentine: 3, stoneWarrior: 2 }, // Level 7
-  { skulkin: 0, serpentine: 2, stoneWarrior: 3 }, // Level 8
-  { skulkin: 0, serpentine: 1, stoneWarrior: 5 }, // Level 9
-  { skulkin: 0, serpentine: 0, stoneWarrior: 7 }, // Level 10
+  // World 1: Training Dojo
+  { skulkin: 2, serpentine: 0, stoneWarrior: 0, dragon: 0 }, // Level 1
+  { skulkin: 4, serpentine: 0, stoneWarrior: 0, dragon: 0 }, // Level 2
+  { skulkin: 3, serpentine: 1, stoneWarrior: 0, dragon: 0 }, // Level 3
+  { skulkin: 3, serpentine: 2, stoneWarrior: 0, dragon: 0 }, // Level 4
+  { skulkin: 2, serpentine: 3, stoneWarrior: 0, dragon: 0 }, // Level 5
+  // World 2: Serpentine Caves
+  { skulkin: 0, serpentine: 5, stoneWarrior: 0, dragon: 0 }, // Level 6
+  { skulkin: 0, serpentine: 4, stoneWarrior: 1, dragon: 0 }, // Level 7
+  { skulkin: 0, serpentine: 3, stoneWarrior: 2, dragon: 0 }, // Level 8
+  { skulkin: 0, serpentine: 2, stoneWarrior: 3, dragon: 0 }, // Level 9
+  { skulkin: 0, serpentine: 1, stoneWarrior: 4, dragon: 0 }, // Level 10
+  // World 3: Dark Island (enemy dragons appear!)
+  { skulkin: 0, serpentine: 2, stoneWarrior: 3, dragon: 1 }, // Level 11
+  { skulkin: 0, serpentine: 1, stoneWarrior: 4, dragon: 1 }, // Level 12
+  { skulkin: 0, serpentine: 0, stoneWarrior: 4, dragon: 2 }, // Level 13
+  { skulkin: 0, serpentine: 0, stoneWarrior: 3, dragon: 3 }, // Level 14
+  { skulkin: 0, serpentine: 0, stoneWarrior: 2, dragon: 4 }, // Level 15
+  // World 4: Overlord's Tower
+  { skulkin: 0, serpentine: 0, stoneWarrior: 3, dragon: 4 }, // Level 16
+  { skulkin: 0, serpentine: 0, stoneWarrior: 2, dragon: 5 }, // Level 17
+  { skulkin: 0, serpentine: 0, stoneWarrior: 1, dragon: 6 }, // Level 18
+  { skulkin: 0, serpentine: 0, stoneWarrior: 0, dragon: 7 }, // Level 19
+  { skulkin: 0, serpentine: 0, stoneWarrior: 0, dragon: 9 }, // Level 20: Boss level
 ];
 
 // ─── Canvas constants ───
@@ -133,6 +162,23 @@ function generateLevel(gateCount, levelNum) {
       alive: true, deathTimer: 0, frame: 0,
       shootTimer: type === "stoneWarrior" ? 60 + Math.floor(Math.random() * 60) : 0,
       facingRight: Math.random() > 0.5,
+    });
+  }
+
+  // Flying dragon enemies (levels 11+)
+  const dragonCount = wave.dragon || 0;
+  for (let i = 0; i < dragonCount; i++) {
+    const dx = 400 + Math.random() * (totalW - 800);
+    const dy = 40 + Math.random() * 80; // fly high
+    const tooClose = gates.some(gate => Math.abs(dx - gate.x) < 150);
+    if (tooClose) continue;
+    enemies.push({
+      type: "dragon", hp: 4, x: dx, y: dy, w: 44, h: 32,
+      vx: 1.2, patrolLeft: dx - 200, patrolRight: dx + 200,
+      alive: true, deathTimer: 0, frame: 0,
+      shootTimer: 90 + Math.floor(Math.random() * 60),
+      facingRight: Math.random() > 0.5,
+      flying: true,
     });
   }
 
@@ -436,15 +482,16 @@ function drawGate(ctx, gate, cameraX) {
   }
 }
 
-function drawNinja(ctx, player) {
+function drawNinja(ctx, player, ninjaColor) {
   const { x, y, facingRight, frame, invincible } = player;
+  const col = ninjaColor || "#22c55e";
   // Blink when invincible
   if (invincible > 0 && Math.floor(invincible / 4) % 2 === 0) return;
   const dir = facingRight ? 1 : -1;
   const cx = x + PLAYER_W / 2;
 
-  // Body (green gi)
-  ctx.fillStyle = "#22c55e";
+  // Body (ninja gi)
+  ctx.fillStyle = col;
   ctx.fillRect(x + 4, y + 14, 20, 18);
 
   // Head
@@ -454,7 +501,7 @@ function drawNinja(ctx, player) {
   ctx.fill();
 
   // Mask band
-  ctx.fillStyle = "#22c55e";
+  ctx.fillStyle = col;
   ctx.fillRect(x + 4, y + 3, 20, 6);
 
   // Eyes
@@ -466,7 +513,7 @@ function drawNinja(ctx, player) {
   ctx.fillRect(cx + dir * 2 + 3, y + 6, 2, 2);
 
   // Mask tail
-  ctx.strokeStyle = "#22c55e";
+  ctx.strokeStyle = col;
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(cx - dir * 8, y + 6);
@@ -490,18 +537,18 @@ function drawNinja(ctx, player) {
 
   // Legs (animated)
   const legOffset = Math.sin(frame * 0.4) * 5;
-  ctx.fillStyle = "#1a3a2e";
+  ctx.fillStyle = "#1a1a2e";
   ctx.fillRect(x + 6, y + 32, 6, 8 + (player.onGround ? legOffset : 0));
   ctx.fillRect(x + 16, y + 32, 6, 8 + (player.onGround ? -legOffset : 0));
 
   // Arms
   const armSwing = player.onGround ? Math.sin(frame * 0.4) * 4 : -3;
-  ctx.fillStyle = "#22c55e";
+  ctx.fillStyle = col;
   ctx.fillRect(x + (facingRight ? 22 : -2), y + 16 + armSwing, 6, 4);
   ctx.fillRect(x + (facingRight ? -2 : 22), y + 16 - armSwing, 6, 4);
 }
 
-function drawFinishFlag(ctx, totalW, cameraX) {
+function drawFinishFlag(ctx, totalW, cameraX, ninjaColor) {
   const fx = totalW - 60 - cameraX;
   if (fx < -50 || fx > CANVAS_W + 50) return;
 
@@ -509,7 +556,7 @@ function drawFinishFlag(ctx, totalW, cameraX) {
   ctx.fillStyle = "#e2e8f0";
   ctx.fillRect(fx + 4, GROUND_Y - 80, 4, 80);
   // Flag
-  ctx.fillStyle = "#22c55e";
+  ctx.fillStyle = ninjaColor || "#22c55e";
   ctx.beginPath();
   ctx.moveTo(fx + 8, GROUND_Y - 80);
   ctx.lineTo(fx + 40, GROUND_Y - 65);
@@ -521,7 +568,7 @@ function drawFinishFlag(ctx, totalW, cameraX) {
   ctx.fillText("⭐", fx + 16, GROUND_Y - 60);
 }
 
-function drawHUD(ctx, lives, gateProgress, totalGates, powerCooldown) {
+function drawHUD(ctx, lives, gateProgress, totalGates, powerCooldown, ninjaColor) {
   // Lives
   ctx.font = "18px sans-serif";
   for (let i = 0; i < 3; i++) {
@@ -553,7 +600,7 @@ function drawHUD(ctx, lives, gateProgress, totalGates, powerCooldown) {
   const cdPct = 1 - cdRemaining / cdMax;
   ctx.fillStyle = "rgba(34,197,94,0.2)";
   ctx.fillRect(10, 32, 60, 4);
-  ctx.fillStyle = cdPct >= 1 ? "#4ade80" : "#166534";
+  ctx.fillStyle = cdPct >= 1 ? (ninjaColor || "#4ade80") : "#166534";
   ctx.fillRect(10, 32, 60 * cdPct, 4);
 }
 
@@ -740,25 +787,28 @@ function drawStoneWarrior(ctx, enemy, cameraX) {
   ctx.fillRect(sx + w - 13, enemy.y + h - 6, 8, 6);
 }
 
-function drawEnergyBall(ctx, ball) {
+function drawEnergyBall(ctx, ball, shootColor) {
+  const sc = shootColor || "#4ade80";
   // Trail
   for (let i = 1; i <= 3; i++) {
-    ctx.fillStyle = `rgba(34, 197, 94, ${0.3 - i * 0.08})`;
+    ctx.globalAlpha = 0.3 - i * 0.08;
+    ctx.fillStyle = sc;
     ctx.beginPath();
     ctx.arc(ball.sx - ball.vx * i * 3, ball.sy, 6 - i, 0, Math.PI * 2);
     ctx.fill();
+    ctx.globalAlpha = 1;
   }
 
   // Glow
-  ctx.shadowColor = "#22c55e";
+  ctx.shadowColor = sc;
   ctx.shadowBlur = 12;
-  ctx.fillStyle = "#4ade80";
+  ctx.fillStyle = sc;
   ctx.beginPath();
   ctx.arc(ball.sx, ball.sy, 6, 0, Math.PI * 2);
   ctx.fill();
 
   // Core
-  ctx.fillStyle = "#bbf7d0";
+  ctx.fillStyle = "#fff";
   ctx.beginPath();
   ctx.arc(ball.sx, ball.sy, 3, 0, Math.PI * 2);
   ctx.fill();
@@ -779,11 +829,89 @@ function drawProjectile(ctx, proj) {
   ctx.shadowBlur = 0;
 }
 
+// ─── Draw dragon enemy ───
+function drawDragonEnemy(ctx, enemy, cameraX) {
+  const sx = enemy.x - cameraX;
+  if (sx + enemy.w < -50 || sx > CANVAS_W + 50) return;
+  const { w, h, hp, deathTimer, frame, facingRight } = enemy;
+
+  if (deathTimer > 0) {
+    ctx.globalAlpha = deathTimer / 15;
+    ctx.fillStyle = "#ef4444";
+    for (let i = 0; i < 5; i++) {
+      ctx.fillRect(sx + i * 9, enemy.y + Math.sin(i) * 6, 5, 5);
+    }
+    ctx.globalAlpha = 1;
+    return;
+  }
+
+  const wingFlap = Math.sin(frame * 0.15) * 8;
+  const dir = facingRight ? 1 : -1;
+  const cx = sx + w / 2;
+  const cy = enemy.y + h / 2;
+
+  // Wings
+  ctx.fillStyle = "#dc2626";
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - 4);
+  ctx.lineTo(cx - 20 * dir, cy - 12 + wingFlap);
+  ctx.lineTo(cx - 10 * dir, cy + 2);
+  ctx.closePath();
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - 4);
+  ctx.lineTo(cx + 20 * dir, cy - 12 - wingFlap);
+  ctx.lineTo(cx + 10 * dir, cy + 2);
+  ctx.closePath();
+  ctx.fill();
+
+  // Body
+  ctx.fillStyle = "#b91c1c";
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, w / 2 - 4, h / 2 - 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Head
+  ctx.fillStyle = "#991b1b";
+  ctx.beginPath();
+  ctx.arc(cx + dir * (w / 2), cy - 4, 8, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Eyes (yellow glowing)
+  const glow = Math.sin(frame * 0.1) * 0.3 + 0.7;
+  ctx.fillStyle = `rgba(250, 204, 21, ${glow})`;
+  ctx.fillRect(cx + dir * (w / 2) - 2, cy - 7, 3, 3);
+  ctx.fillRect(cx + dir * (w / 2) + 2, cy - 7, 3, 3);
+
+  // Fire breath particles
+  if (enemy.shootTimer < 20) {
+    ctx.fillStyle = `rgba(249, 115, 22, ${0.6 + Math.random() * 0.4})`;
+    for (let i = 0; i < 3; i++) {
+      ctx.beginPath();
+      ctx.arc(cx + dir * (w / 2 + 10 + i * 6), cy - 4 + (Math.random() - 0.5) * 8, 3 - i * 0.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // HP bar
+  if (hp < 4) {
+    ctx.fillStyle = "rgba(255,50,50,0.3)";
+    ctx.fillRect(sx + 4, enemy.y - 8, w - 8, 3);
+    ctx.fillStyle = "rgba(255,50,50,0.8)";
+    ctx.fillRect(sx + 4, enemy.y - 8, (w - 8) * (hp / 4), 3);
+  }
+}
+
 // ─── Main Component ───
-export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, playSound, setScreen }) {
+export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, playSound, setScreen, addSparks, isAdmin, sparks }) {
   const [phase, setPhase] = useState("levelSelect");
   const [selectedLevel, setSelectedLevel] = useState(null);
   const [hoveredLevel, setHoveredLevel] = useState(null);
+  const [sparksEarned, setSparksEarned] = useState(0);
+  const [chosenNinjaId, setChosenNinjaId] = useState("kai");
+
+  const unlockedNinjas = getUnlockedNinjas(sparks || 0, isAdmin);
+  const chosenNinja = getNinjaById(chosenNinjaId);
 
   // Game state
   const [lives, setLives] = useState(3);
@@ -806,7 +934,7 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
   const levels = NINJA_CONFIGS[grade] || [];
   const gp = gameProgress.ninja || {};
 
-  const isUnlocked = (lvl) => lvl === 1 || (gp[lvl - 1]?.stars > 0);
+  const isUnlocked = (lvl) => isAdmin || lvl === 1 || (gp[lvl - 1]?.stars > 0);
   const getStars = (lvl) => gp[lvl]?.stars || 0;
   const getStarsDisplay = (stars) => "⭐".repeat(stars) + "☆".repeat(3 - stars);
 
@@ -978,16 +1106,18 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
         if (en.x >= en.patrolRight) { en.x = en.patrolRight; en.facingRight = false; }
       });
 
-      // Stone warrior shooting
+      // Stone warrior + dragon shooting
       g.enemies.forEach(en => {
-        if (!en.alive || en.type !== "stoneWarrior") return;
+        if (!en.alive || (en.type !== "stoneWarrior" && en.type !== "dragon")) return;
         en.shootTimer--;
         if (en.shootTimer <= 0) {
-          en.shootTimer = 90 + Math.floor(Math.random() * 60);
+          en.shootTimer = en.type === "dragon" ? 70 + Math.floor(Math.random() * 50) : 90 + Math.floor(Math.random() * 60);
           const dirX = p.x > en.x ? 1 : -1;
+          const speed = en.type === "dragon" ? 4 : 3;
+          const vy = en.type === "dragon" ? 2 : -1; // dragons shoot downward
           g.projectiles.push({
             x: en.x + en.w / 2, y: en.y + en.h / 2,
-            vx: dirX * 3, vy: -1, lifetime: 180,
+            vx: dirX * speed, vy, lifetime: 180,
           });
         }
       });
@@ -1174,11 +1304,12 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
       if (en.type === "skulkin") drawSkulkin(ctx, en, g.cameraX);
       else if (en.type === "serpentine") drawSerpentine(ctx, en, g.cameraX);
       else if (en.type === "stoneWarrior") drawStoneWarrior(ctx, en, g.cameraX);
+      else if (en.type === "dragon") drawDragonEnemy(ctx, en, g.cameraX);
     });
 
     // Draw energy balls
     g.energyBalls.forEach(ball => {
-      drawEnergyBall(ctx, { sx: ball.x - g.cameraX, sy: ball.y, vx: ball.vx });
+      drawEnergyBall(ctx, { sx: ball.x - g.cameraX, sy: ball.y, vx: ball.vx }, chosenNinja.shootColor);
     });
 
     // Draw stone projectiles
@@ -1186,7 +1317,7 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
       drawProjectile(ctx, { sx: proj.x - g.cameraX, sy: proj.y });
     });
 
-    drawFinishFlag(ctx, g.totalW, g.cameraX);
+    drawFinishFlag(ctx, g.totalW, g.cameraX, chosenNinja.color);
     drawNinja(ctx, {
       x: g.player.x - g.cameraX,
       y: g.player.y,
@@ -1194,8 +1325,8 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
       frame: g.player.frame,
       onGround: g.player.onGround,
       invincible: g.player.invincible,
-    });
-    drawHUD(ctx, g.lives, g.gatesOpened, g.gateCount, g.player.powerCooldown);
+    }, chosenNinja.color);
+    drawHUD(ctx, g.lives, g.gatesOpened, g.gateCount, g.player.powerCooldown, chosenNinja.shootColor);
   }
 
   // ─── Touch controls ───
@@ -1284,6 +1415,11 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
       playSound("celebrate");
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 2500);
+      const earned = SPARKS_REWARDS.gameLevelPass + (stars === 3 ? SPARKS_REWARDS.gameLevelThreeStars : 0);
+      setSparksEarned(earned);
+      if (addSparks) addSparks(earned);
+    } else {
+      setSparksEarned(0);
     }
 
     const existingStars = gp[selectedLevel]?.stars || 0;
@@ -1292,7 +1428,7 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
       ninja: { ...gp, [selectedLevel]: { stars: Math.max(existingStars, stars) } }
     };
     saveGameProgress(newGp);
-  }, [levelComplete, lives, gp, selectedLevel, gameProgress, saveGameProgress, playSound]);
+  }, [levelComplete, lives, gp, selectedLevel, gameProgress, saveGameProgress, playSound, addSparks]);
 
   useEffect(() => {
     if (phase === "result") finishLevel();
@@ -1302,40 +1438,101 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
   if (phase === "levelSelect") {
     const displayLevel = hoveredLevel || selectedLevel;
     const displayConfig = displayLevel ? levels[displayLevel - 1] : null;
+    const worlds = [
+      { name: "דוג'ו האימונים", range: [1, 5], emoji: "🏯", color: "#22c55e" },
+      { name: "מערות הסרפנטין", range: [6, 10], emoji: "🐍", color: "#a855f7" },
+      { name: "האי האפל", range: [11, 15], emoji: "🌑", color: "#64748b" },
+      { name: "מגדל השליט", range: [16, 20], emoji: "🗼", color: "#ef4444" },
+    ];
 
     return (
       <div className="container">
         <div className="page-content">
           <div className="page-header">
             <button onClick={() => setScreen("practice-games")} className="back-btn">→ חזרה</button>
-            <h2>🥷 נינג'ה ירוק</h2>
+            <h2>🥷 נינג'גו</h2>
+          </div>
+
+          {/* Ninja picker */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
+            {NINJAS.map(n => {
+              const unlocked = unlockedNinjas.some(u => u.id === n.id);
+              const isChosen = chosenNinjaId === n.id;
+              const basePath = import.meta.env.BASE_URL;
+              return (
+                <button
+                  key={n.id}
+                  onClick={() => unlocked && setChosenNinjaId(n.id)}
+                  disabled={!unlocked}
+                  title={unlocked ? `${n.nameHe} - ${n.elementHe}` : `${n.nameHe} - נעול (${n.unlockAt} ניצוצות)`}
+                  style={{
+                    width: isChosen ? 56 : 44,
+                    height: isChosen ? 56 : 44,
+                    borderRadius: '50%',
+                    border: isChosen ? `3px solid #fbbf24` : `2px solid ${unlocked ? n.color : '#334155'}`,
+                    overflow: 'hidden',
+                    background: unlocked ? n.color + '33' : '#1e293b',
+                    cursor: unlocked ? 'pointer' : 'default',
+                    opacity: unlocked ? 1 : 0.35,
+                    filter: unlocked ? 'none' : 'grayscale(1)',
+                    transition: 'all 0.2s',
+                    padding: 0,
+                    position: 'relative',
+                  }}
+                >
+                  {unlocked ? (
+                    <img src={`${basePath}/${n.img}`} alt={n.nameHe} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    <span style={{ fontSize: isChosen ? 22 : 18 }}>🔒</span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+          {/* Selected ninja name */}
+          <div style={{ textAlign: 'center', marginBottom: 8, fontSize: 13, color: chosenNinja.color, fontWeight: 600 }}>
+            {chosenNinja.nameHe} - {chosenNinja.elementHe}
           </div>
 
           <div className="level-name-tooltip">
             {displayConfig ? displayConfig.nameHe : "בחרו שלב"}
           </div>
 
-          <div className="level-grid">
-            {levels.map((lvl) => {
-              const unlocked = isUnlocked(lvl.level);
-              const stars = getStars(lvl.level);
-              return (
-                <button
-                  key={lvl.level}
-                  className={`level-card ${unlocked ? "unlocked" : "locked"}${hoveredLevel === lvl.level ? " current" : ""}`}
-                  onClick={() => unlocked && startLevel(lvl.level)}
-                  onMouseEnter={() => unlocked && setHoveredLevel(lvl.level)}
-                  onMouseLeave={() => setHoveredLevel(null)}
-                  disabled={!unlocked}
-                >
-                  <span className="level-num">{unlocked ? lvl.level : "🔒"}</span>
-                  {unlocked && stars > 0 && (
-                    <span className="level-stars">{getStarsDisplay(stars)}</span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
+          {worlds.map((world, wi) => {
+            const worldLevels = levels.filter(l => l.level >= world.range[0] && l.level <= world.range[1]);
+            if (worldLevels.length === 0) return null;
+            const anyUnlocked = worldLevels.some(l => isUnlocked(l.level));
+            return (
+              <div key={wi} style={{ marginBottom: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, opacity: anyUnlocked ? 1 : 0.4 }}>
+                  <span style={{ fontSize: 18 }}>{world.emoji}</span>
+                  <span style={{ color: world.color, fontWeight: 600, fontSize: 13 }}>{world.name}</span>
+                </div>
+                <div className="level-grid">
+                  {worldLevels.map((lvl) => {
+                    const unlocked = isUnlocked(lvl.level);
+                    const stars = getStars(lvl.level);
+                    return (
+                      <button
+                        key={lvl.level}
+                        className={`level-card ${unlocked ? "unlocked" : "locked"}${hoveredLevel === lvl.level ? " current" : ""}`}
+                        onClick={() => unlocked && startLevel(lvl.level)}
+                        onMouseEnter={() => unlocked && setHoveredLevel(lvl.level)}
+                        onMouseLeave={() => setHoveredLevel(null)}
+                        disabled={!unlocked}
+                        style={unlocked ? { borderColor: world.color + "44" } : undefined}
+                      >
+                        <span className="level-num">{unlocked ? lvl.level : "🔒"}</span>
+                        {unlocked && stars > 0 && (
+                          <span className="level-stars">{getStarsDisplay(stars)}</span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     );
@@ -1559,6 +1756,12 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
                 <span key={i} style={{ opacity: i < currentLives ? 1 : 0.2 }}>❤️</span>
               ))}
             </div>
+
+            {sparksEarned > 0 && (
+              <div style={{ color: '#fbbf24', fontWeight: 700, fontSize: 16, marginTop: 4 }}>
+                ✨ +{sparksEarned} ניצוצות
+              </div>
+            )}
 
             <div className="flex-col gap-8" style={{ marginTop: 16 }}>
               <button className="primary-btn w-full" onClick={() => startLevel(selectedLevel)}>

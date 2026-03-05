@@ -1,11 +1,14 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { ARITHMETIC_LEVELS, PASS_THRESHOLD, STAR_THRESHOLDS } from '../constants/games';
+import { SPARKS_REWARDS } from '../constants/ninjago';
 import { generateRound } from '../utils/arithmetic';
 import { NumKeypad } from '../components/ui/NumKeypad';
 import { Confetti } from '../components/ui/Confetti';
+import { SparksPopup } from '../components/ui/SparksPopup';
 
-export function ArithmeticGame({ settings, gameProgress, saveGameProgress, playSound, setScreen }) {
+export function ArithmeticGame({ settings, gameProgress, saveGameProgress, playSound, setScreen, addSparks, isAdmin }) {
   const [phase, setPhase] = useState("levelSelect"); // levelSelect | playing | result
+  const [sparksEarned, setSparksEarned] = useState(0);
   const [selectedLevel, setSelectedLevel] = useState(null);
   const [hoveredLevel, setHoveredLevel] = useState(null);
   const [questions, setQuestions] = useState([]);
@@ -31,7 +34,7 @@ export function ArithmeticGame({ settings, gameProgress, saveGameProgress, playS
   const gameTimerOn = settings.gameTimerEnabled !== false;
   const getTime = (config) => !gameTimerOn ? 9999 : (settings.gameTimerSeconds || 0) > 0 ? settings.gameTimerSeconds : config.timePerQuestion;
 
-  const isUnlocked = (lvl) => lvl === 1 || (gp[lvl - 1]?.stars > 0);
+  const isUnlocked = (lvl) => isAdmin || lvl === 1 || (gp[lvl - 1]?.stars > 0);
   const getStars = (lvl) => gp[lvl]?.stars || 0;
 
   const getStarsDisplay = (stars) => {
@@ -237,6 +240,11 @@ export function ArithmeticGame({ settings, gameProgress, saveGameProgress, playS
       playSound("celebrate");
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 2500);
+      const earned = SPARKS_REWARDS.gameLevelPass + (stars === 3 ? SPARKS_REWARDS.gameLevelThreeStars : 0);
+      setSparksEarned(earned);
+      if (addSparks) addSparks(earned);
+    } else {
+      setSparksEarned(0);
     }
 
     // Save progress
@@ -443,6 +451,12 @@ export function ArithmeticGame({ settings, gameProgress, saveGameProgress, playS
             <div className="result-points-total">
               {points} נקודות ⭐
             </div>
+
+            {sparksEarned > 0 && (
+              <div style={{ color: '#fbbf24', fontWeight: 700, fontSize: 16, marginTop: 4 }}>
+                ✨ +{sparksEarned} ניצוצות
+              </div>
+            )}
 
             <div className="flex-col gap-8" style={{ marginTop: 16 }}>
               <button className="primary-btn w-full" onClick={() => startLevel(selectedLevel)}>
