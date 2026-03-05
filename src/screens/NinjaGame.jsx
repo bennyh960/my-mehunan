@@ -1383,6 +1383,9 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
       if (gate) gate.locked = false;
       g.gatesOpened++;
 
+      // Award sparks for correct answer
+      if (addSparks) addSparks(SPARKS_REWARDS.ninjaGateCorrect);
+
       // Move player past gate
       if (gate) g.player.x = gate.x + gate.w + 10;
     } else {

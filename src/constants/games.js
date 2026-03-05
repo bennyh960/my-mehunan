@@ -167,7 +167,7 @@ const makeNinjaConfigs = (difficulty) => {
   return Array.from({ length: 20 }, (_, i) => ({
     level: i + 1,
     nameHe: NINJA_LEVEL_NAMES[i],
-    gates: 3 + Math.floor(i / 3),
+    gates: 5 + Math.floor(i / 2),
     difficulty: difficulty[Math.min(i, difficulty.length - 1)],
     world: i < 5 ? 0 : i < 10 ? 1 : i < 15 ? 2 : 3,
     hasEnemyDragon: i >= 10, // Dark Island and beyond

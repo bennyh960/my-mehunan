@@ -10,6 +10,7 @@ export const SPARKS_REWARDS = {
   topicComplete: 5,           // finish all questions in a practice topic
   gameLevelPass: 10,          // pass a game level
   gameLevelThreeStars: 5,     // bonus for 3 stars on a level
+  ninjaGateCorrect: 3,        // correct gate answer in ninjago game
   testComplete: 20,           // complete a full test
   testHighScore: 10,          // bonus: test score >= 80%
 };
