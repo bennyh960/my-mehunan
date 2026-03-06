@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { ADVENTURE_CONFIGS, ADVENTURE_ROOM_THEMES } from '../constants/games';
-import { SPARKS_REWARDS } from '../constants/ninjago';
+import { SPARKS_REWARDS, getGameLevelCap, getLevelLockReason } from '../constants/ninjago';
 import { buildAdventureRooms } from '../utils/adventure';
 import { Topic4Visual } from '../components/visuals/Topic4Visual';
 import { Topic5Visual } from '../components/visuals/Topic5Visual';
@@ -22,13 +22,15 @@ export function AdventureGame({ settings, gradeQ, gameProgress, saveGameProgress
   const [eliminatedOption, setEliminatedOption] = useState(null);
   const [showConfetti, setShowConfetti] = useState(false);
   const [showExplanation, setShowExplanation] = useState(false);
+  const [lockedMsg, setLockedMsg] = useState(null);
 
   const grade = settings.grade;
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const levels = ADVENTURE_CONFIGS[grade] || [];
   const gp = gameProgress.adventure || {};
 
-  const isUnlocked = (lvl) => isAdmin || lvl === 1 || (gp[lvl - 1]?.stars > 0);
+  const levelCap = getGameLevelCap("adventure", gameProgress, isAdmin);
+  const isUnlocked = (lvl) => isAdmin || (lvl <= levelCap && (lvl === 1 || gp[lvl - 1]?.stars > 0));
   const getStars = (lvl) => gp[lvl]?.stars || 0;
   const getStarsDisplay = (stars) => "⭐".repeat(stars) + "☆".repeat(3 - stars);
 
@@ -160,21 +162,24 @@ export function AdventureGame({ settings, gradeQ, gameProgress, saveGameProgress
           </div>
 
           <div className="level-name-tooltip">
-            {displayConfig ? displayConfig.nameHe : "בחרו הרפתקה"}
+            {lockedMsg || (displayConfig ? displayConfig.nameHe : "בחרו הרפתקה")}
           </div>
 
           <div className="level-grid">
             {levels.map((lvl) => {
               const unlocked = isUnlocked(lvl.level);
               const stars = getStars(lvl.level);
+              const lockReason = !unlocked && lvl.level > levelCap ? getLevelLockReason("adventure", lvl.level) : null;
               return (
                 <button
                   key={lvl.level}
                   className={`level-card ${unlocked ? "unlocked" : "locked"}${hoveredLevel === lvl.level ? " current" : ""}`}
-                  onClick={() => unlocked && startLevel(lvl.level)}
+                  onClick={() => {
+                    if (unlocked) { startLevel(lvl.level); }
+                    else if (lockReason) { setLockedMsg(lockReason); setTimeout(() => setLockedMsg(null), 3000); }
+                  }}
                   onMouseEnter={() => unlocked && setHoveredLevel(lvl.level)}
                   onMouseLeave={() => setHoveredLevel(null)}
-                  disabled={!unlocked}
                 >
                   <span className="level-num">{unlocked ? lvl.level : "🔒"}</span>
                   {unlocked && stars > 0 && (

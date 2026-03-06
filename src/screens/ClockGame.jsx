@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { PASS_THRESHOLD, STAR_THRESHOLDS } from '../constants/games';
-import { SPARKS_REWARDS } from '../constants/ninjago';
+import { SPARKS_REWARDS, getGameLevelCap, getLevelLockReason } from '../constants/ninjago';
 import { CLOCK_LEVELS, generateClockRound } from '../utils/clock';
 import { Confetti } from '../components/ui/Confetti';
 
@@ -82,6 +82,7 @@ export function ClockGame({ settings, gameProgress, saveGameProgress, playSound,
   const [feedbackIdx, setFeedbackIdx] = useState(null);
   const [showConfetti, setShowConfetti] = useState(false);
   const [pointsPopup, setPointsPopup] = useState(null);
+  const [lockedMsg, setLockedMsg] = useState(null);
   const [timeLeft, setTimeLeft] = useState(0);
   const timerRef = useRef(null);
   const questionStartRef = useRef(null);
@@ -90,7 +91,8 @@ export function ClockGame({ settings, gameProgress, saveGameProgress, playSound,
   const gameTimerOn = settings.gameTimerEnabled !== false;
   const getTime = (config) => !gameTimerOn ? 9999 : (settings.gameTimerSeconds || 0) > 0 ? settings.gameTimerSeconds : config.timePerQuestion;
 
-  const isUnlocked = (lvl) => isAdmin || lvl === 1 || (gp[lvl - 1]?.stars > 0);
+  const levelCap = getGameLevelCap("clock", gameProgress, isAdmin);
+  const isUnlocked = (lvl) => isAdmin || (lvl <= levelCap && (lvl === 1 || gp[lvl - 1]?.stars > 0));
   const getStars = (lvl) => gp[lvl]?.stars || 0;
   const getStarsDisplay = (stars) => "⭐".repeat(stars) + "☆".repeat(3 - stars);
 
@@ -266,21 +268,24 @@ export function ClockGame({ settings, gameProgress, saveGameProgress, playSound,
           </div>
 
           <div className="level-name-tooltip">
-            {displayConfig ? `${displayConfig.icon} ${displayConfig.nameHe}` : "בחרו שלב"}
+            {lockedMsg || (displayConfig ? `${displayConfig.icon} ${displayConfig.nameHe}` : "בחרו שלב")}
           </div>
 
           <div className="level-grid">
             {CLOCK_LEVELS.map((lvl) => {
               const unlocked = isUnlocked(lvl.level);
               const stars = getStars(lvl.level);
+              const lockReason = !unlocked && lvl.level > levelCap ? getLevelLockReason("clock", lvl.level) : null;
               return (
                 <button
                   key={lvl.level}
                   className={`level-card ${unlocked ? "unlocked" : "locked"}${hoveredLevel === lvl.level ? " current" : ""}`}
-                  onClick={() => unlocked && startLevel(lvl.level)}
+                  onClick={() => {
+                    if (unlocked) { startLevel(lvl.level); }
+                    else if (lockReason) { setLockedMsg(lockReason); setTimeout(() => setLockedMsg(null), 3000); }
+                  }}
                   onMouseEnter={() => unlocked && setHoveredLevel(lvl.level)}
                   onMouseLeave={() => setHoveredLevel(null)}
-                  disabled={!unlocked}
                 >
                   <span className="level-num">{unlocked ? lvl.icon : "🔒"}</span>
                   {unlocked && stars > 0 && (

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { NINJA_CONFIGS } from '../constants/games';
-import { SPARKS_REWARDS, getUnlockedNinjas, getNinjaById, NINJAS } from '../constants/ninjago';
+import { SPARKS_REWARDS, getUnlockedNinjas, getNinjaById, NINJAS, getGameLevelCap, getLevelLockReason } from '../constants/ninjago';
 import { Topic4Visual } from '../components/visuals/Topic4Visual';
 import { Topic5Visual } from '../components/visuals/Topic5Visual';
 import { Topic5Option } from '../components/visuals/Topic5Option';
@@ -923,6 +923,7 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
   const [showExplanation, setShowExplanation] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [levelComplete, setLevelComplete] = useState(false);
+  const [lockedMsg, setLockedMsg] = useState(null);
 
   // Canvas refs
   const canvasRef = useRef(null);
@@ -934,7 +935,8 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
   const levels = NINJA_CONFIGS[grade] || [];
   const gp = gameProgress.ninja || {};
 
-  const isUnlocked = (lvl) => isAdmin || lvl === 1 || (gp[lvl - 1]?.stars > 0);
+  const levelCap = getGameLevelCap("ninjago", gameProgress, isAdmin);
+  const isUnlocked = (lvl) => isAdmin || (lvl <= levelCap && (lvl === 1 || gp[lvl - 1]?.stars > 0));
   const getStars = (lvl) => gp[lvl]?.stars || 0;
   const getStarsDisplay = (stars) => "⭐".repeat(stars) + "☆".repeat(3 - stars);
 
@@ -1498,7 +1500,7 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
           </div>
 
           <div className="level-name-tooltip">
-            {displayConfig ? displayConfig.nameHe : "בחרו שלב"}
+            {lockedMsg || (displayConfig ? displayConfig.nameHe : "בחרו שלב")}
           </div>
 
           {worlds.map((world, wi) => {
@@ -1515,14 +1517,17 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
                   {worldLevels.map((lvl) => {
                     const unlocked = isUnlocked(lvl.level);
                     const stars = getStars(lvl.level);
+                    const lockReason = !unlocked && lvl.level > levelCap ? getLevelLockReason("ninjago", lvl.level) : null;
                     return (
                       <button
                         key={lvl.level}
                         className={`level-card ${unlocked ? "unlocked" : "locked"}${hoveredLevel === lvl.level ? " current" : ""}`}
-                        onClick={() => unlocked && startLevel(lvl.level)}
+                        onClick={() => {
+                          if (unlocked) { startLevel(lvl.level); }
+                          else if (lockReason) { setLockedMsg(lockReason); setTimeout(() => setLockedMsg(null), 3000); }
+                        }}
                         onMouseEnter={() => unlocked && setHoveredLevel(lvl.level)}
                         onMouseLeave={() => setHoveredLevel(null)}
-                        disabled={!unlocked}
                         style={unlocked ? { borderColor: world.color + "44" } : undefined}
                       >
                         <span className="level-num">{unlocked ? lvl.level : "🔒"}</span>
