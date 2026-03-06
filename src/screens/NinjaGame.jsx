@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { NINJA_CONFIGS } from '../constants/games';
-import { SPARKS_REWARDS, getUnlockedNinjas, getNinjaById, NINJAS, getGameLevelCap, getLevelLockReason } from '../constants/ninjago';
+import { SPARKS_REWARDS, getUnlockedNinjas, getNinjaById, NINJAS, getGameLevelCap, getLevelLockReason, NINJA_STATS, SPECIAL_ABILITIES, ANSWER_BOOST, hasAbility, getUnlockedAbilities } from '../constants/ninjago';
 import { Topic4Visual } from '../components/visuals/Topic4Visual';
 import { Topic5Visual } from '../components/visuals/Topic5Visual';
 import { Topic5Option } from '../components/visuals/Topic5Option';
@@ -482,70 +482,109 @@ function drawGate(ctx, gate, cameraX) {
   }
 }
 
-function drawNinja(ctx, player, ninjaColor) {
+function drawNinja(ctx, player, ninjaColor, boost, shieldCount) {
   const { x, y, facingRight, frame, invincible } = player;
   const col = ninjaColor || "#22c55e";
   // Blink when invincible
   if (invincible > 0 && Math.floor(invincible / 4) % 2 === 0) return;
   const dir = facingRight ? 1 : -1;
-  const cx = x + PLAYER_W / 2;
+
+  // Scale up when boosted
+  const scale = boost > 0 ? ANSWER_BOOST.sizeMult : 1;
+  const pw = PLAYER_W * scale;
+  const ph = PLAYER_H * scale;
+  const ox = x - (pw - PLAYER_W) / 2; // center the scaled sprite
+  const oy = y - (ph - PLAYER_H);     // anchor at feet
+  const cx = ox + pw / 2;
+
+  ctx.save();
+
+  // Boost glow effect
+  if (boost > 0) {
+    const pulse = 0.4 + Math.sin(frame * 0.15) * 0.2;
+    ctx.shadowColor = col;
+    ctx.shadowBlur = 16 + Math.sin(frame * 0.2) * 6;
+    // Aura circle
+    ctx.fillStyle = `rgba(251,191,36,${pulse * 0.25})`;
+    ctx.beginPath();
+    ctx.arc(cx, oy + ph / 2, pw * 0.9, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Shield glow
+  if (shieldCount > 0) {
+    ctx.strokeStyle = `rgba(96,165,250,${0.5 + Math.sin(frame * 0.1) * 0.3})`;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(cx, oy + ph / 2, pw * 0.8, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  // Scale drawing
+  const sx = pw / PLAYER_W;
+  const sy = ph / PLAYER_H;
+
+  ctx.translate(ox, oy);
+  ctx.scale(sx, sy);
 
   // Body (ninja gi)
   ctx.fillStyle = col;
-  ctx.fillRect(x + 4, y + 14, 20, 18);
+  ctx.fillRect(4, 14, 20, 18);
 
   // Head
   ctx.fillStyle = "#1a1a2e";
   ctx.beginPath();
-  ctx.arc(cx, y + 8, 10, 0, Math.PI * 2);
+  ctx.arc(PLAYER_W / 2, 8, 10, 0, Math.PI * 2);
   ctx.fill();
 
   // Mask band
   ctx.fillStyle = col;
-  ctx.fillRect(x + 4, y + 3, 20, 6);
+  ctx.fillRect(4, 3, 20, 6);
 
   // Eyes
   ctx.fillStyle = "#fff";
-  ctx.fillRect(cx + dir * 2 - 3, y + 5, 3, 3);
-  ctx.fillRect(cx + dir * 2 + 2, y + 5, 3, 3);
+  ctx.fillRect(PLAYER_W / 2 + dir * 2 - 3, 5, 3, 3);
+  ctx.fillRect(PLAYER_W / 2 + dir * 2 + 2, 5, 3, 3);
   ctx.fillStyle = "#000";
-  ctx.fillRect(cx + dir * 2 - 2, y + 6, 2, 2);
-  ctx.fillRect(cx + dir * 2 + 3, y + 6, 2, 2);
+  ctx.fillRect(PLAYER_W / 2 + dir * 2 - 2, 6, 2, 2);
+  ctx.fillRect(PLAYER_W / 2 + dir * 2 + 3, 6, 2, 2);
 
   // Mask tail
   ctx.strokeStyle = col;
   ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.moveTo(cx - dir * 8, y + 6);
-  ctx.lineTo(cx - dir * 16, y + 2 + Math.sin(frame * 0.3) * 3);
+  ctx.moveTo(PLAYER_W / 2 - dir * 8, 6);
+  ctx.lineTo(PLAYER_W / 2 - dir * 16, 2 + Math.sin(frame * 0.3) * 3);
   ctx.stroke();
 
   // Belt
   ctx.fillStyle = "#000";
-  ctx.fillRect(x + 4, y + 22, 20, 3);
+  ctx.fillRect(4, 22, 20, 3);
 
   // Sword on back
   ctx.strokeStyle = "#94a3b8";
   ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.moveTo(cx - dir * 6, y + 10);
-  ctx.lineTo(cx - dir * 6, y - 6);
+  ctx.moveTo(PLAYER_W / 2 - dir * 6, 10);
+  ctx.lineTo(PLAYER_W / 2 - dir * 6, -6);
   ctx.stroke();
-  // Sword handle
   ctx.fillStyle = "#7c2d12";
-  ctx.fillRect(cx - dir * 6 - 2, y + 8, 5, 4);
+  ctx.fillRect(PLAYER_W / 2 - dir * 6 - 2, 8, 5, 4);
 
   // Legs (animated)
   const legOffset = Math.sin(frame * 0.4) * 5;
   ctx.fillStyle = "#1a1a2e";
-  ctx.fillRect(x + 6, y + 32, 6, 8 + (player.onGround ? legOffset : 0));
-  ctx.fillRect(x + 16, y + 32, 6, 8 + (player.onGround ? -legOffset : 0));
+  ctx.fillRect(6, 32, 6, 8 + (player.onGround ? legOffset : 0));
+  ctx.fillRect(16, 32, 6, 8 + (player.onGround ? -legOffset : 0));
 
   // Arms
   const armSwing = player.onGround ? Math.sin(frame * 0.4) * 4 : -3;
   ctx.fillStyle = col;
-  ctx.fillRect(x + (facingRight ? 22 : -2), y + 16 + armSwing, 6, 4);
-  ctx.fillRect(x + (facingRight ? -2 : 22), y + 16 - armSwing, 6, 4);
+  ctx.fillRect(facingRight ? 22 : -2, 16 + armSwing, 6, 4);
+  ctx.fillRect(facingRight ? -2 : 22, 16 - armSwing, 6, 4);
+
+  ctx.restore();
+  ctx.shadowBlur = 0;
 }
 
 function drawFinishFlag(ctx, totalW, cameraX, ninjaColor) {
@@ -568,12 +607,19 @@ function drawFinishFlag(ctx, totalW, cameraX, ninjaColor) {
   ctx.fillText("⭐", fx + 16, GROUND_Y - 60);
 }
 
-function drawHUD(ctx, lives, gateProgress, totalGates, powerCooldown, ninjaColor) {
+function drawHUD(ctx, lives, maxLives, gateProgress, totalGates, powerCooldown, weaponCooldown, ninjaColor, boost, shieldCount, dashCooldown, frame) {
   // Lives
   ctx.font = "18px sans-serif";
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < maxLives; i++) {
     ctx.fillStyle = i < lives ? "#ef4444" : "rgba(239,68,68,0.2)";
     ctx.fillText("❤", 10 + i * 22, 24);
+  }
+
+  // Shield indicator
+  if (shieldCount > 0) {
+    ctx.fillStyle = `rgba(96,165,250,${0.7 + Math.sin((frame || 0) * 0.1) * 0.3})`;
+    ctx.font = "16px sans-serif";
+    ctx.fillText("🛡️", 10 + maxLives * 22 + 4, 24);
   }
 
   // Gate progress dots
@@ -595,13 +641,36 @@ function drawHUD(ctx, lives, gateProgress, totalGates, powerCooldown, ninjaColor
   }
 
   // Power cooldown bar
-  const cdMax = 90;
+  const cdMax = weaponCooldown || 90;
   const cdRemaining = Math.max(0, powerCooldown || 0);
   const cdPct = 1 - cdRemaining / cdMax;
   ctx.fillStyle = "rgba(34,197,94,0.2)";
   ctx.fillRect(10, 32, 60, 4);
   ctx.fillStyle = cdPct >= 1 ? (ninjaColor || "#4ade80") : "#166534";
   ctx.fillRect(10, 32, 60 * cdPct, 4);
+
+  // Boost timer bar
+  if (boost > 0) {
+    const boostPct = boost / ANSWER_BOOST.duration;
+    ctx.fillStyle = "rgba(251,191,36,0.2)";
+    ctx.fillRect(10, 38, 60, 4);
+    ctx.fillStyle = "#fbbf24";
+    ctx.fillRect(10, 38, 60 * boostPct, 4);
+    // Boost label
+    ctx.fillStyle = "#fbbf24";
+    ctx.font = "bold 9px sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText("BOOST!", 72, 43);
+  }
+
+  // Dash cooldown indicator
+  if (dashCooldown !== undefined && dashCooldown > 0) {
+    const dPct = 1 - dashCooldown / 60;
+    ctx.fillStyle = "rgba(168,85,247,0.2)";
+    ctx.fillRect(10, boost > 0 ? 44 : 38, 60, 4);
+    ctx.fillStyle = "#a855f7";
+    ctx.fillRect(10, boost > 0 ? 44 : 38, 60 * dPct, 4);
+  }
 }
 
 // ─── Enemy draw functions ───
@@ -947,9 +1016,12 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
     const questions = buildNinjaQuestions(config, gradeQ);
     const level = generateLevel(config.gates, config.level);
 
+    const startLives = hasAbility("extraLife", sparks, isAdmin) ? 4 : 3;
+    const startShield = hasAbility("shield", sparks, isAdmin) ? 1 : 0;
+
     setGateQuestions(questions);
     setSelectedLevel(lvlNum);
-    setLives(3);
+    setLives(startLives);
     setGateIdx(0);
     setShowGate(false);
     setSelectedAnswer(null);
@@ -968,6 +1040,10 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
         frame: 0,
         invincible: 0,
         powerCooldown: 0,
+        boost: 0,
+        doubleJumpUsed: false,
+        shield: startShield,
+        dashCooldown: 0,
       },
       cameraX: 0,
       platforms: level.platforms,
@@ -978,7 +1054,7 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
       totalW: level.totalW,
       gateCount: config.gates,
       paused: false,
-      lives: 3,
+      lives: startLives,
       gatesOpened: 0,
       finished: false,
       levelNum: config.level,
@@ -986,7 +1062,7 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
     };
 
     setPhase("playing");
-  }, [levels, gradeQ]);
+  }, [levels, gradeQ, sparks, isAdmin]);
 
   // ─── Keyboard handlers ───
   useEffect(() => {
@@ -996,6 +1072,10 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
       if (e.key === " " || e.key === "ArrowUp") e.preventDefault();
       if ((e.key === " " || e.key === "e" || e.key === "E" || e.key === "x" || e.key === "X") && !e.repeat) {
         keysRef.current._firePower = true;
+      }
+      // Dash on Shift
+      if ((e.key === "Shift") && !e.repeat) {
+        keysRef.current._dash = true;
       }
     };
     const onUp = (e) => { keysRef.current[e.key] = false; };
@@ -1026,26 +1106,55 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
 
       const p = g.player;
       const keys = keysRef.current;
+      const stats = NINJA_STATS[chosenNinjaId] || NINJA_STATS.kai;
+
+      // Boost multipliers (from answering questions)
+      const boostActive = p.boost > 0;
+      const boostSpeed = boostActive ? ANSWER_BOOST.speedMult : 1;
+      const boostJump = boostActive ? ANSWER_BOOST.jumpMult : 1;
+      if (p.boost > 0) p.boost--;
+
+      // Effective stats
+      const effSpeed = MOVE_SPEED * stats.speed * boostSpeed;
+      const effJump = JUMP_FORCE * stats.jump * boostJump;
 
       // Movement
       let moving = false;
       if (keys["ArrowRight"] || keys["d"] || keys["D"]) {
-        p.vx = MOVE_SPEED;
+        p.vx = effSpeed;
         p.facingRight = true;
         moving = true;
       } else if (keys["ArrowLeft"] || keys["a"] || keys["A"]) {
-        p.vx = -MOVE_SPEED;
+        p.vx = -effSpeed;
         p.facingRight = false;
         moving = true;
       } else {
         p.vx = 0;
       }
 
-      // Jump
-      if ((keys["ArrowUp"]  || keys["w"] || keys["W"]) && p.onGround) {
-        p.vy = JUMP_FORCE;
-        p.onGround = false;
+      // Dash ability
+      const canDash = hasAbility("dashBoost", sparks, isAdmin);
+      if (keys._dash && canDash && p.dashCooldown <= 0) {
+        const dashDir = p.facingRight ? 1 : -1;
+        p.x += dashDir * 80;
+        p.dashCooldown = 60;
+        p.invincible = Math.max(p.invincible, 15);
+        keys._dash = false;
       }
+      if (keys._dash) keys._dash = false;
+      if (p.dashCooldown > 0) p.dashCooldown--;
+
+      // Jump (with double jump ability)
+      const canDoubleJump = hasAbility("doubleJump", sparks, isAdmin);
+      if ((keys["ArrowUp"] || keys["w"] || keys["W"]) && p.onGround) {
+        p.vy = effJump;
+        p.onGround = false;
+        p.doubleJumpUsed = false;
+      } else if ((keys["ArrowUp"] || keys["w"] || keys["W"]) && !p.onGround && canDoubleJump && !p.doubleJumpUsed && !keys._jumpHeld) {
+        p.vy = effJump * 0.8;
+        p.doubleJumpUsed = true;
+      }
+      keys._jumpHeld = keys["ArrowUp"] || keys["w"] || keys["W"];
 
       // Gravity
       p.vy += GRAVITY;
@@ -1134,14 +1243,18 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
       });
 
       // Fire energy ball (E/X key or touch)
+      const weaponCooldown = stats.weaponCooldown;
+      const weaponRange = stats.range;
+      const powerShotActive = hasAbility("powerShot", sparks, isAdmin);
       if (keys._firePower && p.powerCooldown <= 0) {
         g.energyBalls.push({
           x: p.x + (p.facingRight ? PLAYER_W + 4 : -4),
           y: p.y + PLAYER_H / 2,
           vx: p.facingRight ? 8 : -8,
-          lifetime: 50,
+          lifetime: Math.floor(50 * weaponRange),
+          damage: stats.weaponPower * (powerShotActive ? 2 : 1),
         });
-        p.powerCooldown = 90;
+        p.powerCooldown = weaponCooldown;
         playSound("click");
       }
       keys._firePower = false;
@@ -1155,7 +1268,7 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
           if (!en.alive) continue;
           if (ball.x > en.x && ball.x < en.x + en.w &&
               ball.y > en.y && ball.y < en.y + en.h) {
-            en.hp--;
+            en.hp -= (ball.damage || 1);
             if (en.hp <= 0) {
               en.alive = false;
               en.deathTimer = 15;
@@ -1177,12 +1290,18 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
         if (p.invincible <= 0 &&
             proj.x > p.x && proj.x < p.x + PLAYER_W &&
             proj.y > p.y && proj.y < p.y + PLAYER_H) {
-          g.lives--;
-          setLives(g.lives);
-          p.invincible = 60;
-          if (g.lives <= 0) {
-            g.finished = true;
-            setPhase("result");
+          if (p.shield > 0) {
+            p.shield--;
+            p.invincible = 30;
+            playSound("click");
+          } else {
+            g.lives--;
+            setLives(g.lives);
+            p.invincible = 60;
+            if (g.lives <= 0) {
+              g.finished = true;
+              setPhase("result");
+            }
           }
           return false;
         }
@@ -1215,14 +1334,22 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
           if (!en.alive) continue;
           if (p.x + PLAYER_W > en.x && p.x < en.x + en.w &&
               p.y + PLAYER_H > en.y && p.y < en.y + en.h) {
-            g.lives--;
-            setLives(g.lives);
-            p.invincible = 60;
-            p.vx = p.x < en.x ? -5 : 5;
-            p.vy = -6;
-            if (g.lives <= 0) {
-              g.finished = true;
-              setPhase("result");
+            if (p.shield > 0) {
+              p.shield--;
+              p.invincible = 30;
+              p.vx = p.x < en.x ? -5 : 5;
+              p.vy = -6;
+              playSound("click");
+            } else {
+              g.lives--;
+              setLives(g.lives);
+              p.invincible = 60;
+              p.vx = p.x < en.x ? -5 : 5;
+              p.vy = -6;
+              if (g.lives <= 0) {
+                g.finished = true;
+                setPhase("result");
+              }
             }
             break;
           }
@@ -1320,6 +1447,7 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
     });
 
     drawFinishFlag(ctx, g.totalW, g.cameraX, chosenNinja.color);
+    const stats = NINJA_STATS[chosenNinja.id] || NINJA_STATS.kai;
     drawNinja(ctx, {
       x: g.player.x - g.cameraX,
       y: g.player.y,
@@ -1327,8 +1455,28 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
       frame: g.player.frame,
       onGround: g.player.onGround,
       invincible: g.player.invincible,
-    }, chosenNinja.color);
-    drawHUD(ctx, g.lives, g.gatesOpened, g.gateCount, g.player.powerCooldown, chosenNinja.shootColor);
+    }, chosenNinja.color, g.player.boost, g.player.shield);
+    const maxLives = hasAbility("extraLife", sparks, isAdmin) ? 4 : 3;
+    drawHUD(ctx, g.lives, maxLives, g.gatesOpened, g.gateCount, g.player.powerCooldown, stats.weaponCooldown, chosenNinja.shootColor, g.player.boost, g.player.shield, g.player.dashCooldown, g.frameCount);
+
+    // Boost + sparks notification popup
+    if (g.boostNotify > 0) {
+      g.boostNotify--;
+      const alpha = Math.min(1, g.boostNotify / 30);
+      const rise = (120 - g.boostNotify) * 0.4;
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.textAlign = "center";
+      // Sparks earned text
+      ctx.font = "bold 16px sans-serif";
+      ctx.fillStyle = "#fbbf24";
+      ctx.fillText(`+${SPARKS_REWARDS.ninjaGateCorrect} ניצוצות ✨`, CANVAS_W / 2, CANVAS_H / 2 - 20 - rise);
+      // Boost text
+      ctx.font = "bold 14px sans-serif";
+      ctx.fillStyle = "#4ade80";
+      ctx.fillText("⚡ BOOST! ⚡", CANVAS_W / 2, CANVAS_H / 2 - rise);
+      ctx.restore();
+    }
   }
 
   // ─── Touch controls ───
@@ -1346,13 +1494,22 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
   };
 
   const handleJump = () => {
-    keysRef.current["ArrowUp"] = true;
-    setTimeout(() => { keysRef.current["ArrowUp"] = false; }, 150);
+    // Release first so double-jump detection sees a new press
+    keysRef.current["ArrowUp"] = false;
+    keysRef.current._jumpHeld = false;
+    setTimeout(() => {
+      keysRef.current["ArrowUp"] = true;
+      setTimeout(() => { keysRef.current["ArrowUp"] = false; }, 150);
+    }, 20);
   };
-  
+
   const handlePower = () => {
     keysRef.current._firePower = true;
     setTimeout(() => { keysRef.current["_firePower"] = false; }, 150);
+  };
+
+  const handleDash = () => {
+    keysRef.current._dash = true;
   };
 
   // ─── Answer handling ───
@@ -1388,6 +1545,13 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
       // Award sparks for correct answer
       if (addSparks) addSparks(SPARKS_REWARDS.ninjaGateCorrect);
 
+      // Activate answer boost + sound!
+      g.player.boost = ANSWER_BOOST.duration;
+      playSound("boost");
+
+      // Show sparks + boost notification
+      g.boostNotify = 120; // 2 seconds
+
       // Move player past gate
       if (gate) g.player.x = gate.x + gate.w + 10;
     } else {
@@ -1411,9 +1575,10 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
   // ─── Finish level ───
   const finishLevel = useCallback(() => {
     const currentLives = gameRef.current?.lives ?? lives;
+    const maxLives = hasAbility("extraLife", sparks, isAdmin) ? 4 : 3;
     let stars = 0;
-    if (currentLives >= 3) stars = 3;
-    else if (currentLives >= 2) stars = 2;
+    if (currentLives >= maxLives) stars = 3;
+    else if (currentLives >= maxLives - 1) stars = 2;
     else if (currentLives >= 1) stars = 1;
 
     if (levelComplete && stars > 0) {
@@ -1494,10 +1659,60 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
               );
             })}
           </div>
-          {/* Selected ninja name */}
-          <div style={{ textAlign: 'center', marginBottom: 8, fontSize: 13, color: chosenNinja.color, fontWeight: 600 }}>
+          {/* Selected ninja name + stats */}
+          <div style={{ textAlign: 'center', marginBottom: 4, fontSize: 13, color: chosenNinja.color, fontWeight: 600 }}>
             {chosenNinja.nameHe} - {chosenNinja.elementHe}
           </div>
+          {(() => {
+            const st = NINJA_STATS[chosenNinjaId];
+            const bar = (val, max, color) => (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11 }}>
+                <div style={{ width: 50, textAlign: 'right', color: '#94a3b8' }}>{val.label}</div>
+                <div style={{ flex: 1, height: 6, background: '#1e293b', borderRadius: 3, overflow: 'hidden' }}>
+                  <div style={{ width: `${(val.v / max) * 100}%`, height: '100%', background: color, borderRadius: 3, transition: 'width 0.3s' }} />
+                </div>
+              </div>
+            );
+            const stats = [
+              { label: "מהירות", v: st.speed, max: 1.5 },
+              { label: "קפיצה", v: st.jump, max: 1.4 },
+              { label: "כוח", v: st.weaponPower, max: 2.5 },
+              { label: "טווח", v: st.range, max: 1.5 },
+            ];
+            return (
+              <div style={{ maxWidth: 220, margin: '0 auto 8px', display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {stats.map((s, i) => bar(s, s.max, chosenNinja.color))}
+                <div style={{ textAlign: 'center', fontSize: 10, color: '#64748b', marginTop: 2 }}>{st.descHe}</div>
+              </div>
+            );
+          })()}
+
+          {/* Unlocked abilities */}
+          {(() => {
+            const unlocked = getUnlockedAbilities(sparks || 0, isAdmin);
+            if (unlocked.length === 0) return null;
+            return (
+              <div style={{ display: 'flex', gap: 6, justifyContent: 'center', marginBottom: 8, flexWrap: 'wrap' }}>
+                {SPECIAL_ABILITIES.map(a => {
+                  const isUnl = unlocked.some(u => u.id === a.id);
+                  return (
+                    <div
+                      key={a.id}
+                      title={isUnl ? `${a.nameHe}: ${a.descHe}` : `${a.nameHe} - ${a.sparksNeeded} ניצוצות`}
+                      style={{
+                        fontSize: 18,
+                        opacity: isUnl ? 1 : 0.25,
+                        filter: isUnl ? 'none' : 'grayscale(1)',
+                        cursor: 'default',
+                      }}
+                    >
+                      {a.icon}
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })()}
 
           <div className="level-name-tooltip">
             {lockedMsg || (displayConfig ? displayConfig.nameHe : "בחרו שלב")}
@@ -1608,6 +1823,20 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
           >
             ⚡
           </button>
+          {hasAbility("dashBoost", sparks, isAdmin) && (
+            <button
+              className="ninja-ctrl-btn"
+              onTouchStart={handleDash}
+              onMouseDown={handleDash}
+              style={{
+                backgroundColor: "rgba(168,85,247,0.3)",
+                borderColor: "#a855f7",
+                opacity: gameRef.current?.player?.dashCooldown > 0 ? 0.4 : 1,
+              }}
+            >
+              💨
+            </button>
+          )}
           <button
             className="ninja-ctrl-btn ninja-jump-btn"
             onTouchStart={handleJump}
@@ -1728,9 +1957,10 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
   // ─── RENDER: Result ───
   if (phase === "result") {
     const currentLives = gameRef.current?.lives ?? lives;
+    const maxLives = hasAbility("extraLife", sparks, isAdmin) ? 4 : 3;
     let stars = 0;
-    if (levelComplete && currentLives >= 3) stars = 3;
-    else if (levelComplete && currentLives >= 2) stars = 2;
+    if (levelComplete && currentLives >= maxLives) stars = 3;
+    else if (levelComplete && currentLives >= maxLives - 1) stars = 2;
     else if (levelComplete && currentLives >= 1) stars = 1;
 
     const passed = stars > 0;
@@ -1760,7 +1990,7 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
             {stars > 0 && <div className="result-stars">{getStarsDisplay(stars)}</div>}
 
             <div style={{ display: "flex", gap: 4, justifyContent: "center", fontSize: 20, margin: '8px 0' }}>
-              {Array.from({ length: 3 }).map((_, i) => (
+              {Array.from({ length: maxLives }).map((_, i) => (
                 <span key={i} style={{ opacity: i < currentLives ? 1 : 0.2 }}>❤️</span>
               ))}
             </div>

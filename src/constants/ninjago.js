@@ -65,6 +65,43 @@ export const GAME_PROGRESSION = [
   { gameId: "ninjago",    prevGameId: "adventure",  prevGameName: "הרפתקת החשיבה",    levelCapMultiplier: 2 },
 ];
 
+// ─── Ninja Stats (unique per character) ───
+// All values are multipliers (1.0 = base)
+export const NINJA_STATS = {
+  kai:   { speed: 1.0,  jump: 1.0,  size: 1.0,  weaponPower: 2, weaponCooldown: 90,  range: 1.0,  descHe: "כוח אש חזק" },
+  jay:   { speed: 1.35, jump: 1.05, size: 0.9,  weaponPower: 1, weaponCooldown: 70,  range: 0.9,  descHe: "מהירות ברק" },
+  cole:  { speed: 0.85, jump: 0.9,  size: 1.2,  weaponPower: 2, weaponCooldown: 110, range: 0.8,  descHe: "חזק ועמיד" },
+  zane:  { speed: 1.0,  jump: 1.0,  size: 1.0,  weaponPower: 1, weaponCooldown: 80,  range: 1.4,  descHe: "טווח קרח ארוך" },
+  nya:   { speed: 1.1,  jump: 1.25, size: 0.95, weaponPower: 1, weaponCooldown: 85,  range: 1.0,  descHe: "קפיצה גבוהה" },
+  lloyd: { speed: 1.15, jump: 1.1,  size: 1.0,  weaponPower: 2, weaponCooldown: 75,  range: 1.2,  descHe: "נינג'ה מאוזן" },
+};
+
+// ─── Special Abilities (unlocked by sparks) ───
+export const SPECIAL_ABILITIES = [
+  { id: "doubleJump",  nameHe: "קפיצה כפולה",    descHe: "קפצו פעם נוספת באוויר!", icon: "🦘", sparksNeeded: 100 },
+  { id: "powerShot",   nameHe: "ירי חזק",         descHe: "כדורי אנרגיה חזקים x2",  icon: "💥", sparksNeeded: 250 },
+  { id: "extraLife",   nameHe: "חיים נוספים",      descHe: "התחילו עם 4 לבבות",       icon: "💖", sparksNeeded: 400 },
+  { id: "dashBoost",   nameHe: "דאש מהיר",        descHe: "לחצו פעמיים לדאש קדימה",  icon: "💨", sparksNeeded: 600 },
+  { id: "shield",      nameHe: "מגן הגנה",         descHe: "מגן שסופג מכה אחת",       icon: "🛡️", sparksNeeded: 850 },
+];
+
+// ─── Question Answer Boost ───
+export const ANSWER_BOOST = {
+  duration: 480,       // ~8 seconds at 60fps
+  speedMult: 1.3,      // +30% speed
+  jumpMult: 1.2,       // +20% jump
+  sizeMult: 1.25,      // +25% size
+};
+
+export const getUnlockedAbilities = (sparks, isAdmin) =>
+  isAdmin ? SPECIAL_ABILITIES : SPECIAL_ABILITIES.filter(a => sparks >= a.sparksNeeded);
+
+export const hasAbility = (abilityId, sparks, isAdmin) =>
+  isAdmin || SPECIAL_ABILITIES.find(a => a.id === abilityId)?.sparksNeeded <= sparks;
+
+export const getNextAbilityUnlock = (sparks) =>
+  SPECIAL_ABILITIES.find(a => sparks < a.sparksNeeded) || null;
+
 // ─── Helper Functions ───
 
 export const getUnlockedNinjas = (sparks, isAdmin) =>

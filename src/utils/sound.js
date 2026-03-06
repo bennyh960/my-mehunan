@@ -32,6 +32,28 @@ export const SoundEngine = {
         gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.08);
         osc.start(ctx.currentTime);
         osc.stop(ctx.currentTime + 0.08);
+      } else if (type === "boost") {
+        // Power-up rising sweep sound
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(400, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.25);
+        osc.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.4);
+        gain.gain.setValueAtTime(0.25, ctx.currentTime);
+        gain.gain.setValueAtTime(0.3, ctx.currentTime + 0.15);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.5);
+        // Sparkle overlay
+        const o2 = ctx.createOscillator();
+        const g2 = ctx.createGain();
+        o2.connect(g2); g2.connect(ctx.destination);
+        o2.type = "triangle";
+        o2.frequency.setValueAtTime(1047, ctx.currentTime + 0.1);
+        o2.frequency.setValueAtTime(1319, ctx.currentTime + 0.25);
+        g2.gain.setValueAtTime(0.15, ctx.currentTime + 0.1);
+        g2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+        o2.start(ctx.currentTime + 0.1);
+        o2.stop(ctx.currentTime + 0.5);
       } else if (type === "celebrate") {
         [523, 659, 784, 1047].forEach((f, i) => {
           const o = ctx.createOscillator();
