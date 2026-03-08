@@ -1033,7 +1033,7 @@ export const QUESTIONS = [
   { id:"5-93",topic:5,grades:[2,3],difficulty:"medium",type:"image",
     imagePath:"visual-questions/5-93",
     question:"מה הבא בסדרה?",
-    options:["1","2","3","4"], correct:1,
+    options:["1","2","3","4"], correct:3,
     explanation:"בכל תיבה: הלבבות יורדים ב-1, הפלוסים יורדים ב-1, והכוכבים עולים ב-1. התיבה הבאה: 1 לב, 0 פלוסים, 5 כוכבים." },
   { id:"5-94",topic:5,grades:[2,3],difficulty:"hard",type:"image",
     imagePath:"visual-questions/5-94",

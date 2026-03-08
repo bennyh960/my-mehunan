@@ -1964,7 +1964,9 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
     else if (levelComplete && currentLives >= 1) stars = 1;
 
     const passed = stars > 0;
-    const hasNext = selectedLevel < levels.length && passed;
+    const nextLevel = selectedLevel + 1;
+    const nextUnlocked = nextLevel <= levels.length && isUnlocked(nextLevel);
+    const hasNext = passed && nextUnlocked;
     const gatesOpened = gameRef.current?.gatesOpened ?? 0;
     const totalGates = gameRef.current?.gateCount ?? 0;
 
@@ -2006,9 +2008,14 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
                 🔄 נסו שוב
               </button>
               {hasNext && (
-                <button className="primary-btn w-full" style={{ backgroundColor: '#22c55e' }} onClick={() => startLevel(selectedLevel + 1)}>
+                <button className="primary-btn w-full" style={{ backgroundColor: '#22c55e' }} onClick={() => startLevel(nextLevel)}>
                   ▶ השלב הבא
                 </button>
+              )}
+              {passed && !nextUnlocked && nextLevel <= levels.length && (
+                <div style={{ color: '#f59e0b', fontSize: 12, textAlign: 'center', padding: '4px 0' }}>
+                  🔒 {getLevelLockReason("ninjago", nextLevel) || "השלב הבא נעול"}
+                </div>
               )}
               <button className="secondary-btn w-full" onClick={() => setPhase("levelSelect")}>
                 ← חזרה לשלבים
