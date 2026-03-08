@@ -163,11 +163,13 @@ export const NINJA_WORLDS = [
   { name: "מגדל השליט",     levels: [16,20], emoji: "🗼", color: "#ef4444" },
 ];
 
+// questionsPerGate: how many questions the kid must answer to unlock each gate
 const makeNinjaConfigs = (difficulty) => {
   return Array.from({ length: 20 }, (_, i) => ({
     level: i + 1,
     nameHe: NINJA_LEVEL_NAMES[i],
-    gates: 5 + Math.floor(i / 2),
+    gates: 3 + Math.floor(i / 3),                       // 3→9 gates across 20 levels
+    questionsPerGate: i < 5 ? 2 : i < 10 ? 3 : i < 15 ? 3 : 4,  // 2→4 questions per gate
     difficulty: difficulty[Math.min(i, difficulty.length - 1)],
     world: i < 5 ? 0 : i < 10 ? 1 : i < 15 ? 2 : 3,
     hasEnemyDragon: i >= 10, // Dark Island and beyond

@@ -6,30 +6,46 @@ import { Topic5Visual } from '../components/visuals/Topic5Visual';
 import { Topic5Option } from '../components/visuals/Topic5Option';
 import { Confetti } from '../components/ui/Confetti';
 
-// ─── Question builder (same pattern as adventure) ───
+// ─── Question builder: shuffles from full pool, prefers topic variety ───
 function buildNinjaQuestions(config, gradeQuestions) {
   const usedIds = new Set();
+  const usedTopics = [];
+  const totalQuestions = config.gates * (config.questionsPerGate || 1);
   const questions = [];
-  const gateCount = config.gates;
 
-  for (let g = 0; g < gateCount; g++) {
-    const topic = (g % 5) + 1;
-    const diff = config.difficulty[Math.min(g, config.difficulty.length - 1)];
+  // Shuffle full pool once
+  const pool = [...gradeQuestions].sort(() => Math.random() - 0.5);
 
-    const topicQs = gradeQuestions.filter(q => q.topic === topic && !usedIds.has(q.id));
-    let candidates = topicQs.filter(q => q.difficulty === diff);
+  for (let i = 0; i < totalQuestions; i++) {
+    const diff = config.difficulty[Math.min(i, config.difficulty.length - 1)];
+    const available = pool.filter(q => !usedIds.has(q.id));
+
+    // Find which topic has been used least so far — prefer variety but don't force it
+    const topicCounts = {};
+    for (const t of usedTopics) topicCounts[t] = (topicCounts[t] || 0) + 1;
+    const leastUsedTopic = [1, 2, 3, 4, 5]
+      .filter(t => available.some(q => q.topic === t))
+      .sort((a, b) => (topicCounts[a] || 0) - (topicCounts[b] || 0))[0];
+
+    // Priority: matching diff + least-used topic → matching diff any topic → adjacent diff → any
+    let candidates = leastUsedTopic
+      ? available.filter(q => q.topic === leastUsedTopic && q.difficulty === diff)
+      : [];
+    if (!candidates.length) candidates = available.filter(q => q.difficulty === diff);
     if (!candidates.length) {
       const adj = diff === "easy" ? "medium" : diff === "hard" ? "medium" : "easy";
-      candidates = topicQs.filter(q => q.difficulty === adj);
+      candidates = available.filter(q => q.difficulty === adj);
     }
-    if (!candidates.length) candidates = topicQs;
-    if (!candidates.length) candidates = gradeQuestions.filter(q => !usedIds.has(q.id));
+    if (!candidates.length) candidates = available;
 
-    const shuffled = [...candidates].sort(() => Math.random() - 0.5);
-    const question = shuffled[0] || null;
-    if (question) usedIds.add(question.id);
+    const question = candidates[0] || null;
+    if (question) {
+      usedIds.add(question.id);
+      usedTopics.push(question.topic);
+    }
     questions.push(question);
   }
+
   return questions;
 }
 
@@ -64,29 +80,29 @@ const LEVEL_THEMES = [
 // ─── Enemy waves per level ───
 const ENEMY_WAVES = [
   // World 1: Training Dojo
-  { skulkin: 2, serpentine: 0, stoneWarrior: 0, dragon: 0 }, // Level 1
-  { skulkin: 4, serpentine: 0, stoneWarrior: 0, dragon: 0 }, // Level 2
-  { skulkin: 3, serpentine: 1, stoneWarrior: 0, dragon: 0 }, // Level 3
-  { skulkin: 3, serpentine: 2, stoneWarrior: 0, dragon: 0 }, // Level 4
-  { skulkin: 2, serpentine: 3, stoneWarrior: 0, dragon: 0 }, // Level 5
+  { skulkin: 4, serpentine: 0, stoneWarrior: 0, dragon: 0 },  // Level 1
+  { skulkin: 6, serpentine: 1, stoneWarrior: 0, dragon: 0 },  // Level 2
+  { skulkin: 5, serpentine: 3, stoneWarrior: 0, dragon: 0 },  // Level 3
+  { skulkin: 4, serpentine: 4, stoneWarrior: 1, dragon: 0 },  // Level 4
+  { skulkin: 3, serpentine: 5, stoneWarrior: 2, dragon: 0 },  // Level 5
   // World 2: Serpentine Caves
-  { skulkin: 0, serpentine: 5, stoneWarrior: 0, dragon: 0 }, // Level 6
-  { skulkin: 0, serpentine: 4, stoneWarrior: 1, dragon: 0 }, // Level 7
-  { skulkin: 0, serpentine: 3, stoneWarrior: 2, dragon: 0 }, // Level 8
-  { skulkin: 0, serpentine: 2, stoneWarrior: 3, dragon: 0 }, // Level 9
-  { skulkin: 0, serpentine: 1, stoneWarrior: 4, dragon: 0 }, // Level 10
+  { skulkin: 2, serpentine: 7, stoneWarrior: 2, dragon: 0 },  // Level 6
+  { skulkin: 0, serpentine: 6, stoneWarrior: 3, dragon: 0 },  // Level 7
+  { skulkin: 0, serpentine: 5, stoneWarrior: 4, dragon: 1 },  // Level 8
+  { skulkin: 0, serpentine: 4, stoneWarrior: 5, dragon: 1 },  // Level 9
+  { skulkin: 0, serpentine: 3, stoneWarrior: 6, dragon: 2 },  // Level 10
   // World 3: Dark Island (enemy dragons appear!)
-  { skulkin: 0, serpentine: 2, stoneWarrior: 3, dragon: 1 }, // Level 11
-  { skulkin: 0, serpentine: 1, stoneWarrior: 4, dragon: 1 }, // Level 12
-  { skulkin: 0, serpentine: 0, stoneWarrior: 4, dragon: 2 }, // Level 13
-  { skulkin: 0, serpentine: 0, stoneWarrior: 3, dragon: 3 }, // Level 14
-  { skulkin: 0, serpentine: 0, stoneWarrior: 2, dragon: 4 }, // Level 15
+  { skulkin: 0, serpentine: 3, stoneWarrior: 5, dragon: 3 },  // Level 11
+  { skulkin: 0, serpentine: 2, stoneWarrior: 5, dragon: 4 },  // Level 12
+  { skulkin: 0, serpentine: 1, stoneWarrior: 5, dragon: 5 },  // Level 13
+  { skulkin: 0, serpentine: 0, stoneWarrior: 5, dragon: 6 },  // Level 14
+  { skulkin: 0, serpentine: 0, stoneWarrior: 4, dragon: 7 },  // Level 15
   // World 4: Overlord's Tower
-  { skulkin: 0, serpentine: 0, stoneWarrior: 3, dragon: 4 }, // Level 16
-  { skulkin: 0, serpentine: 0, stoneWarrior: 2, dragon: 5 }, // Level 17
-  { skulkin: 0, serpentine: 0, stoneWarrior: 1, dragon: 6 }, // Level 18
-  { skulkin: 0, serpentine: 0, stoneWarrior: 0, dragon: 7 }, // Level 19
-  { skulkin: 0, serpentine: 0, stoneWarrior: 0, dragon: 9 }, // Level 20: Boss level
+  { skulkin: 0, serpentine: 0, stoneWarrior: 5, dragon: 7 },  // Level 16
+  { skulkin: 0, serpentine: 0, stoneWarrior: 4, dragon: 8 },  // Level 17
+  { skulkin: 0, serpentine: 0, stoneWarrior: 3, dragon: 9 },  // Level 18
+  { skulkin: 0, serpentine: 0, stoneWarrior: 2, dragon: 10 }, // Level 19
+  { skulkin: 0, serpentine: 0, stoneWarrior: 2, dragon: 12 }, // Level 20: Boss level
 ];
 
 // ─── Canvas constants ───
@@ -449,9 +465,11 @@ function drawPlatform(ctx, p, cameraX, theme) {
   }
 }
 
-function drawGate(ctx, gate, cameraX) {
+function drawGate(ctx, gate, cameraX, questionsPerGate) {
   const sx = gate.x - cameraX;
   if (sx < -50 || sx > CANVAS_W + 50) return;
+  const qPerGate = questionsPerGate || 1;
+  const answered = gate.answeredCount || 0;
 
   if (gate.locked) {
     // Locked gate: amber/red
@@ -469,6 +487,19 @@ function drawGate(ctx, gate, cameraX) {
     ctx.font = "bold 22px sans-serif";
     ctx.textAlign = "center";
     ctx.fillText("?", sx + gate.w / 2, gate.y + gate.h / 2 + 8);
+
+    // Progress dots above gate (shows how many questions answered)
+    if (qPerGate > 1) {
+      const dotY = gate.y - 10;
+      const totalDotW = qPerGate * 8;
+      const dotStartX = sx + gate.w / 2 - totalDotW / 2;
+      for (let d = 0; d < qPerGate; d++) {
+        ctx.beginPath();
+        ctx.arc(dotStartX + d * 8 + 3, dotY, 3, 0, Math.PI * 2);
+        ctx.fillStyle = d < answered ? "#4ade80" : "#92400e";
+        ctx.fill();
+      }
+    }
   } else {
     // Unlocked gate: green
     ctx.fillStyle = "#166534";
@@ -1053,6 +1084,7 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
       projectiles: [],
       totalW: level.totalW,
       gateCount: config.gates,
+      questionsPerGate: config.questionsPerGate || 1,
       paused: false,
       lives: startLives,
       gatesOpened: 0,
@@ -1387,11 +1419,16 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
           p.x = gate.x - PLAYER_W - 2;
           p.vx = 0;
           g.paused = true;
+          // Calculate which question index this gate's current sub-question maps to
+          const qPerGate = g.questionsPerGate || 1;
+          const answeredInGate = gate.answeredCount || 0;
+          const baseQIdx = gate.questionIdx * qPerGate;
           setShowGate(true);
-          setGateIdx(gate.questionIdx);
+          setGateIdx(baseQIdx + answeredInGate);
           setSelectedAnswer(null);
           setFeedback(null);
           setShowExplanation(false);
+          g._currentGate = gate; // track which gate is active
           break;
         }
       }
@@ -1426,7 +1463,7 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
     drawParallax(ctx, g.cameraX, CANVAS_W, CANVAS_H, g.levelNum, g.frameCount);
 
     g.platforms.forEach(p => drawPlatform(ctx, p, g.cameraX, theme));
-    g.gates.forEach(gate => drawGate(ctx, gate, g.cameraX));
+    g.gates.forEach(gate => drawGate(ctx, gate, g.cameraX, g.questionsPerGate));
 
     // Draw enemies
     g.enemies.forEach(en => {
@@ -1535,29 +1572,41 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
     const g = gameRef.current;
     const q = gateQuestions[gateIdx];
     const isCorrect = feedback === "correct";
+    const gate = g._currentGate;
+    const qPerGate = g.questionsPerGate || 1;
 
     if (isCorrect) {
-      // Unlock gate
-      const gate = g.gates.find(gt => gt.questionIdx === gateIdx);
-      if (gate) gate.locked = false;
-      g.gatesOpened++;
-
-      // Award sparks for correct answer
+      // Award sparks + boost for every correct answer
       if (addSparks) addSparks(SPARKS_REWARDS.ninjaGateCorrect);
-
-      // Activate answer boost + sound!
       g.player.boost = ANSWER_BOOST.duration;
       playSound("boost");
+      g.boostNotify = 120;
 
-      // Show sparks + boost notification
-      g.boostNotify = 120; // 2 seconds
+      // Track answered count within this gate
+      if (gate) {
+        gate.answeredCount = (gate.answeredCount || 0) + 1;
 
-      // Move player past gate
-      if (gate) g.player.x = gate.x + gate.w + 10;
+        if (gate.answeredCount >= qPerGate) {
+          // All questions answered — unlock gate!
+          gate.locked = false;
+          g.gatesOpened++;
+          g.player.x = gate.x + gate.w + 10;
+        } else {
+          // More questions to go — show next question immediately
+          const nextQIdx = gate.questionIdx * qPerGate + gate.answeredCount;
+          setGateIdx(nextQIdx);
+          setSelectedAnswer(null);
+          setFeedback(null);
+          setShowExplanation(false);
+          return; // stay in gate overlay
+        }
+      }
     } else {
-      // Push player back
-      const gate = g.gates.find(gt => gt.questionIdx === gateIdx);
-      if (gate) g.player.x = gate.x - PLAYER_W - 40;
+      // Wrong answer — push back, gate stays locked, reset gate progress
+      if (gate) {
+        gate.answeredCount = 0; // must restart all questions for this gate
+        g.player.x = gate.x - PLAYER_W - 40;
+      }
 
       if (g.lives <= 0) {
         setPhase("result");
@@ -1570,6 +1619,7 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
     setFeedback(null);
     setShowExplanation(false);
     g.paused = false;
+    g._currentGate = null;
   };
 
   // ─── Finish level ───
@@ -1863,14 +1913,30 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
         {showGate && currentQ && (
           <div className="ninja-gate-overlay">
             <div className="ninja-gate-card">
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-                <span style={{ color: "#fbbf24", fontWeight: 700, fontSize: 14 }}>🚧 שער {gateIdx + 1}</span>
-                <div style={{ display: "flex", gap: 4, fontSize: 18 }}>
-                  {Array.from({ length: 3 }).map((_, i) => (
-                    <span key={i} style={{ opacity: i < lives ? 1 : 0.2 }}>❤️</span>
-                  ))}
-                </div>
-              </div>
+              {(() => {
+                const g = gameRef.current;
+                const qPerGate = g?.questionsPerGate || 1;
+                const gate = g?._currentGate;
+                const answered = gate?.answeredCount || 0;
+                const gateNum = gate ? gate.questionIdx + 1 : 1;
+                return (
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                    <div>
+                      <span style={{ color: "#fbbf24", fontWeight: 700, fontSize: 14 }}>🚧 שער {gateNum}</span>
+                      {qPerGate > 1 && (
+                        <span style={{ color: "#94a3b8", fontSize: 12, marginRight: 8 }}>
+                          {" "}שאלה {answered + 1}/{qPerGate}
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ display: "flex", gap: 4, fontSize: 18 }}>
+                      {Array.from({ length: g?.lives > 3 ? 4 : 3 }).map((_, i) => (
+                        <span key={i} style={{ opacity: i < lives ? 1 : 0.2 }}>❤️</span>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* Question */}
               <div className="question-card" style={{ marginBottom: 12 }}>
@@ -1943,7 +2009,15 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
                     <p className="explanation-text">{currentQ.explanation}</p>
                   </div>
                   <button className="primary-btn w-full" onClick={closeGate}>
-                    {feedback === "correct" ? "← המשך ריצה!" : lives > 0 ? "← נסו שוב" : "📊 לתוצאות"}
+                    {feedback === "correct"
+                      ? (() => {
+                          const g = gameRef.current;
+                          const gate = g?._currentGate;
+                          const qPG = g?.questionsPerGate || 1;
+                          const ans = (gate?.answeredCount || 0) + 1;
+                          return ans < qPG ? `⚡ שאלה הבאה (${ans}/${qPG})` : "← המשך ריצה!";
+                        })()
+                      : lives > 0 ? "← נסו שוב" : "📊 לתוצאות"}
                   </button>
                 </div>
               ) : null}
