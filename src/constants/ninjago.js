@@ -5,7 +5,7 @@
 
 // ─── Sparks Earning Rates ───
 export const SPARKS_REWARDS = {
-  practiceCorrectFirst: 2,    // correct on first attempt in practice
+  practiceCorrectFirst: 3,    // correct on first attempt in practice
   practiceCorrectSecond: 1,   // correct on second attempt
   topicComplete: 5,           // finish all questions in a practice topic
   gameLevelPass: 10,          // pass a game level
@@ -50,7 +50,7 @@ export const GAME_UNLOCKS = [
   { gameId: "arithmetic", sparksNeeded: 0 },
   { gameId: "adventure",  sparksNeeded: 50 },
   { gameId: "clock",      sparksNeeded: 150 },
-  { gameId: "ninjago",    sparksNeeded: 300 },
+  { gameId: "ninjago",    sparksNeeded: 500 },
 ];
 
 // ─── Game Progression (level cap from previous game) ───
@@ -87,7 +87,7 @@ export const SPECIAL_ABILITIES = [
 
 // ─── Question Answer Boost ───
 export const ANSWER_BOOST = {
-  duration: 480,       // ~8 seconds at 60fps
+  duration: 1000,       // ~16 seconds at 60fps
   speedMult: 1.3,      // +30% speed
   jumpMult: 1.2,       // +20% jump
   sizeMult: 1.25,      // +25% size
