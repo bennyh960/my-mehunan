@@ -105,6 +105,12 @@ const ENEMY_WAVES = [
   { skulkin: 0, serpentine: 0, stoneWarrior: 2, dragon: 12 }, // Level 20: Boss level
 ];
 
+// ─── Point values ───
+const KILL_POINTS = { skulkin: 2, serpentine: 3, stoneWarrior: 5, dragon: 8 };
+const COIN_POINTS = 1;
+const GATE_POINTS_FIRST = 15;  // correct on 1st attempt
+const GATE_POINTS_SECOND = 10; // correct on 2nd attempt (after wrong→retry)
+
 // ─── Canvas constants ───
 const CANVAS_W = 800;
 const CANVAS_H = 400;
@@ -198,7 +204,20 @@ function generateLevel(gateCount, levelNum) {
     });
   }
 
-  return { platforms, gates, enemies, totalW };
+  // Collectible stars/coins on platforms
+  const coins = [];
+  const allPlats = platforms.filter(p => p.w >= 80);
+  const coinCount = gateCount * 4 + levelNum * 2;
+  for (let i = 0; i < coinCount; i++) {
+    const plat = allPlats[Math.floor(Math.random() * allPlats.length)];
+    const cx = plat.x + 20 + Math.random() * (plat.w - 40);
+    const cy = plat.y - (plat.type === "elevated" ? 20 : 18 + Math.random() * 40);
+    const tooClose = gates.some(g => Math.abs(cx - g.x) < 60);
+    if (tooClose) continue;
+    coins.push({ x: cx, y: cy, collected: false });
+  }
+
+  return { platforms, gates, enemies, coins, totalW };
 }
 
 // ─── Drawing helpers ───
@@ -638,7 +657,7 @@ function drawFinishFlag(ctx, totalW, cameraX, ninjaColor) {
   ctx.fillText("⭐", fx + 16, GROUND_Y - 60);
 }
 
-function drawHUD(ctx, lives, maxLives, gateProgress, totalGates, powerCooldown, weaponCooldown, ninjaColor, boost, shieldCount, dashCooldown, frame) {
+function drawHUD(ctx, lives, maxLives, gateProgress, totalGates, powerCooldown, weaponCooldown, ninjaColor, boost, shieldCount, dashCooldown, frame, currentSparks) {
   // Lives
   ctx.font = "18px sans-serif";
   for (let i = 0; i < maxLives; i++) {
@@ -701,6 +720,16 @@ function drawHUD(ctx, lives, maxLives, gateProgress, totalGates, powerCooldown, 
     ctx.fillRect(10, boost > 0 ? 44 : 38, 60, 4);
     ctx.fillStyle = "#a855f7";
     ctx.fillRect(10, boost > 0 ? 44 : 38, 60 * dPct, 4);
+  }
+
+  // Sparks counter (top-right, below gate dots)
+  if (currentSparks !== undefined) {
+    ctx.save();
+    ctx.textAlign = "right";
+    ctx.font = "bold 14px sans-serif";
+    ctx.fillStyle = "#fbbf24";
+    ctx.fillText(`✨ ${currentSparks}`, CANVAS_W - 12, 38);
+    ctx.restore();
   }
 }
 
@@ -1080,6 +1109,7 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
       platforms: level.platforms,
       gates: level.gates,
       enemies: level.enemies,
+      coins: level.coins,
       energyBalls: [],
       projectiles: [],
       totalW: level.totalW,
@@ -1088,6 +1118,9 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
       paused: false,
       lives: startLives,
       gatesOpened: 0,
+      levelSparks: 0,
+      displaySparks: sparks || 0,
+      floatingTexts: [],
       finished: false,
       levelNum: config.level,
       frameCount: 0,
@@ -1095,6 +1128,16 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
 
     setPhase("playing");
   }, [levels, gradeQ, sparks, isAdmin]);
+
+  // Helper: award sparks and update both global state + game display counter
+  const awardSparks = useCallback((pts) => {
+    if (addSparks) addSparks(pts);
+    const g = gameRef.current;
+    if (g) {
+      g.levelSparks += pts;
+      g.displaySparks += pts;
+    }
+  }, [addSparks]);
 
   // ─── Keyboard handlers ───
   useEffect(() => {
@@ -1304,6 +1347,9 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
             if (en.hp <= 0) {
               en.alive = false;
               en.deathTimer = 15;
+              const pts = KILL_POINTS[en.type] || 1;
+              awardSparks(pts);
+              g.floatingTexts.push({ x: en.x, y: en.y - 10, text: `+${pts}`, life: 60 });
             }
             playSound("correct");
             return false;
@@ -1351,6 +1397,9 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
             if (en.hp <= 0) {
               en.alive = false;
               en.deathTimer = 15;
+              const pts = KILL_POINTS[en.type] || 1;
+              awardSparks(pts);
+              g.floatingTexts.push({ x: en.x, y: en.y - 10, text: `+${pts}`, life: 60 });
             }
             p.vy = JUMP_FORCE * 0.6;
             playSound("correct");
@@ -1408,12 +1457,29 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
         p.vx = 0;
       }
 
-      // Gate collision
+      // Coin collection
+      for (const coin of g.coins) {
+        if (coin.collected) continue;
+        if (p.x + PLAYER_W > coin.x - 8 && p.x < coin.x + 8 &&
+            p.y + PLAYER_H > coin.y - 8 && p.y < coin.y + 8) {
+          coin.collected = true;
+          awardSparks(COIN_POINTS);
+          g.floatingTexts.push({ x: coin.x, y: coin.y - 10, text: `+${COIN_POINTS}`, life: 40 });
+        }
+      }
+
+      // Floating text update
+      g.floatingTexts = g.floatingTexts.filter(ft => {
+        ft.life--;
+        ft.y -= 0.5;
+        return ft.life > 0;
+      });
+
+      // Gate collision (full-height barrier — can't jump over locked gates)
       for (const gate of g.gates) {
         if (gate.locked &&
           p.x + PLAYER_W > gate.x &&
-          p.x < gate.x + gate.w &&
-          p.y + PLAYER_H > gate.y
+          p.x < gate.x + gate.w
         ) {
           // Push player back
           p.x = gate.x - PLAYER_W - 2;
@@ -1433,12 +1499,18 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
         }
       }
 
-      // Finish line check
+      // Finish line check — must answer ALL gates first
       if (p.x + PLAYER_W >= g.totalW - 80 && !g.finished) {
-        g.finished = true;
-        setLevelComplete(true);
-        setPhase("result");
-        return;
+        if (g.gatesOpened >= g.gateCount) {
+          g.finished = true;
+          setLevelComplete(true);
+          setPhase("result");
+          return;
+        } else {
+          // Block at finish line until all gates are opened
+          p.x = g.totalW - 80 - PLAYER_W - 2;
+          p.vx = 0;
+        }
       }
 
       // Camera
@@ -1464,6 +1536,39 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
 
     g.platforms.forEach(p => drawPlatform(ctx, p, g.cameraX, theme));
     g.gates.forEach(gate => drawGate(ctx, gate, g.cameraX, g.questionsPerGate));
+
+    // Draw coins
+    g.coins.forEach(coin => {
+      if (coin.collected) return;
+      const sx = coin.x - g.cameraX;
+      if (sx < -20 || sx > CANVAS_W + 20) return;
+      const bob = Math.sin(g.frameCount * 0.08 + coin.x) * 3;
+      const cy = coin.y + bob;
+      // Star shape
+      ctx.save();
+      ctx.translate(sx, cy);
+      ctx.rotate(g.frameCount * 0.03);
+      ctx.beginPath();
+      for (let i = 0; i < 5; i++) {
+        const a = (i * 4 * Math.PI) / 5 - Math.PI / 2;
+        const r = i === 0 ? 7 : 7;
+        ctx[i === 0 ? "moveTo" : "lineTo"](Math.cos(a) * r, Math.sin(a) * r);
+        const a2 = a + (2 * Math.PI) / 10;
+        ctx.lineTo(Math.cos(a2) * 3, Math.sin(a2) * 3);
+      }
+      ctx.closePath();
+      ctx.fillStyle = "#fbbf24";
+      ctx.fill();
+      ctx.strokeStyle = "#f59e0b";
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      // Glow
+      ctx.shadowColor = "#fbbf24";
+      ctx.shadowBlur = 6;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.restore();
+    });
 
     // Draw enemies
     g.enemies.forEach(en => {
@@ -1494,7 +1599,25 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
       invincible: g.player.invincible,
     }, chosenNinja.color, g.player.boost, g.player.shield);
     const maxLives = hasAbility("extraLife", sparks, isAdmin) ? 4 : 3;
-    drawHUD(ctx, g.lives, maxLives, g.gatesOpened, g.gateCount, g.player.powerCooldown, stats.weaponCooldown, chosenNinja.shootColor, g.player.boost, g.player.shield, g.player.dashCooldown, g.frameCount);
+    drawHUD(ctx, g.lives, maxLives, g.gatesOpened, g.gateCount, g.player.powerCooldown, stats.weaponCooldown, chosenNinja.shootColor, g.player.boost, g.player.shield, g.player.dashCooldown, g.frameCount, g.displaySparks);
+
+    // Floating point texts
+    if (g.floatingTexts) {
+      g.floatingTexts.forEach(ft => {
+        const sx = ft.x - g.cameraX;
+        if (sx < -50 || sx > CANVAS_W + 50) return;
+        ctx.save();
+        ctx.globalAlpha = Math.min(1, ft.life / 20);
+        ctx.font = "bold 14px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#fbbf24";
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = 2;
+        ctx.strokeText(ft.text, sx, ft.y);
+        ctx.fillText(ft.text, sx, ft.y);
+        ctx.restore();
+      });
+    }
 
     // Boost + sparks notification popup
     if (g.boostNotify > 0) {
@@ -1507,7 +1630,7 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
       // Sparks earned text
       ctx.font = "bold 16px sans-serif";
       ctx.fillStyle = "#fbbf24";
-      ctx.fillText(`+${SPARKS_REWARDS.ninjaGateCorrect} ניצוצות ✨`, CANVAS_W / 2, CANVAS_H / 2 - 20 - rise);
+      ctx.fillText(`+${g.lastGatePoints || 15} ניצוצות ✨`, CANVAS_W / 2, CANVAS_H / 2 - 20 - rise);
       // Boost text
       ctx.font = "bold 14px sans-serif";
       ctx.fillStyle = "#4ade80";
@@ -1576,8 +1699,11 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
     const qPerGate = g.questionsPerGate || 1;
 
     if (isCorrect) {
-      // Award sparks + boost for every correct answer
-      if (addSparks) addSparks(SPARKS_REWARDS.ninjaGateCorrect);
+      // Award sparks based on attempt: 15 for 1st, 10 for 2nd (retry after wrong)
+      const attempt = gate?.currentAttempt || 1;
+      const pts = attempt === 1 ? GATE_POINTS_FIRST : GATE_POINTS_SECOND;
+      awardSparks(pts);
+      g.lastGatePoints = pts;
       g.player.boost = ANSWER_BOOST.duration;
       playSound("boost");
       g.boostNotify = 120;
@@ -1585,6 +1711,7 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
       // Track answered count within this gate
       if (gate) {
         gate.answeredCount = (gate.answeredCount || 0) + 1;
+        gate.currentAttempt = 1; // reset attempt for next sub-question
 
         if (gate.answeredCount >= qPerGate) {
           // All questions answered — unlock gate!
@@ -1602,9 +1729,10 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
         }
       }
     } else {
-      // Wrong answer — push back, gate stays locked, reset gate progress
+      // Wrong answer — push back, mark gate as 2nd attempt, reset answered progress
       if (gate) {
         gate.answeredCount = 0; // must restart all questions for this gate
+        gate.currentAttempt = 2; // next time they answer correctly it's 2nd attempt
         g.player.x = gate.x - PLAYER_W - 40;
       }
 
@@ -2071,11 +2199,20 @@ export function NinjaGame({ settings, gradeQ, gameProgress, saveGameProgress, pl
               ))}
             </div>
 
-            {sparksEarned > 0 && (
-              <div style={{ color: '#fbbf24', fontWeight: 700, fontSize: 16, marginTop: 4 }}>
-                ✨ +{sparksEarned} ניצוצות
-              </div>
-            )}
+            {(() => {
+              const lvlSparks = gameRef.current?.levelSparks || 0;
+              const total = lvlSparks + (sparksEarned || 0);
+              return total > 0 ? (
+                <div style={{ color: '#fbbf24', fontWeight: 700, fontSize: 16, marginTop: 4 }}>
+                  ✨ +{total} ניצוצות
+                  {lvlSparks > 0 && sparksEarned > 0 && (
+                    <div style={{ fontSize: 11, fontWeight: 400, color: '#94a3b8' }}>
+                      ({lvlSparks} במשחק + {sparksEarned} בונוס סיום)
+                    </div>
+                  )}
+                </div>
+              ) : null;
+            })()}
 
             <div className="flex-col gap-8" style={{ marginTop: 16 }}>
               <button className="primary-btn w-full" onClick={() => startLevel(selectedLevel)}>
