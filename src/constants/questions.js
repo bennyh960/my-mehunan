@@ -571,7 +571,7 @@ export const QUESTIONS = [
     question:"חורף : קר", options:["קיץ : חם","סתיו : גשם","אביב : פרחים","לילה : ירח"], correct:0,
     explanation:"עונה ותכונה מרכזית. חורף=קר, קיץ=חם." },
   { id:"1-54",topic:1,grades:[3, 4],difficulty:"hard",
-    question:"עכביש : רשת", options:["דבורה : דבש","ציפור : קן","תולעת : אדמה","נמלה : גבעה"], correct:0,
+    question:"עכביש : רשת", options:["דבורה : דבש","ציפור : עץ","תולעת : אדמה","נמלה : גבעה"], correct:0,
     explanation:"חיה ומוצר שהיא מייצרת מגופה. עכביש→רשת, דבורה→דבש." },
   { id:"1-55",topic:1,grades:[3, 4],difficulty:"hard",
     question:"מפתח : מנעול", options:["שלט : טלוויזיה","כפתור : חולצה","פקק : בקבוק","חגורה : מכנסיים"], correct:0,
