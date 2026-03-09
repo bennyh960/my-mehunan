@@ -19,6 +19,7 @@ import { ArithmeticGame } from './screens/ArithmeticGame';
 import { AdventureGame } from './screens/AdventureGame';
 import { ClockGame } from './screens/ClockGame';
 import { NinjaGame } from './screens/NinjaGame';
+import { DungeonGame } from './screens/DungeonGame';
 import { DEFAULT_GAME_PROGRESS } from './constants/games';
 import { SPARKS_REWARDS, ADMIN_USERNAME, isGameUnlocked } from './constants/ninjago';
 
@@ -337,6 +338,10 @@ export default function App() {
 
   if (screen === "ninja-game" || screen === "ninjago-game") {
     return <NinjaGame settings={settings} gradeQ={gradeQ} gameProgress={gameProgress} saveGameProgress={saveGameProgress} playSound={playSound} setScreen={setScreen} addSparks={addSparks} isAdmin={isAdmin} sparks={sparks} />;
+  }
+
+  if (screen === "dungeon-game") {
+    return <DungeonGame settings={settings} gradeQ={gradeQ} gameProgress={gameProgress} saveGameProgress={saveGameProgress} playSound={playSound} setScreen={setScreen} addSparks={addSparks} isAdmin={isAdmin} sparks={sparks} />;
   }
 
   if (screen==="settings") {

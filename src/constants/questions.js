@@ -1,562 +1,15 @@
 export const QUESTIONS = [
   // =================== TOPIC 1: Analogies ===================
-  { id:"1-1",topic:1,grades:[2, 3],difficulty:"easy",
-    question:"כלב : נביחה", options:["ברווז : כנפיים","גמל : מים","ציפור : ציוץ","חתול : ליקוק"], correct:2,
-    explanation:"הקשר: חיה והקול שהיא משמיעה. כלב נובח, ציפור מצייצת. חתול לא מליקוק (ליקוק זה פעולה לא קול), ברווז וכנפיים זה חיה ואיבר." },
-  { id:"1-2",topic:1,grades:[2, 3],difficulty:"easy",
-    question:"עין : לראות", options:["אוזן : לשמוע","יד : כפפה","פה : שיניים","רגל : נעל"], correct:0,
-    explanation:"הקשר: איבר בגוף והפעולה שלו. עין לראות, אוזן לשמוע." },
-  { id:"1-3",topic:1,grades:[2, 3],difficulty:"easy",
-    question:"חם : קר", options:["גבוה : נמוך","ירוק : עץ","מהיר : רכב","גדול : בית"], correct:0,
-    explanation:"הקשר: מילים הפוכות (ניגודים). חם↔קר, גבוה↔נמוך." },
-  { id:"1-4",topic:1,grades:[2],difficulty:"easy",
-    question:"לילה : חושך", options:["יום : אור","ערב : ירח","בוקר : ארוחה","צהריים : שמש"], correct:0,
-    explanation:"הקשר: זמן ביום והתכונה שלו. לילה=חושך, יום=אור." },
-  { id:"1-5",topic:1,grades:[2],difficulty:"easy",
-    question:"גשם : מטרייה", options:["שמש : כובע","רוח : עץ","שלג : חורף","עננים : שמיים"], correct:0,
-    explanation:"הקשר: תופעת מזג אוויר וחפץ שמגן ממנה. גשם→מטרייה, שמש→כובע." },
-  { id:"1-6",topic:1,grades:[2],difficulty:"medium",
-    question:"רופא : חולה", options:["מורה : תלמיד","שוטר : ניידת","טייס : מטוס","נהג : כביש"], correct:0,
-    explanation:"הקשר: בעל מקצוע והאדם שהוא משרת. רופא מטפל בחולה, מורה מלמד תלמיד." },
-  { id:"1-7",topic:1,grades:[2],difficulty:"medium",
-    question:"כנף : ציפור", options:["סנפיר : דג","רגל : שולחן","גלגל : מכונית","זנב : חתול"], correct:0,
-    explanation:"הקשר: איבר תנועה ייחודי של חיה. כנף=ציפור עפה, סנפיר=דג שוחה." },
-
-  { id:"1-8",topic:1,grades:[2, 3],difficulty:"easy",
-    question:"טבח : מטבח", options:["מורה : לימודים","שופט : בית משפט","שליח : משלוח","חולה : בית חולים"], correct:1,
-    explanation:"הקשר: בעל מקצוע ומקום עבודתו. טבח→מטבח, שופט→בית משפט." },
-  { id:"1-9",topic:1,grades:[3, 4],difficulty:"medium",
-    question:"לטרוק : לסגור", options:["לשמוע : להקשיב","להבין : לנחש","לצעוק : לדבר","לתת : להשאיל"], correct:2,
-    explanation:"הקשר: פעולה חזקה ופעולה רגילה. לטרוק=לסגור בחוזקה, לצעוק=לדבר בחוזקה." },
-  { id:"1-10",topic:1,grades:[2, 3, 4],difficulty:"medium",
-    question:"ספר : מדף", options:["כביש : מכונית","מכתב : מעטפה","בגד : ארון","עט : דיו"], correct:2,
-    explanation:"הקשר: חפץ ומקום אחסון. ספר במדף, בגד בארון." },
-  { id:"1-11",topic:1,grades:[3, 4],difficulty:"medium",
-    question:"צמא : שתייה", options:["עייפות : מיטה","רעב : אוכל","קור : מעיל","שמחה : חיוך"], correct:1,
-    explanation:"הקשר: צורך ומה שפותר אותו. צמא→שתייה, רעב→אוכל." },
-  { id:"1-12",topic:1,grades:[2, 3],difficulty:"medium",
-    question:"דבש : מתוק", options:["לימון : חמוץ","מלח : ים","סוכר : עוגה","שוקולד : חום"], correct:0,
-    explanation:"הקשר: מאכל והטעם שלו. דבש=מתוק, לימון=חמוץ." },
-  { id:"1-13",topic:1,grades:[3, 4],difficulty:"hard",
-    question:"אצבע : כפפה", options:["ראש : כובע","עין : משקפיים","רגל : נעל","גוף : חולצה"], correct:2,
-    explanation:"הקשר: איבר ולבוש צמוד שמכסה אותו בדיוק. אצבע→כפפה (צמוד), רגל→נעל (צמוד). כובע לא צמוד כמו כפפה." },
-  { id:"1-14",topic:1,grades:[3],difficulty:"hard",
-    question:"צייר : מכחול", options:["נגר : מסור","שחקן : במה","זמר : שיר","סופר : ספרייה"], correct:0,
-    explanation:"הקשר: בעל מקצוע וכלי העבודה שלו. צייר+מכחול, נגר+מסור." },
-
-  { id:"1-15",topic:1,grades:[3, 4],difficulty:"medium",
-    question:"זחל : פרפר", options:["ביצה : תרנגולת","ראשן : צפרדע","גור : כלב","זרע : פרח"], correct:1,
-    explanation:"הקשר: שלב צעיר ובוגר עם מטמורפוזה (שינוי צורה). זחל→פרפר, ראשן→צפרדע. גור→כלב אין שינוי צורה." },
-  { id:"1-16",topic:1,grades:[3, 4],difficulty:"medium",
-    question:"שעון : זמן", options:["מד-חום : טמפרטורה","טלפון : שיחה","מפה : דרך","מחשב : חשמל"], correct:0,
-    explanation:"הקשר: מכשיר מדידה והדבר שהוא מודד. שעון→זמן, מד-חום→טמפרטורה." },
-  { id:"1-17",topic:1,grades:[4],difficulty:"hard",
-    question:"מספריים : גזירה", options:["מחט : תפירה","מסרק : שיער","עיפרון : נייר","סיר : מטבח"], correct:0,
-    explanation:"הקשר: כלי והפעולה שעושים איתו. מספריים→גזירה, מחט→תפירה." },
-  { id:"1-18",topic:1,grades:[4],difficulty:"hard",
-    question:"נמלה : שקדנית", options:["שועל : ערמומי","אריה : גדול","דג : מים","ציפור : כנפיים"], correct:0,
-    explanation:"הקשר: חיה ותכונת אופי מיוחסת. נמלה=שקדנית, שועל=ערמומי. 'אריה גדול' זו תכונה פיזית לא אופי." },
-  { id:"1-19",topic:1,grades:[4],difficulty:"hard",
-    question:"מילה : משפט", options:["אות : מילה","פסקה : טקסט","ספרה : מספר","צליל : שיר"], correct:0,
-    explanation:"הקשר: יחידה קטנה שמרכיבה יחידה גדולה בדרגה אחת למעלה. מילים→משפט, אותיות→מילה." },
-  { id:"1-20",topic:1,grades:[4],difficulty:"medium",
-    question:"עלה : עץ", options:["גלגל : אופניים","חלון : בית","כפתור : חולצה","דף : מחברת"], correct:3,
-    explanation:"הקשר: חלק אחד מתוך הרבה חלקים זהים בשלם. עלים רבים על עץ, דפים רבים במחברת." },
-
+  ...AnalogiesQuestions,
   // =================== TOPIC 2: Missing Words ===================
-  { id:"2-1",topic:2,grades:[2, 3],difficulty:"easy",
-    question:'הילד רץ ______ כי הוא ______ לאוטובוס.',
-    options:["לאט / חיכה","מהר / איחר","הביתה / חזר","שמח / אהב"], correct:1,
-    explanation:'מהר/איחר - יש קשר סיבתי: הוא רץ מהר בגלל שאיחר.' },
-  { id:"2-2",topic:2,grades:[2, 3],difficulty:"easy",
-    question:'הכלב ______ כאשר הוא ______ אדם זר.',
-    options:["ישן / ראה","נבח / שמע","שתק / פגש","אכל / הריח"], correct:1,
-    explanation:'כלבים נובחים כששומעים אדם זר - תגובה טבעית.' },
-  { id:"2-3",topic:2,grades:[2],difficulty:"easy",
-    question:'אמא ביקשה ממני ______ את החדר כי הוא היה ______.',
-    options:["לנקות / מלוכלך","לצבוע / גדול","לפתוח / סגור","לסגור / פתוח"], correct:0,
-    explanation:'ביקשה לנקות כי מלוכלך - קשר סיבתי ברור.' },
-  { id:"2-4",topic:2,grades:[2],difficulty:"easy",
-    question:'בחורף אני אוהב לשתות ______ כי בחוץ ______.',
-    options:["שוקו חם / קר","מים / חם","מיץ / יפה","תה / בוקר"], correct:0,
-    explanation:'בחורף קר, לכן שותים שוקו חם.' },
-  { id:"2-5",topic:2,grades:[2],difficulty:"medium",
-    question:'הציפור בנתה ______ על ______ הגבוה של העץ.',
-    options:["קן / הענף","בית / הגזע","גשר / השורש","חור / העלה"], correct:0,
-    explanation:'ציפורים בונות קן על ענפים גבוהים.' },
-  { id:"2-6",topic:2,grades:[2],difficulty:"medium",
-    question:'אני ______ בבוקר ו______ בלילה.',
-    options:["קם / ישן","ישן / קם","אוכל / שותה","שמח / עצוב"], correct:0,
-    explanation:'סדר יום: בבוקר קמים, בלילה ישנים.' },
-
-  { id:"2-7",topic:2,grades:[2, 3],difficulty:"medium",
-    question:'תמר לומדת לנגן ______ בפסנתר ______ בגיטרה.',
-    options:["רק / וגם","גם / ורק","גם / וגם","רק / ורק"], correct:2,
-    explanation:'"גם / וגם" - היחידה שהגיונית. אם מנגנת בשניהם, הגיוני לומר "גם בפסנתר וגם בגיטרה".' },
-  { id:"2-8",topic:2,grades:[3, 4],difficulty:"medium",
-    question:'זכרתי בעל-פה את כל ______ אף על פי ש______.',
-    options:["המילים של השיר / שמעתי אותו רק פעם אחת","רשימת המכולת / היא כללה רק לחם","שמות המקומות / לא הייתי בהם","מערכת השעות / היא לא השתנתה"], correct:0,
-    explanation:'"אף על פי ש" = ניגוד. מפתיע שזכרתי למרות שרק שמעתי פעם אחת.' },
-  { id:"2-9",topic:2,grades:[3, 4],difficulty:"hard",
-    question:'הספר הזה כל כך ______ שלא יכולתי ______ לקרוא אותו.',
-    options:["מעניין / להפסיק","ארוך / לסיים","כבד / להרים","יקר / לקנות"], correct:0,
-    explanation:'ספר מעניין → לא יכולתי להפסיק לקרוא. ביטוי נפוץ.' },
-  { id:"2-10",topic:2,grades:[3, 4],difficulty:"hard",
-    question:'______ שירד גשם, הילדים ______ בחוץ כאילו שום דבר לא ______.',
-    options:["למרות / שיחקו / קרה","כי / ישבו / השתנה","בגלל / נשארו / עזר","אחרי / רקדו / נגמר"], correct:0,
-    explanation:'"למרות" = ניגוד. למרות הגשם, שיחקו כאילו כלום לא קרה.' },
-  { id:"2-11",topic:2,grades:[3],difficulty:"medium",
-    question:'ככל שהתרגלתי ______, כך נהיה לי ______ יותר.',
-    options:["יותר / קל","פחות / קשה","מהר / משעמם","שוב / עצוב"], correct:0,
-    explanation:'"ככל ש...כך" = קשר ישיר. תרגול→קל יותר.' },
-
-  { id:"2-12",topic:2,grades:[4],difficulty:"medium",
-    question:'מתן קנה בחנות ______ שמלא ב______ שהוא אוהב ______.',
-    options:["זר / פרחים / מים","קופסה / צבעים / לצייר","חבילה / דפים / לקרוא","אסף / קלפים / לשיר"], correct:1,
-    explanation:'קנה קופסה מלאה בצבעים שהוא אוהב לצייר - הגיוני ושלם.' },
-  { id:"2-13",topic:2,grades:[4],difficulty:"hard",
-    question:'יעל אמרה: "______ כי מחר יש לי מבחן ______."',
-    options:["היום למדתי / שהיה לי השבוע","מחר אלמד / שיש לי עכשיו","שלשום למדתי / שאתמול היה לי","אני לומדת / שהיה לי שלשום"], correct:2,
-    explanation:'סדר זמנים: שלשום למדתי, אתמול היה מבחן, מחר יש עוד. התאמת זמנים.' },
-  { id:"2-14",topic:2,grades:[4],difficulty:"hard",
-    question:'______ שהמשחק יתחיל, הקהל כבר ______ את המקומות.',
-    options:["לפני / מילא","אחרי / פינה","בזמן / חיפש","למרות / שמר"], correct:0,
-    explanation:'לפני שהמשחק התחיל, הקהל כבר מילא את המקומות.' },
-  { id:"2-15",topic:2,grades:[4],difficulty:"hard",
-    question:'דווקא כשחשבתי ש______, גיליתי ש______.',
-    options:["הכל אבוד / יש עוד סיכוי","הצלחתי / עשיתי טוב","זה קל / אני יכול","אין בעיה / הכל בסדר"], correct:0,
-    explanation:'"דווקא" = הפתעה וניגוד. חשבתי שאבוד → גיליתי שיש סיכוי.' },
-
+ ...MissingWordsQuestions,
   // =================== TOPIC 3: Word Problems ===================
-  { id:"3-1",topic:3,grades:[2],difficulty:"easy",
-    question:"לדנה יש 24 סוכריות. היא רוצה לחלק שווה בשווה בין 4 חברות. כמה סוכריות תקבל כל חברה?",
-    options:["4","6","8","20"], correct:1,
-    explanation:"24 ÷ 4 = 6 סוכריות לכל חברה." },
-  { id:"3-2",topic:3,grades:[2],difficulty:"easy",
-    question:"לתומר יש 15 גולות. הוא נתן 4 ליוסי וקיבל 7 מרוני. כמה גולות יש לו עכשיו?",
-    options:["8","12","18","26"], correct:2,
-    explanation:"15 - 4 + 7 = 18 גולות." },
-  { id:"3-3",topic:3,grades:[2, 3],difficulty:"medium",
-    question:"ברכבת 8 קרונות, בכל קרון 30 מקומות. כמה אנשים יכולים לשבת?",
-    options:["38","80","240","300"], correct:2,
-    explanation:"8 × 30 = 240 מקומות." },
-  { id:"3-4",topic:3,grades:[2, 3],difficulty:"medium",
-    question:"בחניון 5 שורות של מכוניות, בכל שורה 8. נסעו 7 מכוניות. כמה נשארו?",
-    options:["28","33","35","40"], correct:1,
-    explanation:"5 × 8 = 40. 40 - 7 = 33." },
-  { id:"3-5",topic:3,grades:[2, 3],difficulty:"medium",
-    question:"בגן חיות 4 פילים, 6 נמרים ו-10 ציפורים. כמה רגליים יש לכולם?",
-    options:["40","60","80","100"], correct:1,
-    explanation:"פילים: 4×4=16, נמרים: 6×4=24, ציפורים: 10×2=20. סה\"כ: 60." },
-
-  { id:"3-6",topic:3,grades:[2, 3],difficulty:"medium",
-    question:"כל משפחת לוי הלכה לגלידרייה. לכל אחד 2 כדורים. סה\"כ 14 כדורים. כמה בני משפחה?",
-    options:["6","7","12","16"], correct:1,
-    explanation:"14 ÷ 2 = 7 בני משפחה." },
-  { id:"3-7",topic:3,grades:[3, 4],difficulty:"medium",
-    question:"אורי קנה 3 מחברות ב-12 ₪ כל אחת ו-2 עטים ב-5 ₪. שילם 100 ₪. כמה עודף?",
-    options:["46","54","64","83"], correct:1,
-    explanation:"3×12=36, 2×5=10. סה\"כ 46. עודף: 100-46=54." },
-  { id:"3-8",topic:3,grades:[3, 4],difficulty:"hard",
-    question:"שעון מראה 3:45. כמה דקות עברו מ-2:20?",
-    options:["65","75","85","125"], correct:2,
-    explanation:"מ-2:20 עד 3:20 = 60 דקות. עוד 25 = 85 דקות." },
-  { id:"3-9",topic:3,grades:[3, 4],difficulty:"hard",
-    question:"חנות מוכרת תפוחים בשקיות של 6. אמא צריכה 50. כמה שקיות לפחות?",
-    options:["7","8","9","10"], correct:2,
-    explanation:"50÷6=8 שארית 2. 8 שקיות=48 לא מספיק. צריך 9 שקיות=54." },
-
-  { id:"3-10",topic:3,grades:[4],difficulty:"medium",
-    question:"באולם 17 שורות, בכל שורה 11 כסאות. כמה כסאות יש?",
-    options:["28","107","170","187"], correct:3,
-    explanation:"17×11 = 17×10+17 = 170+17 = 187." },
-  { id:"3-11",topic:3,grades:[4],difficulty:"hard",
-    question:"בכיתה 28 תלמידים. הבנות פי 3 מהבנים. כמה בנים?",
-    options:["4","7","9","14"], correct:1,
-    explanation:"בנים=x, בנות=3x. x+3x=28, 4x=28, x=7." },
-  { id:"3-12",topic:3,grades:[4],difficulty:"hard",
-    question:"מספר אי-זוגי דו-ספרתי, סכום ספרותיו 11, ספרת עשרות גדולה ב-3 מאחדות. מהו?",
-    options:["11","36","47","83"], correct:2,
-    explanation:"אם אחדות=x, עשרות=x+3. x+(x+3)=11, x=4. המספר: 74. אבל 74 זוגי! הפוך: 47. 4+7=11, 7-4=3, 47 אי-זוגי ✓" },
-  { id:"3-13",topic:3,grades:[4],difficulty:"hard",
-    question:"בניין 5 קומות. בראשונה 2 דירות, בכל קומה דירה נוספת. כמה דירות?",
-    options:["10","15","20","25"], correct:2,
-    explanation:"קומה 1:2, 2:3, 3:4, 4:5, 5:6. סה\"כ 2+3+4+5+6=20." },
-  { id:"3-14",topic:3,grades:[4],difficulty:"hard",
-    question:"מיכל גדולה מנועה ב-3. נועה גדולה מעידו ב-2. מיכל בת 10. סכום גילאיהם?",
-    options:["22","24","25","27"], correct:0,
-    explanation:"מיכל=10, נועה=7, עידו=5. סה\"כ 10+7+5=22." },
-
-  // =================== TOPIC 4: Missing Number ===================
-  { id:"4-1",topic:4,grades:[2, 3],difficulty:"easy",
-    question:"circles_sum",
-    visual:{type:"circles_trio",circles:[{top:[5,4],bottom:9},{top:[8,3],bottom:11},{top:[7,6],bottom:"?"}]},
-    options:["9","10","13","42"], correct:2,
-    explanation:"הכלל: למטה = סכום למעלה. 5+4=9, 8+3=11, 7+6=13." },
-  { id:"4-2",topic:4,grades:[2],difficulty:"easy",
-    question:"circles_plus1",
-    visual:{type:"circles_trio",circles:[{top:[3,4],bottom:8},{top:[6,2],bottom:9},{top:[5,5],bottom:"?"}]},
-    options:["10","11","12","15"], correct:1,
-    explanation:"הכלל: למטה = סכום +1. 3+4+1=8, 6+2+1=9, 5+5+1=11." },
-  { id:"4-3",topic:4,grades:[2, 3],difficulty:"medium",
-    question:"circles_mult",
-    visual:{type:"circles_trio",circles:[{top:[3,2],bottom:6},{top:[4,3],bottom:12},{top:[5,4],bottom:"?"}]},
-    options:["9","15","20","24"], correct:2,
-    explanation:"הכלל: למטה = מכפלת למעלה. 3×2=6, 4×3=12, 5×4=20." },
-  { id:"4-4",topic:4,grades:[2, 3],difficulty:"medium",
-    question:"circles_mult2",
-    visual:{type:"circles_trio",circles:[{top:[2,5],bottom:10},{top:[3,4],bottom:12},{top:[6,3],bottom:"?"}]},
-    options:["9","12","18","21"], correct:2,
-    explanation:"הכלל: למטה = מכפלת למעלה. 2×5=10, 3×4=12, 6×3=18." },
-  { id:"4-5",topic:4,grades:[2],difficulty:"medium",
-    question:"seq_add2",
-    visual:{type:"sequence",numbers:[1,3,5,7,"?"]},
-    options:["8","9","10","11"], correct:1,
-    explanation:"סדרה: +2 בכל פעם. 1,3,5,7,9." },
-  { id:"4-6",topic:4,grades:[2],difficulty:"hard",
-    question:"circles_div",
-    visual:{type:"circles_trio",circles:[{top:[12,3],bottom:4},{top:[20,4],bottom:5},{top:[18,6],bottom:"?"}]},
-    options:["2","3","12","24"], correct:1,
-    explanation:"הכלל: למטה = חלוקה. 12÷3=4, 20÷4=5, 18÷6=3." },
-
-  { id:"4-7",topic:4,grades:[3, 4],difficulty:"medium",
-    question:"circles_product",
-    visual:{type:"circles_trio",circles:[{top:[10,2],bottom:20},{top:[9,3],bottom:27},{top:[8,"?"],bottom:32}]},
-    options:["4","6","12","24"], correct:0,
-    explanation:"הכלל: למטה = מכפלה. 10×2=20, 9×3=27, 8×?=32, ?=4." },
-  { id:"4-8",topic:4,grades:[3, 4],difficulty:"medium",
-    question:"seq_mult2",
-    visual:{type:"sequence",numbers:[2,4,8,16,"?"]},
-    options:["18","24","32","64"], correct:2,
-    explanation:"סדרה: ×2 בכל פעם. 2,4,8,16,32." },
-  { id:"4-9",topic:4,grades:[3],difficulty:"medium",
-    question:"triangle1",
-    visual:{type:"triangle_pyramid",numbers:{top:"?",midLeft:4,midRight:9,botLeft:7,botMid:11,botRight:20}},
-    options:["5","13","14","29"], correct:1,
-    explanation:"הכלל: כל מספר = סכום שניים מתחתיו. 4+9=13. ?=13." },
-  { id:"4-10",topic:4,grades:[3],difficulty:"hard",
-    question:"seq_growing",
-    visual:{type:"sequence",numbers:[1,2,4,7,11,"?"]},
-    options:["14","15","16","22"], correct:2,
-    explanation:"הפרשים גדלים: +1,+2,+3,+4,+5. 11+5=16." },
-  { id:"4-11",topic:4,grades:[3],difficulty:"hard",
-    question:"circles_diff",
-    visual:{type:"circles_trio",circles:[{top:[15,6],bottom:9},{top:[20,8],bottom:12},{top:[18,5],bottom:"?"}]},
-    options:["10","13","23","90"], correct:1,
-    explanation:"הכלל: למטה = הפרש. 15-6=9, 20-8=12, 18-5=13." },
-
-  { id:"4-12",topic:4,grades:[4],difficulty:"medium",
-    question:"sq_arrows",
-    visual:{type:"squares_arrows",rows:[{left:16,center:2,right:8},{left:"?",center:4,right:10}]},
-    options:["14","20","40","80"], correct:2,
-    explanation:"הכלל: שמאל = אמצע × ימין. 2×8=16, 4×10=40." },
-  { id:"4-13",topic:4,grades:[4],difficulty:"hard",
-    question:"circles_prodplus",
-    visual:{type:"circles_trio",circles:[{top:[3,2],bottom:8},{top:[4,3],bottom:14},{top:[5,2],bottom:"?"}]},
-    options:["10","12","14","22"], correct:1,
-    explanation:"הכלל: למטה = מכפלה +2. 3×2+2=8, 4×3+2=14, 5×2+2=12." },
-  { id:"4-14",topic:4,grades:[4],difficulty:"hard",
-    question:"circles_avg",
-    visual:{type:"circles_trio",circles:[{top:[6,4],bottom:5},{top:[10,8],bottom:9},{top:[14,2],bottom:"?"}]},
-    options:["6","8","12","16"], correct:1,
-    explanation:"הכלל: למטה = ממוצע. (6+4)/2=5, (10+8)/2=9, (14+2)/2=8." },
-  { id:"4-15",topic:4,grades:[4],difficulty:"hard",
-    question:"seq_down",
-    visual:{type:"sequence",numbers:[81,27,9,3,"?"]},
-    options:["0","1","2","3"], correct:1,
-    explanation:"סדרה: ÷3 בכל פעם. 81,27,9,3,1." },
-  { id:"4-16",topic:4,grades:[4],difficulty:"hard",
-    question:"sq_complex",
-    visual:{type:"squares_arrows",rows:[{left:5,center:3,right:8},{left:7,center:"?",right:12}]},
-    options:["3","5","7","19"], correct:1,
-    explanation:"הכלל: ימין = שמאל + אמצע. 5+3=8, 7+?=12, ?=5." },
-
+  ...WordProblemsQuestions,
+// =================== TOPIC 4: Missing Number ===================
+  ...MissingNumberQuestions,
   // =================== TOPIC 5: Next Shape (ALL VISUAL) ===================
   // --- GRADE 2: simpler patterns ---
-  { id:"5-1",topic:5,grades:[2, 3],difficulty:"easy",
-    question:"shape_sides_inc",
-    visual:{
-      type:"shape_row",
-      sequence:[
-        {shape:"triangle",stroke:"#22d3ee"},{shape:"square",stroke:"#22d3ee"},{shape:"pentagon",stroke:"#22d3ee"}
-      ]
-    },
-    options:[
-      {shape:"hexagon",stroke:"#22d3ee"},
-      {shape:"circle",stroke:"#22d3ee"},
-      {shape:"triangle",stroke:"#22d3ee"},
-      {shape:"octagon",stroke:"#22d3ee"}
-    ],
-    correct:0,
-    explanation:"הכלל: מספר הצלעות עולה ב-1. משולש(3)→ריבוע(4)→מחומש(5)→משושה(6)." },
-
-  { id:"5-2",topic:5,grades:[2, 3],difficulty:"easy",
-    question:"alternating_shapes",
-    visual:{
-      type:"shape_row",
-      sequence:[
-        {shape:"circle",stroke:"#f87171"},{shape:"square",stroke:"#f87171"},{shape:"circle",stroke:"#f87171"},{shape:"square",stroke:"#f87171"}
-      ]
-    },
-    options:[
-      {shape:"circle",stroke:"#f87171"},
-      {shape:"square",stroke:"#f87171"},
-      {shape:"triangle",stroke:"#f87171"},
-      {shape:"diamond",stroke:"#f87171"}
-    ],
-    correct:0,
-    explanation:"הכלל: הצורות מתחלפות - עיגול, ריבוע, עיגול, ריבוע, עיגול." },
-
-  { id:"5-3",topic:5,grades:[2, 3],difficulty:"medium",
-    question:"growing_fill",
-    visual:{
-      type:"shape_row",
-      sequence:[
-        {shape:"circle",stroke:"#4ade80",fill:"none"},
-        {shape:"circle",stroke:"#4ade80",fill:"rgba(74,222,128,0.3)"},
-        {shape:"circle",stroke:"#4ade80",fill:"rgba(74,222,128,0.6)"}
-      ]
-    },
-    options:[
-      {shape:"circle",stroke:"#4ade80",fill:"none"},
-      {shape:"circle",stroke:"#4ade80",fill:"#4ade80"},
-      {shape:"circle",stroke:"#4ade80",fill:"rgba(74,222,128,0.3)"},
-      {shape:"square",stroke:"#4ade80",fill:"#4ade80"}
-    ],
-    correct:1,
-    explanation:"הכלל: העיגול מתמלא בהדרגה - ריק→שליש→שני שליש→מלא." },
-
-  { id:"5-4",topic:5,grades:[2, 3],difficulty:"medium",
-    question:"rotation_arrow",
-    visual:{
-      type:"shape_row",
-      sequence:[
-        {shape:"arrow_up",stroke:"#818cf8",rotation:0},
-        {shape:"arrow_up",stroke:"#818cf8",rotation:90},
-        {shape:"arrow_up",stroke:"#818cf8",rotation:180},
-        {shape:"arrow_up",stroke:"#818cf8",rotation:270}
-      ]
-    },
-    options:[
-      {shape:"arrow_up",stroke:"#818cf8",rotation:0},
-      {shape:"arrow_up",stroke:"#818cf8",rotation:45},
-      {shape:"arrow_up",stroke:"#818cf8",rotation:180},
-      {shape:"arrow_up",stroke:"#818cf8",rotation:270}
-    ],
-    correct:0,
-    explanation:"הכלל: החץ מסתובב 90° בכיוון השעון. ↑→→↓→←→↑ (חוזר)." },
-
-  { id:"5-5",topic:5,grades:[2],difficulty:"hard",
-    question:"color_alt_shape",
-    visual:{
-      type:"shape_row",
-      sequence:[
-        {shape:"circle",stroke:"#f87171",fill:"#f87171"},
-        {shape:"circle",stroke:"#60a5fa",fill:"none"},
-        {shape:"circle",stroke:"#f87171",fill:"#f87171"},
-        {shape:"circle",stroke:"#60a5fa",fill:"none"}
-      ]
-    },
-    options:[
-      {shape:"circle",stroke:"#f87171",fill:"#f87171"},
-      {shape:"circle",stroke:"#60a5fa",fill:"none"},
-      {shape:"circle",stroke:"#f87171",fill:"none"},
-      {shape:"square",stroke:"#f87171",fill:"#f87171"}
-    ],
-    correct:0,
-    explanation:"הכלל: עיגול אדום מלא, עיגול כחול ריק, חוזר. הבא: אדום מלא." },
-
-  // --- GRADE 3: more complex patterns ---
-  { id:"5-6",topic:5,grades:[3, 4],difficulty:"medium",
-    question:"shape_color_double",
-    visual:{
-      type:"shape_row",
-      sequence:[
-        {shape:"triangle",stroke:"#f87171"},{shape:"square",stroke:"#60a5fa"},{shape:"pentagon",stroke:"#4ade80"},{shape:"hexagon",stroke:"#f87171"}
-      ]
-    },
-    options:[
-      {shape:"heptagon",stroke:"#60a5fa"},
-      {shape:"heptagon",stroke:"#4ade80"},
-      {shape:"hexagon",stroke:"#60a5fa"},
-      {shape:"octagon",stroke:"#f87171"}
-    ],
-    correct:0,
-    explanation:"שני כללים: 1) צלעות עולות: 3,4,5,6,7. 2) צבע מתחלף: אדום,כחול,ירוק,אדום,כחול. הבא: 7 צלעות + כחול." },
-
-  { id:"5-7",topic:5,grades:[3, 4],difficulty:"medium",
-    question:"inner_shape_change",
-    visual:{
-      type:"shape_row",
-      sequence:[
-        {shape:"square",stroke:"#818cf8",inner:"circle",innerColor:"#fbbf24"},
-        {shape:"square",stroke:"#818cf8",inner:"square",innerColor:"#fbbf24"},
-        {shape:"square",stroke:"#818cf8",inner:"triangle",innerColor:"#fbbf24"}
-      ]
-    },
-    options:[
-      {shape:"square",stroke:"#818cf8",inner:"circle",innerColor:"#fbbf24"},
-      {shape:"circle",stroke:"#818cf8",inner:"square",innerColor:"#fbbf24"},
-      {shape:"square",stroke:"#818cf8",inner:"dot",innerColor:"#fbbf24"},
-      {shape:"triangle",stroke:"#818cf8",inner:"circle",innerColor:"#fbbf24"}
-    ],
-    correct:0,
-    explanation:"הכלל: הצורה החיצונית נשארת ריבוע, הפנימית מתחלפת: עיגול→ריבוע→משולש→עיגול (חוזר)." },
-
-  { id:"5-8",topic:5,grades:[3, 4],difficulty:"hard",
-    question:"matrix_color_shape",
-    visual:{
-      type:"matrix_3x3",
-      grid:[
-        [{shape:"circle",stroke:"#f87171",fill:"#f87171"},{shape:"circle",stroke:"#60a5fa",fill:"#60a5fa"},{shape:"circle",stroke:"#4ade80",fill:"#4ade80"}],
-        [{shape:"square",stroke:"#f87171",fill:"#f87171"},{shape:"square",stroke:"#60a5fa",fill:"#60a5fa"},{shape:"square",stroke:"#4ade80",fill:"#4ade80"}],
-        [{shape:"triangle",stroke:"#f87171",fill:"#f87171"},{shape:"triangle",stroke:"#60a5fa",fill:"#60a5fa"},null]
-      ]
-    },
-    options:[
-      {shape:"triangle",stroke:"#4ade80",fill:"#4ade80"},
-      {shape:"triangle",stroke:"#f87171",fill:"#f87171"},
-      {shape:"square",stroke:"#4ade80",fill:"#4ade80"},
-      {shape:"circle",stroke:"#4ade80",fill:"#4ade80"}
-    ],
-    correct:0,
-    explanation:"שורות: אותה צורה, צבעים אדום-כחול-ירוק. עמודות: אותו צבע, צורות עיגול-ריבוע-משולש. חסר: משולש ירוק." },
-
-  { id:"5-9",topic:5,grades:[3, 4],difficulty:"hard",
-    question:"rotation_with_size",
-    visual:{
-      type:"shape_row",
-      sequence:[
-        {shape:"triangle",stroke:"#22d3ee",rotation:0,strokeWidth:2},
-        {shape:"triangle",stroke:"#22d3ee",rotation:90,strokeWidth:2},
-        {shape:"triangle",stroke:"#22d3ee",rotation:180,strokeWidth:2}
-      ]
-    },
-    options:[
-      {shape:"triangle",stroke:"#22d3ee",rotation:270},
-      {shape:"triangle",stroke:"#22d3ee",rotation:0},
-      {shape:"square",stroke:"#22d3ee",rotation:270},
-      {shape:"triangle",stroke:"#22d3ee",rotation:180}
-    ],
-    correct:0,
-    explanation:"הכלל: המשולש מסתובב 90° בכל פעם. 0°→90°→180°→270°." },
-
-  { id:"5-10",topic:5,grades:[3],difficulty:"hard",
-    question:"dot_position",
-    visual:{
-      type:"shape_row",
-      sequence:[
-        {shape:"circle",stroke:"#818cf8",dot:"top",dotColor:"#fbbf24"},
-        {shape:"circle",stroke:"#818cf8",dot:"right",dotColor:"#fbbf24"},
-        {shape:"circle",stroke:"#818cf8",dot:"bottom",dotColor:"#fbbf24"}
-      ]
-    },
-    options:[
-      {shape:"circle",stroke:"#818cf8",dot:"left",dotColor:"#fbbf24"},
-      {shape:"circle",stroke:"#818cf8",dot:"top",dotColor:"#fbbf24"},
-      {shape:"circle",stroke:"#818cf8",dot:"center",dotColor:"#fbbf24"},
-      {shape:"square",stroke:"#818cf8",dot:"left",dotColor:"#fbbf24"}
-    ],
-    correct:0,
-    explanation:"הכלל: הנקודה הצהובה זזה בכיוון השעון: למעלה→ימין→למטה→שמאל." },
-
-  // --- GRADE 4: complex matrices ---
-  { id:"5-11",topic:5,grades:[4],difficulty:"medium",
-    question:"matrix_rotation_fill",
-    visual:{
-      type:"matrix_3x3",
-      grid:[
-        [{shape:"triangle",stroke:"#f87171",rotation:0},{shape:"triangle",stroke:"#f87171",rotation:90},{shape:"triangle",stroke:"#f87171",rotation:180}],
-        [{shape:"square",stroke:"#60a5fa",rotation:0},{shape:"square",stroke:"#60a5fa",rotation:90},{shape:"square",stroke:"#60a5fa",rotation:180}],
-        [{shape:"diamond",stroke:"#4ade80",rotation:0},{shape:"diamond",stroke:"#4ade80",rotation:90},null]
-      ]
-    },
-    options:[
-      {shape:"diamond",stroke:"#4ade80",rotation:180},
-      {shape:"diamond",stroke:"#4ade80",rotation:270},
-      {shape:"triangle",stroke:"#4ade80",rotation:180},
-      {shape:"square",stroke:"#4ade80",rotation:180}
-    ],
-    correct:0,
-    explanation:"שורות: אותה צורה+צבע, סיבוב 0°→90°→180°. עמודות: אותו סיבוב, צורה משתנה. חסר: מעוין ירוק 180°." },
-
-  { id:"5-12",topic:5,grades:[4],difficulty:"hard",
-    question:"matrix_inner_outer",
-    visual:{
-      type:"matrix_3x3",
-      grid:[
-        [{shape:"square",stroke:"#f87171",inner:"circle",innerColor:"#f87171"},{shape:"square",stroke:"#60a5fa",inner:"circle",innerColor:"#60a5fa"},{shape:"square",stroke:"#4ade80",inner:"circle",innerColor:"#4ade80"}],
-        [{shape:"circle",stroke:"#f87171",inner:"square",innerColor:"#f87171"},{shape:"circle",stroke:"#60a5fa",inner:"square",innerColor:"#60a5fa"},{shape:"circle",stroke:"#4ade80",inner:"square",innerColor:"#4ade80"}],
-        [{shape:"triangle",stroke:"#f87171",inner:"dot",innerColor:"#f87171"},{shape:"triangle",stroke:"#60a5fa",inner:"dot",innerColor:"#60a5fa"},null]
-      ]
-    },
-    options:[
-      {shape:"triangle",stroke:"#4ade80",inner:"dot",innerColor:"#4ade80"},
-      {shape:"triangle",stroke:"#f87171",inner:"dot",innerColor:"#f87171"},
-      {shape:"circle",stroke:"#4ade80",inner:"dot",innerColor:"#4ade80"},
-      {shape:"square",stroke:"#4ade80",inner:"circle",innerColor:"#4ade80"}
-    ],
-    correct:0,
-    explanation:"שורות: אותה צורה חיצונית+פנימית, צבע משתנה (אדום,כחול,ירוק). עמודות: אותו צבע, צורה חיצונית משתנה. חסר: משולש ירוק עם נקודה." },
-
-  { id:"5-13",topic:5,grades:[4],difficulty:"hard",
-    question:"triple_rule",
-    visual:{
-      type:"shape_row",
-      sequence:[
-        {shape:"circle",stroke:"#f87171",fill:"none"},
-        {shape:"square",stroke:"#60a5fa",fill:"#60a5fa"},
-        {shape:"triangle",stroke:"#4ade80",fill:"none"},
-        {shape:"diamond",stroke:"#fbbf24",fill:"#fbbf24"},
-        {shape:"pentagon",stroke:"#f87171",fill:"none"}
-      ]
-    },
-    options:[
-      {shape:"hexagon",stroke:"#60a5fa",fill:"#60a5fa"},
-      {shape:"hexagon",stroke:"#60a5fa",fill:"none"},
-      {shape:"pentagon",stroke:"#60a5fa",fill:"#60a5fa"},
-      {shape:"hexagon",stroke:"#4ade80",fill:"#4ade80"}
-    ],
-    correct:0,
-    explanation:"3 כללים: 1) צלעות עולות. 2) צבע מתחלף: אדום,כחול,ירוק,צהוב,אדום,כחול. 3) מילוי מתחלף: ריק,מלא,ריק,מלא. הבא: משושה(6) + כחול + מלא." },
-
-  { id:"5-14",topic:5,grades:[4],difficulty:"hard",
-    question:"matrix_3rules",
-    visual:{
-      type:"matrix_3x3",
-      grid:[
-        [{shape:"circle",stroke:"#f87171",fill:"none",inner:"dot",innerColor:"#f87171"},{shape:"circle",stroke:"#60a5fa",fill:"#60a5fa"},{shape:"circle",stroke:"#4ade80",fill:"none",inner:"dot",innerColor:"#4ade80"}],
-        [{shape:"square",stroke:"#60a5fa",fill:"#60a5fa"},{shape:"square",stroke:"#4ade80",fill:"none",inner:"dot",innerColor:"#4ade80"},{shape:"square",stroke:"#f87171",fill:"#f87171"}],
-        [{shape:"triangle",stroke:"#4ade80",fill:"none",inner:"dot",innerColor:"#4ade80"},{shape:"triangle",stroke:"#f87171",fill:"#f87171"},null]
-      ]
-    },
-    options:[
-      {shape:"triangle",stroke:"#60a5fa",fill:"#60a5fa"},
-      {shape:"triangle",stroke:"#60a5fa",fill:"none",inner:"dot",innerColor:"#60a5fa"},
-      {shape:"circle",stroke:"#60a5fa",fill:"#60a5fa"},
-      {shape:"triangle",stroke:"#4ade80",fill:"#4ade80"}
-    ],
-    correct:0,
-    explanation:"בכל שורה: אותה צורה, 3 צבעים שונים, ו-3 סגנונות (נקודה, מלא, נקודה). בעמודה: צבעים מזיזים. חסר: משולש כחול מלא." },
-
-  { id:"5-15",topic:5,grades:[4],difficulty:"hard",
-    question:"complex_sequence",
-    visual:{type:"shape_row",sequence:[
-        {shape:"triangle",stroke:"#22d3ee",fill:"none",rotation:0},
-        {shape:"triangle",stroke:"#22d3ee",fill:"none",rotation:180},
-        {shape:"square",stroke:"#22d3ee",fill:"#22d3ee",rotation:0},
-        {shape:"square",stroke:"#22d3ee",fill:"#22d3ee",rotation:45},
-        {shape:"pentagon",stroke:"#22d3ee",fill:"none",rotation:0}
-    ]},
-    options:[
-      {shape:"pentagon",stroke:"#22d3ee",fill:"none",rotation:180},
-      {shape:"pentagon",stroke:"#22d3ee",fill:"#22d3ee",rotation:0},
-      {shape:"hexagon",stroke:"#22d3ee",fill:"none",rotation:0},
-      {shape:"pentagon",stroke:"#22d3ee",fill:"#22d3ee",rotation:180}
-    ],
-    correct:0,
-    explanation:"כללים: 1) כל צורה מופיעה פעמיים. 2) במופע השני יש סיבוב. 3) מילוי מתחלף בין זוגות. הבא: מחומש מסובב." },
-
+  ...NextShapeQuestions,
   // ===== EXTRA QUESTIONS: TOPIC 1 =====
   { id:"1-50",topic:1,grades:[2, 3],difficulty:"medium",
     question:"חלב : גבינה", options:["ענבים : יין","מים : ברז","לחם : חיטה","ביצה : תרנגולת"], correct:0,
@@ -1052,3 +505,561 @@ export const QUESTIONS = [
     options:["1","2","3","4"], correct:3,
     explanation:"לא יודע איך להסביר אורי יא נסיך" },
 ];
+
+
+const AnalogiesQuestions = [{ id:"1-1",topic:1,grades:[2, 3],difficulty:"easy",
+    question:"כלב : נביחה", options:["ברווז : כנפיים","גמל : מים","ציפור : ציוץ","חתול : ליקוק"], correct:2,
+    explanation:"הקשר: חיה והקול שהיא משמיעה. כלב נובח, ציפור מצייצת. חתול לא מליקוק (ליקוק זה פעולה לא קול), ברווז וכנפיים זה חיה ואיבר." },
+  { id:"1-2",topic:1,grades:[2, 3],difficulty:"easy",
+    question:"עין : לראות", options:["אוזן : לשמוע","יד : כפפה","פה : שיניים","רגל : נעל"], correct:0,
+    explanation:"הקשר: איבר בגוף והפעולה שלו. עין לראות, אוזן לשמוע." },
+  { id:"1-3",topic:1,grades:[2, 3],difficulty:"easy",
+    question:"חם : קר", options:["גבוה : נמוך","ירוק : עץ","מהיר : רכב","גדול : בית"], correct:0,
+    explanation:"הקשר: מילים הפוכות (ניגודים). חם↔קר, גבוה↔נמוך." },
+  { id:"1-4",topic:1,grades:[2],difficulty:"easy",
+    question:"לילה : חושך", options:["יום : אור","ערב : ירח","בוקר : ארוחה","צהריים : שמש"], correct:0,
+    explanation:"הקשר: זמן ביום והתכונה שלו. לילה=חושך, יום=אור." },
+  { id:"1-5",topic:1,grades:[2],difficulty:"easy",
+    question:"גשם : מטרייה", options:["שמש : כובע","רוח : עץ","שלג : חורף","עננים : שמיים"], correct:0,
+    explanation:"הקשר: תופעת מזג אוויר וחפץ שמגן ממנה. גשם→מטרייה, שמש→כובע." },
+  { id:"1-6",topic:1,grades:[2],difficulty:"medium",
+    question:"רופא : חולה", options:["מורה : תלמיד","שוטר : ניידת","טייס : מטוס","נהג : כביש"], correct:0,
+    explanation:"הקשר: בעל מקצוע והאדם שהוא משרת. רופא מטפל בחולה, מורה מלמד תלמיד." },
+  { id:"1-7",topic:1,grades:[2],difficulty:"medium",
+    question:"כנף : ציפור", options:["סנפיר : דג","רגל : שולחן","גלגל : מכונית","זנב : חתול"], correct:0,
+    explanation:"הקשר: איבר תנועה ייחודי של חיה. כנף=ציפור עפה, סנפיר=דג שוחה." },
+
+  { id:"1-8",topic:1,grades:[2, 3],difficulty:"easy",
+    question:"טבח : מטבח", options:["מורה : לימודים","שופט : בית משפט","שליח : משלוח","חולה : בית חולים"], correct:1,
+    explanation:"הקשר: בעל מקצוע ומקום עבודתו. טבח→מטבח, שופט→בית משפט." },
+  { id:"1-9",topic:1,grades:[3, 4],difficulty:"medium",
+    question:"לטרוק : לסגור", options:["לשמוע : להקשיב","להבין : לנחש","לצעוק : לדבר","לתת : להשאיל"], correct:2,
+    explanation:"הקשר: פעולה חזקה ופעולה רגילה. לטרוק=לסגור בחוזקה, לצעוק=לדבר בחוזקה." },
+  { id:"1-10",topic:1,grades:[2, 3, 4],difficulty:"medium",
+    question:"ספר : מדף", options:["כביש : מכונית","מכתב : מעטפה","בגד : ארון","עט : דיו"], correct:2,
+    explanation:"הקשר: חפץ ומקום אחסון. ספר במדף, בגד בארון." },
+  { id:"1-11",topic:1,grades:[3, 4],difficulty:"medium",
+    question:"צמא : שתייה", options:["עייפות : מיטה","רעב : אוכל","קור : מעיל","שמחה : חיוך"], correct:1,
+    explanation:"הקשר: צורך ומה שפותר אותו. צמא→שתייה, רעב→אוכל." },
+  { id:"1-12",topic:1,grades:[2, 3],difficulty:"medium",
+    question:"דבש : מתוק", options:["לימון : חמוץ","מלח : ים","סוכר : עוגה","שוקולד : חום"], correct:0,
+    explanation:"הקשר: מאכל והטעם שלו. דבש=מתוק, לימון=חמוץ." },
+  { id:"1-13",topic:1,grades:[3, 4],difficulty:"hard",
+    question:"אצבע : כפפה", options:["ראש : כובע","עין : משקפיים","רגל : נעל","גוף : חולצה"], correct:2,
+    explanation:"הקשר: איבר ולבוש צמוד שמכסה אותו בדיוק. אצבע→כפפה (צמוד), רגל→נעל (צמוד). כובע לא צמוד כמו כפפה." },
+  { id:"1-14",topic:1,grades:[3],difficulty:"hard",
+    question:"צייר : מכחול", options:["נגר : מסור","שחקן : במה","זמר : שיר","סופר : ספרייה"], correct:0,
+    explanation:"הקשר: בעל מקצוע וכלי העבודה שלו. צייר+מכחול, נגר+מסור." },
+
+  { id:"1-15",topic:1,grades:[3, 4],difficulty:"medium",
+    question:"זחל : פרפר", options:["ביצה : תרנגולת","ראשן : צפרדע","גור : כלב","זרע : פרח"], correct:1,
+    explanation:"הקשר: שלב צעיר ובוגר עם מטמורפוזה (שינוי צורה). זחל→פרפר, ראשן→צפרדע. גור→כלב אין שינוי צורה." },
+  { id:"1-16",topic:1,grades:[3, 4],difficulty:"medium",
+    question:"שעון : זמן", options:["מד-חום : טמפרטורה","טלפון : שיחה","מפה : דרך","מחשב : חשמל"], correct:0,
+    explanation:"הקשר: מכשיר מדידה והדבר שהוא מודד. שעון→זמן, מד-חום→טמפרטורה." },
+  { id:"1-17",topic:1,grades:[4],difficulty:"hard",
+    question:"מספריים : גזירה", options:["מחט : תפירה","מסרק : שיער","עיפרון : נייר","סיר : מטבח"], correct:0,
+    explanation:"הקשר: כלי והפעולה שעושים איתו. מספריים→גזירה, מחט→תפירה." },
+  { id:"1-18",topic:1,grades:[4],difficulty:"hard",
+    question:"נמלה : שקדנית", options:["שועל : ערמומי","אריה : גדול","דג : מים","ציפור : כנפיים"], correct:0,
+    explanation:"הקשר: חיה ותכונת אופי מיוחסת. נמלה=שקדנית, שועל=ערמומי. 'אריה גדול' זו תכונה פיזית לא אופי." },
+  { id:"1-19",topic:1,grades:[4],difficulty:"hard",
+    question:"מילה : משפט", options:["אות : מילה","פסקה : טקסט","ספרה : מספר","צליל : שיר"], correct:0,
+    explanation:"הקשר: יחידה קטנה שמרכיבה יחידה גדולה בדרגה אחת למעלה. מילים→משפט, אותיות→מילה." },
+  { id:"1-20",topic:1,grades:[4],difficulty:"medium",
+    question:"עלה : עץ", options:["גלגל : אופניים","חלון : בית","כפתור : חולצה","דף : מחברת"], correct:3,
+    explanation:"הקשר: חלק אחד מתוך הרבה חלקים זהים בשלם. עלים רבים על עץ, דפים רבים במחברת." },
+]
+
+const MissingWordsQuestions = [ { id:"2-1",topic:2,grades:[2, 3],difficulty:"easy",
+    question:'הילד רץ ______ כי הוא ______ לאוטובוס.',
+    options:["לאט / חיכה","מהר / איחר","הביתה / חזר","שמח / אהב"], correct:1,
+    explanation:'מהר/איחר - יש קשר סיבתי: הוא רץ מהר בגלל שאיחר.' },
+  { id:"2-2",topic:2,grades:[2, 3],difficulty:"easy",
+    question:'הכלב ______ כאשר הוא ______ אדם זר.',
+    options:["ישן / ראה","נבח / שמע","שתק / פגש","אכל / הריח"], correct:1,
+    explanation:'כלבים נובחים כששומעים אדם זר - תגובה טבעית.' },
+  { id:"2-3",topic:2,grades:[2],difficulty:"easy",
+    question:'אמא ביקשה ממני ______ את החדר כי הוא היה ______.',
+    options:["לנקות / מלוכלך","לצבוע / גדול","לפתוח / סגור","לסגור / פתוח"], correct:0,
+    explanation:'ביקשה לנקות כי מלוכלך - קשר סיבתי ברור.' },
+  { id:"2-4",topic:2,grades:[2],difficulty:"easy",
+    question:'בחורף אני אוהב לשתות ______ כי בחוץ ______.',
+    options:["שוקו חם / קר","מים / חם","מיץ / יפה","תה / בוקר"], correct:0,
+    explanation:'בחורף קר, לכן שותים שוקו חם.' },
+  { id:"2-5",topic:2,grades:[2],difficulty:"medium",
+    question:'הציפור בנתה ______ על ______ הגבוה של העץ.',
+    options:["קן / הענף","בית / הגזע","גשר / השורש","חור / העלה"], correct:0,
+    explanation:'ציפורים בונות קן על ענפים גבוהים.' },
+  { id:"2-6",topic:2,grades:[2],difficulty:"medium",
+    question:'אני ______ בבוקר ו______ בלילה.',
+    options:["קם / ישן","ישן / קם","אוכל / שותה","שמח / עצוב"], correct:0,
+    explanation:'סדר יום: בבוקר קמים, בלילה ישנים.' },
+
+  { id:"2-7",topic:2,grades:[2, 3],difficulty:"medium",
+    question:'תמר לומדת לנגן ______ בפסנתר ______ בגיטרה.',
+    options:["רק / וגם","גם / ורק","גם / וגם","רק / ורק"], correct:2,
+    explanation:'"גם / וגם" - היחידה שהגיונית. אם מנגנת בשניהם, הגיוני לומר "גם בפסנתר וגם בגיטרה".' },
+  { id:"2-8",topic:2,grades:[3, 4],difficulty:"medium",
+    question:'זכרתי בעל-פה את כל ______ אף על פי ש______.',
+    options:["המילים של השיר / שמעתי אותו רק פעם אחת","רשימת המכולת / היא כללה רק לחם","שמות המקומות / לא הייתי בהם","מערכת השעות / היא לא השתנתה"], correct:0,
+    explanation:'"אף על פי ש" = ניגוד. מפתיע שזכרתי למרות שרק שמעתי פעם אחת.' },
+  { id:"2-9",topic:2,grades:[3, 4],difficulty:"hard",
+    question:'הספר הזה כל כך ______ שלא יכולתי ______ לקרוא אותו.',
+    options:["מעניין / להפסיק","ארוך / לסיים","כבד / להרים","יקר / לקנות"], correct:0,
+    explanation:'ספר מעניין → לא יכולתי להפסיק לקרוא. ביטוי נפוץ.' },
+  { id:"2-10",topic:2,grades:[3, 4],difficulty:"hard",
+    question:'______ שירד גשם, הילדים ______ בחוץ כאילו שום דבר לא ______.',
+    options:["למרות / שיחקו / קרה","כי / ישבו / השתנה","בגלל / נשארו / עזר","אחרי / רקדו / נגמר"], correct:0,
+    explanation:'"למרות" = ניגוד. למרות הגשם, שיחקו כאילו כלום לא קרה.' },
+  { id:"2-11",topic:2,grades:[3],difficulty:"medium",
+    question:'ככל שהתרגלתי ______, כך נהיה לי ______ יותר.',
+    options:["יותר / קל","פחות / קשה","מהר / משעמם","שוב / עצוב"], correct:0,
+    explanation:'"ככל ש...כך" = קשר ישיר. תרגול→קל יותר.' },
+
+  { id:"2-12",topic:2,grades:[4],difficulty:"medium",
+    question:'מתן קנה בחנות ______ שמלא ב______ שהוא אוהב ______.',
+    options:["זר / פרחים / מים","קופסה / צבעים / לצייר","חבילה / דפים / לקרוא","אסף / קלפים / לשיר"], correct:1,
+    explanation:'קנה קופסה מלאה בצבעים שהוא אוהב לצייר - הגיוני ושלם.' },
+  { id:"2-13",topic:2,grades:[4],difficulty:"hard",
+    question:'יעל אמרה: "______ כי מחר יש לי מבחן ______."',
+    options:["היום למדתי / שהיה לי השבוע","מחר אלמד / שיש לי עכשיו","שלשום למדתי / שאתמול היה לי","אני לומדת / שהיה לי שלשום"], correct:2,
+    explanation:'סדר זמנים: שלשום למדתי, אתמול היה מבחן, מחר יש עוד. התאמת זמנים.' },
+  { id:"2-14",topic:2,grades:[4],difficulty:"hard",
+    question:'______ שהמשחק יתחיל, הקהל כבר ______ את המקומות.',
+    options:["לפני / מילא","אחרי / פינה","בזמן / חיפש","למרות / שמר"], correct:0,
+    explanation:'לפני שהמשחק התחיל, הקהל כבר מילא את המקומות.' },
+  { id:"2-15",topic:2,grades:[4],difficulty:"hard",
+    question:'דווקא כשחשבתי ש______, גיליתי ש______.',
+    options:["הכל אבוד / יש עוד סיכוי","הצלחתי / עשיתי טוב","זה קל / אני יכול","אין בעיה / הכל בסדר"], correct:0,
+    explanation:'"דווקא" = הפתעה וניגוד. חשבתי שאבוד → גיליתי שיש סיכוי.' },
+]
+
+const WordProblemsQuestions = [ { id:"3-1",topic:3,grades:[2],difficulty:"easy",
+    question:"לדנה יש 24 סוכריות. היא רוצה לחלק שווה בשווה בין 4 חברות. כמה סוכריות תקבל כל חברה?",
+    options:["4","6","8","20"], correct:1,
+    explanation:"24 ÷ 4 = 6 סוכריות לכל חברה." },
+  { id:"3-2",topic:3,grades:[2],difficulty:"easy",
+    question:"לתומר יש 15 גולות. הוא נתן 4 ליוסי וקיבל 7 מרוני. כמה גולות יש לו עכשיו?",
+    options:["8","12","18","26"], correct:2,
+    explanation:"15 - 4 + 7 = 18 גולות." },
+  { id:"3-3",topic:3,grades:[2, 3],difficulty:"medium",
+    question:"ברכבת 8 קרונות, בכל קרון 30 מקומות. כמה אנשים יכולים לשבת?",
+    options:["38","80","240","300"], correct:2,
+    explanation:"8 × 30 = 240 מקומות." },
+  { id:"3-4",topic:3,grades:[2, 3],difficulty:"medium",
+    question:"בחניון 5 שורות של מכוניות, בכל שורה 8. נסעו 7 מכוניות. כמה נשארו?",
+    options:["28","33","35","40"], correct:1,
+    explanation:"5 × 8 = 40. 40 - 7 = 33." },
+  { id:"3-5",topic:3,grades:[2, 3],difficulty:"medium",
+    question:"בגן חיות 4 פילים, 6 נמרים ו-10 ציפורים. כמה רגליים יש לכולם?",
+    options:["40","60","80","100"], correct:1,
+    explanation:"פילים: 4×4=16, נמרים: 6×4=24, ציפורים: 10×2=20. סה\"כ: 60." },
+
+  { id:"3-6",topic:3,grades:[2, 3],difficulty:"medium",
+    question:"כל משפחת לוי הלכה לגלידרייה. לכל אחד 2 כדורים. סה\"כ 14 כדורים. כמה בני משפחה?",
+    options:["6","7","12","16"], correct:1,
+    explanation:"14 ÷ 2 = 7 בני משפחה." },
+  { id:"3-7",topic:3,grades:[3, 4],difficulty:"medium",
+    question:"אורי קנה 3 מחברות ב-12 ₪ כל אחת ו-2 עטים ב-5 ₪. שילם 100 ₪. כמה עודף?",
+    options:["46","54","64","83"], correct:1,
+    explanation:"3×12=36, 2×5=10. סה\"כ 46. עודף: 100-46=54." },
+  { id:"3-8",topic:3,grades:[3, 4],difficulty:"hard",
+    question:"שעון מראה 3:45. כמה דקות עברו מ-2:20?",
+    options:["65","75","85","125"], correct:2,
+    explanation:"מ-2:20 עד 3:20 = 60 דקות. עוד 25 = 85 דקות." },
+  { id:"3-9",topic:3,grades:[3, 4],difficulty:"hard",
+    question:"חנות מוכרת תפוחים בשקיות של 6. אמא צריכה 50. כמה שקיות לפחות?",
+    options:["7","8","9","10"], correct:2,
+    explanation:"50÷6=8 שארית 2. 8 שקיות=48 לא מספיק. צריך 9 שקיות=54." },
+
+  { id:"3-10",topic:3,grades:[4],difficulty:"medium",
+    question:"באולם 17 שורות, בכל שורה 11 כסאות. כמה כסאות יש?",
+    options:["28","107","170","187"], correct:3,
+    explanation:"17×11 = 17×10+17 = 170+17 = 187." },
+  { id:"3-11",topic:3,grades:[4],difficulty:"hard",
+    question:"בכיתה 28 תלמידים. הבנות פי 3 מהבנים. כמה בנים?",
+    options:["4","7","9","14"], correct:1,
+    explanation:"בנים=x, בנות=3x. x+3x=28, 4x=28, x=7." },
+  { id:"3-12",topic:3,grades:[4],difficulty:"hard",
+    question:"מספר אי-זוגי דו-ספרתי, סכום ספרותיו 11, ספרת עשרות גדולה ב-3 מאחדות. מהו?",
+    options:["11","36","47","83"], correct:2,
+    explanation:"אם אחדות=x, עשרות=x+3. x+(x+3)=11, x=4. המספר: 74. אבל 74 זוגי! הפוך: 47. 4+7=11, 7-4=3, 47 אי-זוגי ✓" },
+  { id:"3-13",topic:3,grades:[4],difficulty:"hard",
+    question:"בניין 5 קומות. בראשונה 2 דירות, בכל קומה דירה נוספת. כמה דירות?",
+    options:["10","15","20","25"], correct:2,
+    explanation:"קומה 1:2, 2:3, 3:4, 4:5, 5:6. סה\"כ 2+3+4+5+6=20." },
+  { id:"3-14",topic:3,grades:[4],difficulty:"hard",
+    question:"מיכל גדולה מנועה ב-3. נועה גדולה מעידו ב-2. מיכל בת 10. סכום גילאיהם?",
+    options:["22","24","25","27"], correct:0,
+    explanation:"מיכל=10, נועה=7, עידו=5. סה\"כ 10+7+5=22." },
+
+  ]
+  const MissingNumberQuestions = [{ id:"4-1",topic:4,grades:[2, 3],difficulty:"easy",
+    question:"circles_sum",
+    visual:{type:"circles_trio",circles:[{top:[5,4],bottom:9},{top:[8,3],bottom:11},{top:[7,6],bottom:"?"}]},
+    options:["9","10","13","42"], correct:2,
+    explanation:"הכלל: למטה = סכום למעלה. 5+4=9, 8+3=11, 7+6=13." },
+  { id:"4-2",topic:4,grades:[2],difficulty:"easy",
+    question:"circles_plus1",
+    visual:{type:"circles_trio",circles:[{top:[3,4],bottom:8},{top:[6,2],bottom:9},{top:[5,5],bottom:"?"}]},
+    options:["10","11","12","15"], correct:1,
+    explanation:"הכלל: למטה = סכום +1. 3+4+1=8, 6+2+1=9, 5+5+1=11." },
+  { id:"4-3",topic:4,grades:[2, 3],difficulty:"medium",
+    question:"circles_mult",
+    visual:{type:"circles_trio",circles:[{top:[3,2],bottom:6},{top:[4,3],bottom:12},{top:[5,4],bottom:"?"}]},
+    options:["9","15","20","24"], correct:2,
+    explanation:"הכלל: למטה = מכפלת למעלה. 3×2=6, 4×3=12, 5×4=20." },
+  { id:"4-4",topic:4,grades:[2, 3],difficulty:"medium",
+    question:"circles_mult2",
+    visual:{type:"circles_trio",circles:[{top:[2,5],bottom:10},{top:[3,4],bottom:12},{top:[6,3],bottom:"?"}]},
+    options:["9","12","18","21"], correct:2,
+    explanation:"הכלל: למטה = מכפלת למעלה. 2×5=10, 3×4=12, 6×3=18." },
+  { id:"4-5",topic:4,grades:[2],difficulty:"medium",
+    question:"seq_add2",
+    visual:{type:"sequence",numbers:[1,3,5,7,"?"]},
+    options:["8","9","10","11"], correct:1,
+    explanation:"סדרה: +2 בכל פעם. 1,3,5,7,9." },
+  { id:"4-6",topic:4,grades:[2],difficulty:"hard",
+    question:"circles_div",
+    visual:{type:"circles_trio",circles:[{top:[12,3],bottom:4},{top:[20,4],bottom:5},{top:[18,6],bottom:"?"}]},
+    options:["2","3","12","24"], correct:1,
+    explanation:"הכלל: למטה = חלוקה. 12÷3=4, 20÷4=5, 18÷6=3." },
+
+  { id:"4-7",topic:4,grades:[3, 4],difficulty:"medium",
+    question:"circles_product",
+    visual:{type:"circles_trio",circles:[{top:[10,2],bottom:20},{top:[9,3],bottom:27},{top:[8,"?"],bottom:32}]},
+    options:["4","6","12","24"], correct:0,
+    explanation:"הכלל: למטה = מכפלה. 10×2=20, 9×3=27, 8×?=32, ?=4." },
+  { id:"4-8",topic:4,grades:[3, 4],difficulty:"medium",
+    question:"seq_mult2",
+    visual:{type:"sequence",numbers:[2,4,8,16,"?"]},
+    options:["18","24","32","64"], correct:2,
+    explanation:"סדרה: ×2 בכל פעם. 2,4,8,16,32." },
+  { id:"4-9",topic:4,grades:[3],difficulty:"medium",
+    question:"triangle1",
+    visual:{type:"triangle_pyramid",numbers:{top:"?",midLeft:4,midRight:9,botLeft:7,botMid:11,botRight:20}},
+    options:["5","13","14","29"], correct:1,
+    explanation:"הכלל: כל מספר = סכום שניים מתחתיו. 4+9=13. ?=13." },
+  { id:"4-10",topic:4,grades:[3],difficulty:"hard",
+    question:"seq_growing",
+    visual:{type:"sequence",numbers:[1,2,4,7,11,"?"]},
+    options:["14","15","16","22"], correct:2,
+    explanation:"הפרשים גדלים: +1,+2,+3,+4,+5. 11+5=16." },
+  { id:"4-11",topic:4,grades:[3],difficulty:"hard",
+    question:"circles_diff",
+    visual:{type:"circles_trio",circles:[{top:[15,6],bottom:9},{top:[20,8],bottom:12},{top:[18,5],bottom:"?"}]},
+    options:["10","13","23","90"], correct:1,
+    explanation:"הכלל: למטה = הפרש. 15-6=9, 20-8=12, 18-5=13." },
+
+  { id:"4-12",topic:4,grades:[4],difficulty:"medium",
+    question:"sq_arrows",
+    visual:{type:"squares_arrows",rows:[{left:16,center:2,right:8},{left:"?",center:4,right:10}]},
+    options:["14","20","40","80"], correct:2,
+    explanation:"הכלל: שמאל = אמצע × ימין. 2×8=16, 4×10=40." },
+  { id:"4-13",topic:4,grades:[4],difficulty:"hard",
+    question:"circles_prodplus",
+    visual:{type:"circles_trio",circles:[{top:[3,2],bottom:8},{top:[4,3],bottom:14},{top:[5,2],bottom:"?"}]},
+    options:["10","12","14","22"], correct:1,
+    explanation:"הכלל: למטה = מכפלה +2. 3×2+2=8, 4×3+2=14, 5×2+2=12." },
+  { id:"4-14",topic:4,grades:[4],difficulty:"hard",
+    question:"circles_avg",
+    visual:{type:"circles_trio",circles:[{top:[6,4],bottom:5},{top:[10,8],bottom:9},{top:[14,2],bottom:"?"}]},
+    options:["6","8","12","16"], correct:1,
+    explanation:"הכלל: למטה = ממוצע. (6+4)/2=5, (10+8)/2=9, (14+2)/2=8." },
+  { id:"4-15",topic:4,grades:[4],difficulty:"hard",
+    question:"seq_down",
+    visual:{type:"sequence",numbers:[81,27,9,3,"?"]},
+    options:["0","1","2","3"], correct:1,
+    explanation:"סדרה: ÷3 בכל פעם. 81,27,9,3,1." },
+  { id:"4-16",topic:4,grades:[4],difficulty:"hard",
+    question:"sq_complex",
+    visual:{type:"squares_arrows",rows:[{left:5,center:3,right:8},{left:7,center:"?",right:12}]},
+    options:["3","5","7","19"], correct:1,
+      explanation: "הכלל: ימין = שמאל + אמצע. 5+3=8, 7+?=12, ?=5."
+    }]
+    
+    const NextShapeQuestions = [{ id:"5-1",topic:5,grades:[2, 3],difficulty:"easy",
+    question:"shape_sides_inc",
+    visual:{
+      type:"shape_row",
+      sequence:[
+        {shape:"triangle",stroke:"#22d3ee"},{shape:"square",stroke:"#22d3ee"},{shape:"pentagon",stroke:"#22d3ee"}
+      ]
+    },
+    options:[
+      {shape:"hexagon",stroke:"#22d3ee"},
+      {shape:"circle",stroke:"#22d3ee"},
+      {shape:"triangle",stroke:"#22d3ee"},
+      {shape:"octagon",stroke:"#22d3ee"}
+    ],
+    correct:0,
+    explanation:"הכלל: מספר הצלעות עולה ב-1. משולש(3)→ריבוע(4)→מחומש(5)→משושה(6)." },
+
+  { id:"5-2",topic:5,grades:[2, 3],difficulty:"easy",
+    question:"alternating_shapes",
+    visual:{
+      type:"shape_row",
+      sequence:[
+        {shape:"circle",stroke:"#f87171"},{shape:"square",stroke:"#f87171"},{shape:"circle",stroke:"#f87171"},{shape:"square",stroke:"#f87171"}
+      ]
+    },
+    options:[
+      {shape:"circle",stroke:"#f87171"},
+      {shape:"square",stroke:"#f87171"},
+      {shape:"triangle",stroke:"#f87171"},
+      {shape:"diamond",stroke:"#f87171"}
+    ],
+    correct:0,
+    explanation:"הכלל: הצורות מתחלפות - עיגול, ריבוע, עיגול, ריבוע, עיגול." },
+
+  { id:"5-3",topic:5,grades:[2, 3],difficulty:"medium",
+    question:"growing_fill",
+    visual:{
+      type:"shape_row",
+      sequence:[
+        {shape:"circle",stroke:"#4ade80",fill:"none"},
+        {shape:"circle",stroke:"#4ade80",fill:"rgba(74,222,128,0.3)"},
+        {shape:"circle",stroke:"#4ade80",fill:"rgba(74,222,128,0.6)"}
+      ]
+    },
+    options:[
+      {shape:"circle",stroke:"#4ade80",fill:"none"},
+      {shape:"circle",stroke:"#4ade80",fill:"#4ade80"},
+      {shape:"circle",stroke:"#4ade80",fill:"rgba(74,222,128,0.3)"},
+      {shape:"square",stroke:"#4ade80",fill:"#4ade80"}
+    ],
+    correct:1,
+    explanation:"הכלל: העיגול מתמלא בהדרגה - ריק→שליש→שני שליש→מלא." },
+
+  { id:"5-4",topic:5,grades:[2, 3],difficulty:"medium",
+    question:"rotation_arrow",
+    visual:{
+      type:"shape_row",
+      sequence:[
+        {shape:"arrow_up",stroke:"#818cf8",rotation:0},
+        {shape:"arrow_up",stroke:"#818cf8",rotation:90},
+        {shape:"arrow_up",stroke:"#818cf8",rotation:180},
+        {shape:"arrow_up",stroke:"#818cf8",rotation:270}
+      ]
+    },
+    options:[
+      {shape:"arrow_up",stroke:"#818cf8",rotation:0},
+      {shape:"arrow_up",stroke:"#818cf8",rotation:45},
+      {shape:"arrow_up",stroke:"#818cf8",rotation:180},
+      {shape:"arrow_up",stroke:"#818cf8",rotation:270}
+    ],
+    correct:0,
+    explanation:"הכלל: החץ מסתובב 90° בכיוון השעון. ↑→→↓→←→↑ (חוזר)." },
+
+  { id:"5-5",topic:5,grades:[2],difficulty:"hard",
+    question:"color_alt_shape",
+    visual:{
+      type:"shape_row",
+      sequence:[
+        {shape:"circle",stroke:"#f87171",fill:"#f87171"},
+        {shape:"circle",stroke:"#60a5fa",fill:"none"},
+        {shape:"circle",stroke:"#f87171",fill:"#f87171"},
+        {shape:"circle",stroke:"#60a5fa",fill:"none"}
+      ]
+    },
+    options:[
+      {shape:"circle",stroke:"#f87171",fill:"#f87171"},
+      {shape:"circle",stroke:"#60a5fa",fill:"none"},
+      {shape:"circle",stroke:"#f87171",fill:"none"},
+      {shape:"square",stroke:"#f87171",fill:"#f87171"}
+    ],
+    correct:0,
+    explanation:"הכלל: עיגול אדום מלא, עיגול כחול ריק, חוזר. הבא: אדום מלא." },
+
+  // --- GRADE 3: more complex patterns ---
+  { id:"5-6",topic:5,grades:[3, 4],difficulty:"medium",
+    question:"shape_color_double",
+    visual:{
+      type:"shape_row",
+      sequence:[
+        {shape:"triangle",stroke:"#f87171"},{shape:"square",stroke:"#60a5fa"},{shape:"pentagon",stroke:"#4ade80"},{shape:"hexagon",stroke:"#f87171"}
+      ]
+    },
+    options:[
+      {shape:"heptagon",stroke:"#60a5fa"},
+      {shape:"heptagon",stroke:"#4ade80"},
+      {shape:"hexagon",stroke:"#60a5fa"},
+      {shape:"octagon",stroke:"#f87171"}
+    ],
+    correct:0,
+    explanation:"שני כללים: 1) צלעות עולות: 3,4,5,6,7. 2) צבע מתחלף: אדום,כחול,ירוק,אדום,כחול. הבא: 7 צלעות + כחול." },
+
+  { id:"5-7",topic:5,grades:[3, 4],difficulty:"medium",
+    question:"inner_shape_change",
+    visual:{
+      type:"shape_row",
+      sequence:[
+        {shape:"square",stroke:"#818cf8",inner:"circle",innerColor:"#fbbf24"},
+        {shape:"square",stroke:"#818cf8",inner:"square",innerColor:"#fbbf24"},
+        {shape:"square",stroke:"#818cf8",inner:"triangle",innerColor:"#fbbf24"}
+      ]
+    },
+    options:[
+      {shape:"square",stroke:"#818cf8",inner:"circle",innerColor:"#fbbf24"},
+      {shape:"circle",stroke:"#818cf8",inner:"square",innerColor:"#fbbf24"},
+      {shape:"square",stroke:"#818cf8",inner:"dot",innerColor:"#fbbf24"},
+      {shape:"triangle",stroke:"#818cf8",inner:"circle",innerColor:"#fbbf24"}
+    ],
+    correct:0,
+    explanation:"הכלל: הצורה החיצונית נשארת ריבוע, הפנימית מתחלפת: עיגול→ריבוע→משולש→עיגול (חוזר)." },
+
+  { id:"5-8",topic:5,grades:[3, 4],difficulty:"hard",
+    question:"matrix_color_shape",
+    visual:{
+      type:"matrix_3x3",
+      grid:[
+        [{shape:"circle",stroke:"#f87171",fill:"#f87171"},{shape:"circle",stroke:"#60a5fa",fill:"#60a5fa"},{shape:"circle",stroke:"#4ade80",fill:"#4ade80"}],
+        [{shape:"square",stroke:"#f87171",fill:"#f87171"},{shape:"square",stroke:"#60a5fa",fill:"#60a5fa"},{shape:"square",stroke:"#4ade80",fill:"#4ade80"}],
+        [{shape:"triangle",stroke:"#f87171",fill:"#f87171"},{shape:"triangle",stroke:"#60a5fa",fill:"#60a5fa"},null]
+      ]
+    },
+    options:[
+      {shape:"triangle",stroke:"#4ade80",fill:"#4ade80"},
+      {shape:"triangle",stroke:"#f87171",fill:"#f87171"},
+      {shape:"square",stroke:"#4ade80",fill:"#4ade80"},
+      {shape:"circle",stroke:"#4ade80",fill:"#4ade80"}
+    ],
+    correct:0,
+    explanation:"שורות: אותה צורה, צבעים אדום-כחול-ירוק. עמודות: אותו צבע, צורות עיגול-ריבוע-משולש. חסר: משולש ירוק." },
+
+  { id:"5-9",topic:5,grades:[3, 4],difficulty:"hard",
+    question:"rotation_with_size",
+    visual:{
+      type:"shape_row",
+      sequence:[
+        {shape:"triangle",stroke:"#22d3ee",rotation:0,strokeWidth:2},
+        {shape:"triangle",stroke:"#22d3ee",rotation:90,strokeWidth:2},
+        {shape:"triangle",stroke:"#22d3ee",rotation:180,strokeWidth:2}
+      ]
+    },
+    options:[
+      {shape:"triangle",stroke:"#22d3ee",rotation:270},
+      {shape:"triangle",stroke:"#22d3ee",rotation:0},
+      {shape:"square",stroke:"#22d3ee",rotation:270},
+      {shape:"triangle",stroke:"#22d3ee",rotation:180}
+    ],
+    correct:0,
+    explanation:"הכלל: המשולש מסתובב 90° בכל פעם. 0°→90°→180°→270°." },
+
+  { id:"5-10",topic:5,grades:[3],difficulty:"hard",
+    question:"dot_position",
+    visual:{
+      type:"shape_row",
+      sequence:[
+        {shape:"circle",stroke:"#818cf8",dot:"top",dotColor:"#fbbf24"},
+        {shape:"circle",stroke:"#818cf8",dot:"right",dotColor:"#fbbf24"},
+        {shape:"circle",stroke:"#818cf8",dot:"bottom",dotColor:"#fbbf24"}
+      ]
+    },
+    options:[
+      {shape:"circle",stroke:"#818cf8",dot:"left",dotColor:"#fbbf24"},
+      {shape:"circle",stroke:"#818cf8",dot:"top",dotColor:"#fbbf24"},
+      {shape:"circle",stroke:"#818cf8",dot:"center",dotColor:"#fbbf24"},
+      {shape:"square",stroke:"#818cf8",dot:"left",dotColor:"#fbbf24"}
+    ],
+    correct:0,
+    explanation:"הכלל: הנקודה הצהובה זזה בכיוון השעון: למעלה→ימין→למטה→שמאל." },
+
+  // --- GRADE 4: complex matrices ---
+  { id:"5-11",topic:5,grades:[4],difficulty:"medium",
+    question:"matrix_rotation_fill",
+    visual:{
+      type:"matrix_3x3",
+      grid:[
+        [{shape:"triangle",stroke:"#f87171",rotation:0},{shape:"triangle",stroke:"#f87171",rotation:90},{shape:"triangle",stroke:"#f87171",rotation:180}],
+        [{shape:"square",stroke:"#60a5fa",rotation:0},{shape:"square",stroke:"#60a5fa",rotation:90},{shape:"square",stroke:"#60a5fa",rotation:180}],
+        [{shape:"diamond",stroke:"#4ade80",rotation:0},{shape:"diamond",stroke:"#4ade80",rotation:90},null]
+      ]
+    },
+    options:[
+      {shape:"diamond",stroke:"#4ade80",rotation:180},
+      {shape:"diamond",stroke:"#4ade80",rotation:270},
+      {shape:"triangle",stroke:"#4ade80",rotation:180},
+      {shape:"square",stroke:"#4ade80",rotation:180}
+    ],
+    correct:0,
+    explanation:"שורות: אותה צורה+צבע, סיבוב 0°→90°→180°. עמודות: אותו סיבוב, צורה משתנה. חסר: מעוין ירוק 180°." },
+
+  { id:"5-12",topic:5,grades:[4],difficulty:"hard",
+    question:"matrix_inner_outer",
+    visual:{
+      type:"matrix_3x3",
+      grid:[
+        [{shape:"square",stroke:"#f87171",inner:"circle",innerColor:"#f87171"},{shape:"square",stroke:"#60a5fa",inner:"circle",innerColor:"#60a5fa"},{shape:"square",stroke:"#4ade80",inner:"circle",innerColor:"#4ade80"}],
+        [{shape:"circle",stroke:"#f87171",inner:"square",innerColor:"#f87171"},{shape:"circle",stroke:"#60a5fa",inner:"square",innerColor:"#60a5fa"},{shape:"circle",stroke:"#4ade80",inner:"square",innerColor:"#4ade80"}],
+        [{shape:"triangle",stroke:"#f87171",inner:"dot",innerColor:"#f87171"},{shape:"triangle",stroke:"#60a5fa",inner:"dot",innerColor:"#60a5fa"},null]
+      ]
+    },
+    options:[
+      {shape:"triangle",stroke:"#4ade80",inner:"dot",innerColor:"#4ade80"},
+      {shape:"triangle",stroke:"#f87171",inner:"dot",innerColor:"#f87171"},
+      {shape:"circle",stroke:"#4ade80",inner:"dot",innerColor:"#4ade80"},
+      {shape:"square",stroke:"#4ade80",inner:"circle",innerColor:"#4ade80"}
+    ],
+    correct:0,
+    explanation:"שורות: אותה צורה חיצונית+פנימית, צבע משתנה (אדום,כחול,ירוק). עמודות: אותו צבע, צורה חיצונית משתנה. חסר: משולש ירוק עם נקודה." },
+
+  { id:"5-13",topic:5,grades:[4],difficulty:"hard",
+    question:"triple_rule",
+    visual:{
+      type:"shape_row",
+      sequence:[
+        {shape:"circle",stroke:"#f87171",fill:"none"},
+        {shape:"square",stroke:"#60a5fa",fill:"#60a5fa"},
+        {shape:"triangle",stroke:"#4ade80",fill:"none"},
+        {shape:"diamond",stroke:"#fbbf24",fill:"#fbbf24"},
+        {shape:"pentagon",stroke:"#f87171",fill:"none"}
+      ]
+    },
+    options:[
+      {shape:"hexagon",stroke:"#60a5fa",fill:"#60a5fa"},
+      {shape:"hexagon",stroke:"#60a5fa",fill:"none"},
+      {shape:"pentagon",stroke:"#60a5fa",fill:"#60a5fa"},
+      {shape:"hexagon",stroke:"#4ade80",fill:"#4ade80"}
+    ],
+    correct:0,
+    explanation:"3 כללים: 1) צלעות עולות. 2) צבע מתחלף: אדום,כחול,ירוק,צהוב,אדום,כחול. 3) מילוי מתחלף: ריק,מלא,ריק,מלא. הבא: משושה(6) + כחול + מלא." },
+
+  { id:"5-14",topic:5,grades:[4],difficulty:"hard",
+    question:"matrix_3rules",
+    visual:{
+      type:"matrix_3x3",
+      grid:[
+        [{shape:"circle",stroke:"#f87171",fill:"none",inner:"dot",innerColor:"#f87171"},{shape:"circle",stroke:"#60a5fa",fill:"#60a5fa"},{shape:"circle",stroke:"#4ade80",fill:"none",inner:"dot",innerColor:"#4ade80"}],
+        [{shape:"square",stroke:"#60a5fa",fill:"#60a5fa"},{shape:"square",stroke:"#4ade80",fill:"none",inner:"dot",innerColor:"#4ade80"},{shape:"square",stroke:"#f87171",fill:"#f87171"}],
+        [{shape:"triangle",stroke:"#4ade80",fill:"none",inner:"dot",innerColor:"#4ade80"},{shape:"triangle",stroke:"#f87171",fill:"#f87171"},null]
+      ]
+    },
+    options:[
+      {shape:"triangle",stroke:"#60a5fa",fill:"#60a5fa"},
+      {shape:"triangle",stroke:"#60a5fa",fill:"none",inner:"dot",innerColor:"#60a5fa"},
+      {shape:"circle",stroke:"#60a5fa",fill:"#60a5fa"},
+      {shape:"triangle",stroke:"#4ade80",fill:"#4ade80"}
+    ],
+    correct:0,
+    explanation:"בכל שורה: אותה צורה, 3 צבעים שונים, ו-3 סגנונות (נקודה, מלא, נקודה). בעמודה: צבעים מזיזים. חסר: משולש כחול מלא." },
+
+  { id:"5-15",topic:5,grades:[4],difficulty:"hard",
+    question:"complex_sequence",
+    visual:{type:"shape_row",sequence:[
+        {shape:"triangle",stroke:"#22d3ee",fill:"none",rotation:0},
+        {shape:"triangle",stroke:"#22d3ee",fill:"none",rotation:180},
+        {shape:"square",stroke:"#22d3ee",fill:"#22d3ee",rotation:0},
+        {shape:"square",stroke:"#22d3ee",fill:"#22d3ee",rotation:45},
+        {shape:"pentagon",stroke:"#22d3ee",fill:"none",rotation:0}
+    ]},
+    options:[
+      {shape:"pentagon",stroke:"#22d3ee",fill:"none",rotation:180},
+      {shape:"pentagon",stroke:"#22d3ee",fill:"#22d3ee",rotation:0},
+      {shape:"hexagon",stroke:"#22d3ee",fill:"none",rotation:0},
+      {shape:"pentagon",stroke:"#22d3ee",fill:"#22d3ee",rotation:180}
+    ],
+    correct:0,
+    explanation:"כללים: 1) כל צורה מופיעה פעמיים. 2) במופע השני יש סיבוב. 3) מילוי מתחלף בין זוגות. הבא: מחומש מסובב." },
+]
