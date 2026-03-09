@@ -26,6 +26,12 @@ export function PracticeGames({ settings, gameProgress, setScreen, sparks, isAdm
       const completed = levels.filter((_, i) => gp[i + 1]?.stars > 0).length;
       return `שלב ${completed}/${levels.length}`;
     }
+    if (gameId === "ninja-quest") {
+      const qp = gameProgress.quest || {};
+      const worldsDone = Object.values(qp.worlds || {}).filter(w => w.stagesComplete >= 5).length;
+      const currentWorld = qp.worlds ? Object.values(qp.worlds).reduce((acc, w) => acc + (w.stagesComplete || 0), 0) : 0;
+      return `${currentWorld}/20 שלבים • ${worldsDone}/4 עולמות`;
+    }
     return "";
   };
 

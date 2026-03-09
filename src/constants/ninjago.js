@@ -50,7 +50,8 @@ export const GAME_UNLOCKS = [
   { gameId: "arithmetic", sparksNeeded: 0 },
   { gameId: "adventure",  sparksNeeded: 50 },
   { gameId: "clock",      sparksNeeded: 150 },
-  { gameId: "ninjago",    sparksNeeded: 500 },
+  { gameId: "ninjago",      sparksNeeded: 500 },
+  { gameId: "ninja-quest",  sparksNeeded: 350 },
 ];
 
 // ─── Game Progression (level cap from previous game) ───

@@ -6,6 +6,7 @@ export const GAME_LIST = [
   { id: "clock", nameHe: "לימוד השעון", icon: "🕐", color: "#06b6d4", description: "תרגול קריאת שעון וחישובי זמן" },
   { id: "adventure", nameHe: "הרפתקת החשיבה", icon: "🏰", color: "#f59e0b", description: "פתרו חידות בחדרים מסתוריים" },
   { id: "ninjago", nameHe: "נינג'גו", icon: "🥷", color: "#22c55e", description: "קפצו בין פלטפורמות ופתרו חידות!" },
+  { id: "ninja-quest", nameHe: "טורניר היסודות", icon: "🏆", color: "#a855f7", description: "קרב נינג'ות! ענו נכון כדי לתקוף ולנצח!" },
 ];
 
 export const DEFAULT_GAME_PROGRESS = {
@@ -14,6 +15,7 @@ export const DEFAULT_GAME_PROGRESS = {
   clock: {},
   ninja: {},
   ninjago: {},
+  quest: { currentWorld: 0, worlds: {} },
 };
 
 export const ADVENTURE_ROOM_THEMES = [
