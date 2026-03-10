@@ -47,11 +47,12 @@ export const NINJA_RANKS = [
 // ─── Game Unlock Thresholds ───
 // Dynamic: games are ordered, each has a sparks requirement
 export const GAME_UNLOCKS = [
-  { gameId: "arithmetic", sparksNeeded: 0 },
-  { gameId: "adventure",  sparksNeeded: 50 },
-  { gameId: "clock",      sparksNeeded: 150 },
-  { gameId: "ninjago",      sparksNeeded: 500 },
-  { gameId: "ninja-quest",  sparksNeeded: 350 },
+  { gameId: "arithmetic",    sparksNeeded: 0 },
+  { gameId: "adventure",     sparksNeeded: 50 },
+  { gameId: "clock",         sparksNeeded: 150 },
+  { gameId: "space-invaders", sparksNeeded: 200 },
+  { gameId: "ninjago",       sparksNeeded: 500 },
+  { gameId: "ninja-quest",   sparksNeeded: 350 },
 ];
 
 // ─── Game Progression (level cap from previous game) ───

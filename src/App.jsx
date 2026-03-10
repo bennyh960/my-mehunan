@@ -21,6 +21,7 @@ import { ClockGame } from './screens/ClockGame';
 import { NinjaGame } from './screens/NinjaGame';
 // import { DungeonGame } from './screens/DungeonGame';
 import { NinjaQuestGame } from './screens/NinjaQuestGame';
+import { SpaceInvadersGame } from './screens/SpaceInvadersGame';
 import { DEFAULT_GAME_PROGRESS } from './constants/games';
 import { SPARKS_REWARDS, ADMIN_USERNAME, isGameUnlocked } from './constants/ninjago';
 
@@ -55,6 +56,13 @@ export default function App() {
   const qStatesRef = useRef({});
   qStatesRef.current = qStates;
 
+  const [masteryData, setMasteryData] = useState({});
+  const masteryRef = useRef({});
+  masteryRef.current = masteryData;
+  const questionStartTimeRef = useRef(null);
+  const MASTERY_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000;
+  const MIN_MASTERY_RESPONSE_MS = 4000;
+
   // Load
   useEffect(() => {
     try { const s = localStorage.getItem("gp_settings"); if (s) { setSettings(p=>({...p,...JSON.parse(s)})); setGradeSelected(true); } } catch {}
@@ -62,6 +70,19 @@ export default function App() {
     try { const q = localStorage.getItem("gp_questions"); if (q) setCustomQuestions(JSON.parse(q)); } catch {}
     try { const g = localStorage.getItem("gp_games"); if (g) setGameProgress(JSON.parse(g)); } catch {}
     try { const sp = localStorage.getItem("gp_sparks"); if (sp) setSparks(JSON.parse(sp)); } catch {}
+    try {
+      const m = localStorage.getItem("gp_mastery");
+      if (m) {
+        const parsed = JSON.parse(m);
+        const now = Date.now();
+        const cleaned = {};
+        Object.entries(parsed).forEach(([k, v]) => {
+          if (now - v.ts < 7 * 24 * 60 * 60 * 1000) cleaned[k] = v;
+        });
+        setMasteryData(cleaned);
+        localStorage.setItem("gp_mastery", JSON.stringify(cleaned));
+      }
+    } catch {}
     setLoaded(true);
   }, []);
 
@@ -76,6 +97,11 @@ export default function App() {
       try { localStorage.setItem("gp_sparks", JSON.stringify(next)); } catch {}
       return next;
     });
+  }, []);
+
+  const saveMastery = useCallback((data) => {
+    setMasteryData(data);
+    try { localStorage.setItem("gp_mastery", JSON.stringify(data)); } catch {}
   }, []);
 
   const isAdmin = settings.playerName?.trim().toLowerCase() === ADMIN_USERNAME;
@@ -104,7 +130,17 @@ export default function App() {
     setAttemptNum(1); setWrongFirstChoice(null); setScreen("practice");
     setShuffledTopicQ(() => {
       const tqs = gradeQ.filter(q => q.topic === t);
-      return [...tqs].sort(() => Math.random() - 0.5);
+      const now = Date.now();
+      const mastery = masteryRef.current;
+      const unmastered = tqs.filter(q => {
+        const m = mastery[q.id];
+        if (!m) return true; // never answered
+        if (m.responseTime >= MIN_MASTERY_RESPONSE_MS) return true; // slow answer — likely guessed, keep showing
+        if (now - m.ts >= MASTERY_EXPIRY_MS) return true; // mastery expired (> 1 week)
+        return false; // mastered: correct on 1st attempt, good response time, within 1 week
+      });
+      const pool = unmastered.length > 0 ? unmastered : tqs; // fallback: show all if all mastered
+      return [...pool].sort(() => Math.random() - 0.5);
     });
   };
 
@@ -139,6 +175,10 @@ export default function App() {
     setAttemptNum(s.attemptNum);
     setWrongFirstChoice(s.wrongFirst);
   }, [currentQuestionIdx]);
+
+  useEffect(() => {
+    if (screen === "practice") questionStartTimeRef.current = Date.now();
+  }, [currentQuestionIdx, screen]);
 
   const saveQState = (idx, patch) => {
     setQStates(prev => ({ ...prev, [idx]: { ...getQState(idx), ...patch } }));
@@ -187,6 +227,11 @@ export default function App() {
       newProg.answers[k].correct += 1;
       newProg.points += attemptNum===1?10:5;
       addSparks(attemptNum === 1 ? SPARKS_REWARDS.practiceCorrectFirst : SPARKS_REWARDS.practiceCorrectSecond);
+      if (!testMode && attemptNum === 1) {
+        const responseTime = questionStartTimeRef.current ? Date.now() - questionStartTimeRef.current : 0;
+        const newMastery = { ...masteryRef.current, [currentQuestion.id]: { ts: Date.now(), responseTime } };
+        saveMastery(newMastery);
+      }
     }
     saveProgress(newProg);
 
@@ -347,6 +392,10 @@ export default function App() {
 
   if (screen === "ninja-quest-game") {
     return <NinjaQuestGame settings={settings} gradeQ={gradeQ} gameProgress={gameProgress} saveGameProgress={saveGameProgress} playSound={playSound} setScreen={setScreen} addSparks={addSparks} isAdmin={isAdmin} sparks={sparks} />;
+  }
+
+  if (screen === "space-invaders-game") {
+    return <SpaceInvadersGame gradeQ={gradeQ} sparks={sparks} isAdmin={isAdmin} addSparks={addSparks} gameProgress={gameProgress} saveGameProgress={saveGameProgress} onExit={() => setScreen("practice-games")} playSound={playSound} />;
   }
 
   if (screen==="settings") {
