@@ -33,3 +33,21 @@ The repo has pre-existing lint errors in TestResults.jsx, clock.js, sound.js, Du
 
 ## useCallback Dependency Arrays
 ESLint `react-hooks/exhaustive-deps` reports unused deps as warnings. Remove deps that are not read inside the callback body.
+
+## SpaceInvadersGame (added March 2026)
+- Screen name: `"space-invaders-game"` → `SpaceInvadersGame.jsx`
+- 200 sparks to unlock (in GAME_UNLOCKS, between clock:150 and ninjago:500)
+- gameProgress key: `"space-invaders"` — must also be in DEFAULT_GAME_PROGRESS
+- Props: `{ gradeQ, sparks, isAdmin, addSparks, gameProgress, saveGameProgress, onExit, playSound }`
+- Canvas: 480×640 portrait. Player stays at Y=570, enemies march in a grid from Y=80
+- Ninja bench system: uses `getUnlockedNinjas()`, swapping gives +1 heart (max 3), 3s cooldown
+- 4 boosts: lightning (2x speed/fire), power (+2 dmg), shield (absorb 2), spinjitzu (8-dir auto)
+- Question overlay: same pattern as NinjaGame gate overlay — pause gameRef, show React div overlay
+- Stars: 1=win, 2=all mandatory correct 1st try, 3=2 stars + bonus Q correct
+- Lint gotcha: `const [, setScore]` pattern needed when React state is only written (set) not read in JSX
+
+## Canvas Game Lint Patterns
+- Unused loop param: `const loop = () =>` not `const loop = (now) =>`
+- Remove unused destructured vars from callbacks: `(gg) => {}` → `() => {}`
+- `const [, setSetter]` when you only call the setter and never read the state value in JSX
+- `// eslint-disable-next-line react-hooks/exhaustive-deps` for `gp`-style derived objects in useCallback deps
