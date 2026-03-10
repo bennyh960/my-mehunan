@@ -21,6 +21,7 @@ import { ClockGame } from './screens/ClockGame';
 import { NinjaGame } from './screens/NinjaGame';
 // import { DungeonGame } from './screens/DungeonGame';
 import { NinjaQuestGame } from './screens/NinjaQuestGame';
+import { SpaceInvadersGame } from './screens/SpaceInvadersGame';
 import { DEFAULT_GAME_PROGRESS } from './constants/games';
 import { SPARKS_REWARDS, ADMIN_USERNAME, isGameUnlocked } from './constants/ninjago';
 
@@ -347,6 +348,10 @@ export default function App() {
 
   if (screen === "ninja-quest-game") {
     return <NinjaQuestGame settings={settings} gradeQ={gradeQ} gameProgress={gameProgress} saveGameProgress={saveGameProgress} playSound={playSound} setScreen={setScreen} addSparks={addSparks} isAdmin={isAdmin} sparks={sparks} />;
+  }
+
+  if (screen === "space-invaders-game") {
+    return <SpaceInvadersGame gradeQ={gradeQ} sparks={sparks} isAdmin={isAdmin} addSparks={addSparks} gameProgress={gameProgress} saveGameProgress={saveGameProgress} onExit={() => setScreen("practice-games")} playSound={playSound} />;
   }
 
   if (screen==="settings") {
