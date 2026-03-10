@@ -27,7 +27,7 @@ const ENEMY_BULLET_H = 11;
 const GRID_COLS = 6;
 const GRID_ROWS = 4;
 const ENEMY_START_Y = 75;
-const ENEMY_DROP = 22;
+const ENEMY_DROP = 12;
 const BASE_MARCH_INTERVAL = 800;
 
 // Enemy sizes — 1.5x bigger than original
@@ -102,7 +102,8 @@ function buildEnemyGrid(levelDef) {
     const spacingX = (CANVAS_W - GRID_COLS * sz.w) / (GRID_COLS + 1);
     for (let col = 0; col < GRID_COLS; col++) {
       const startX = spacingX + col * (sz.w + spacingX);
-      const startY = ENEMY_START_Y + (rowCount - 1 - rowIdx) * 58;
+      // Bottom row (rowIdx=0) starts at y=0 (top of canvas), upper rows above screen
+      const startY = -(rowIdx * 58);
       enemies.push({
         id: `${rowIdx}-${col}`,
         type,
@@ -953,6 +954,7 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
       marchTimer: 0,
       marchInterval: BASE_MARCH_INTERVAL,
       marchStep: 18 + lvlNum * 2,
+      descentSpeed: 0.2 + lvlNum * 0.15,  // level 1: 0.35, level 5: 0.95 px/frame
       hearts: 3,
       score: 0,
       paused: false,
@@ -1232,6 +1234,9 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
           aliveEnemies.forEach(en => { en.x += stepX; });
         }
       }
+
+      // ── Continuous descent (increases with level) ──
+      aliveEnemies.forEach(en => { en.y += g.descentSpeed; });
 
       // ── Enemy frame & shooting ──
       g.enemies.forEach(en => {
