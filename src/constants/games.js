@@ -18,6 +18,7 @@ export const DEFAULT_GAME_PROGRESS = {
   ninja: {},
   ninjago: {},
   quest: { currentWorld: 0, worlds: {} },
+  multiplication: {},
 };
 
 export const ADVENTURE_ROOM_THEMES = [

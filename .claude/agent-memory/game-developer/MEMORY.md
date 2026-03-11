@@ -46,6 +46,18 @@ ESLint `react-hooks/exhaustive-deps` reports unused deps as warnings. Remove dep
 - Stars: 1=win, 2=all mandatory correct 1st try, 3=2 stars + bonus Q correct
 - Lint gotcha: `const [, setScore]` pattern needed when React state is only written (set) not read in JSX
 
+## MultiplicationGame — לוח הכפל (added March 2026)
+- Screen name: `"multiplication-game"` → `MultiplicationGame.jsx`
+- Section: Practices (not PracticeGames) — entry via `"practices"` screen
+- gameProgress key: `"multiplication"` — `{ [2..10]: { stars, bestScore } }`
+- Props: `{ gameProgress, saveGameProgress, playSound, setScreen, addSparks, isAdmin }` — no `settings` or `gradeQ` needed
+- Phases: levelSelect → explorer → playing → result
+- Unlock rule: level 2 always free; level N requires gp[N-1].stars > 0 (or isAdmin)
+- 3 SVG question types: "array" (dot grid), "groups" (emoji boxes), "tableRow" (strip with blank cell)
+- Explorer teaches the full ×N table before playing; reveal rows one by one, CTA appears after all 10 revealed
+- Pulsing border animation on blank TableRowStrip cell uses `<style>` tag injected in JSX with unique keyframe name
+- Row reveal animation: `key` toggle between `row-${i}` and `row-${i}-revealed` forces React to remount and replay CSS animation
+
 ## Canvas Game Lint Patterns
 - Unused loop param: `const loop = () =>` not `const loop = (now) =>`
 - Remove unused destructured vars from callbacks: `(gg) => {}` → `() => {}`

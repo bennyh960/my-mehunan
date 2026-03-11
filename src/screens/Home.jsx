@@ -104,9 +104,14 @@ export function Home({ settings, progress, getTopicStats, startTopic, startTest,
             );
           })}
         </div>
-        <button onClick={()=>setScreen("practice-games")} className="primary-btn w-full" style={{ marginBottom: 8, backgroundColor: 'rgba(129,140,248,0.15)', color: '#818cf8', border: '1px solid rgba(129,140,248,0.3)' }}>
-          🎮 משחקי תרגול
-        </button>
+        <div className="flex-row gap-8" style={{ marginBottom: 8 }}>
+          <button onClick={()=>setScreen("practice-games")} className="primary-btn flex-1" style={{ backgroundColor: 'rgba(129,140,248,0.15)', color: '#818cf8', border: '1px solid rgba(129,140,248,0.3)' }}>
+            🎮 משחקי תרגול
+          </button>
+          <button onClick={()=>setScreen("practices")} className="primary-btn flex-1" style={{ backgroundColor: 'rgba(79,70,229,0.15)', color: '#818cf8', border: '1px solid rgba(79,70,229,0.3)' }}>
+            📚 תרגול
+          </button>
+        </div>
         <div className="flex-row gap-8">
           <button onClick={startTest} className="primary-btn flex-1">📝 מבחן מלא</button>
           <button onClick={()=>setScreen("progress")} className="secondary-btn flex-1">📊 התקדמות</button>

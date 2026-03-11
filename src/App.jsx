@@ -22,6 +22,9 @@ import { NinjaGame } from './screens/NinjaGame';
 // import { DungeonGame } from './screens/DungeonGame';
 import { NinjaQuestGame } from './screens/NinjaQuestGame';
 import { SpaceInvadersGame } from './screens/SpaceInvadersGame';
+import { FractionsGame } from './screens/FractionsGame';
+import { MultiplicationGame } from './screens/MultiplicationGame';
+import { Practices } from './screens/Practices';
 import { DEFAULT_GAME_PROGRESS } from './constants/games';
 import { SPARKS_REWARDS, ADMIN_USERNAME, isGameUnlocked } from './constants/ninjago';
 
@@ -396,6 +399,18 @@ export default function App() {
 
   if (screen === "space-invaders-game") {
     return <SpaceInvadersGame gradeQ={gradeQ} sparks={sparks} isAdmin={isAdmin} addSparks={addSparks} gameProgress={gameProgress} saveGameProgress={saveGameProgress} onExit={() => setScreen("practice-games")} playSound={playSound} />;
+  }
+
+  if (screen === "practices") {
+    return <Practices settings={settings} gameProgress={gameProgress} setScreen={setScreen} />;
+  }
+
+  if (screen === "fractions-game") {
+    return <FractionsGame settings={settings} gameProgress={gameProgress} saveGameProgress={saveGameProgress} playSound={playSound} setScreen={setScreen} addSparks={addSparks} isAdmin={isAdmin} />;
+  }
+
+  if (screen === "multiplication-game") {
+    return <MultiplicationGame settings={settings} gameProgress={gameProgress} saveGameProgress={saveGameProgress} playSound={playSound} setScreen={setScreen} addSparks={addSparks} isAdmin={isAdmin} />;
   }
 
   if (screen==="settings") {
