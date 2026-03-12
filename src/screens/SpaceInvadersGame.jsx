@@ -19,7 +19,7 @@ const PLAYER_SPEED = 3.5;
 const BULLET_SPEED = 9;
 const BULLET_R = 8;    // orb radius
 const BULLET_TRAIL = 15;
-const ENEMY_BULLET_SPEED = 2.4;
+const ENEMY_BULLET_SPEED = 1.8;
 const ENEMY_BULLET_W = 7;
 const ENEMY_BULLET_H = 11;
 
@@ -114,7 +114,7 @@ function buildEnemyGrid(levelDef) {
         alive: true,
         row: rowIdx, col,
         frame: 0,
-        shootTimer: randInt(80, 200) + rowIdx * 30,
+        shootTimer: randInt(150, 300) + rowIdx * 40,
         sineOffset: col * 0.5 + rowIdx * 0.8,
         deathTimer: 0,
       });
@@ -953,8 +953,8 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
       marchDir: 1,
       marchTimer: 0,
       marchInterval: BASE_MARCH_INTERVAL,
-      marchStep: 18 + lvlNum * 2,
-      descentSpeed: 0.2 + lvlNum * 0.15,  // level 1: 0.35, level 5: 0.95 px/frame
+      marchStep: 14 + lvlNum * 1,
+      descentSpeed: 0.15 + lvlNum * 0.08,  // level 1: 0.23, level 5: 0.55 px/frame
       hearts: 3,
       score: 0,
       paused: false,
@@ -1080,6 +1080,9 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
 
     if (isCorrect) {
       if (onCorrect) onCorrect(g);
+      // Clear all enemy bullets and push enemies back up
+      g.enemyBullets = [];
+      g.enemies.forEach(en => { if (en.alive) en.y -= 80; });
     } else {
       if (onWrong) onWrong(g);
       g.enemies.forEach(en => { en.y += 20; });
@@ -1203,7 +1206,7 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
       // ── Enemy march ──
       g.marchTimer += 16.67;
       const aliveEnemies = g.enemies.filter(e => e.alive);
-      const marchInterval = Math.max(150, g.marchInterval - aliveEnemies.length * 8);
+      const marchInterval = Math.max(250, g.marchInterval - aliveEnemies.length * 6);
 
       if (g.marchTimer >= marchInterval) {
         g.marchTimer = 0;
@@ -1216,7 +1219,7 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
         if (hitWall) {
           g.marchDir *= -1;
           aliveEnemies.forEach(en => { en.y += ENEMY_DROP; });
-          g.marchInterval = Math.max(150, g.marchInterval - 30);
+          g.marchInterval = Math.max(250, g.marchInterval - 15);
 
           const lowestY = Math.max(...aliveEnemies.map(e => e.y + e.h));
           if (!g.mandatoryQTriggered && lowestY >= 350 && g.mandatoryQIdx < g.mandatoryQuestions.length) {
@@ -1245,14 +1248,14 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
         if (en.type === "serpentine" || en.type === "hypnobrai") {
           en.shootTimer--;
           if (en.shootTimer <= 0) {
-            en.shootTimer = 180 + randInt(0, 120);
+            en.shootTimer = 280 + randInt(0, 160);
             g.enemyBullets.push({ x: en.x + en.w / 2, y: en.y + en.h });
           }
         }
         if (en.type === "stoneWarrior") {
           en.shootTimer--;
           if (en.shootTimer <= 0) {
-            en.shootTimer = 220 + randInt(0, 80);
+            en.shootTimer = 340 + randInt(0, 120);
             g.enemyBullets.push({ x: en.x + en.w / 2, y: en.y + en.h });
           }
         }
