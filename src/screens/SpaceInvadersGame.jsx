@@ -1887,7 +1887,7 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
           >✕</button>
         </div>
 
-        {/* Question overlay */}
+        {/* Question overlay — centered modal */}
         {showQuestion && questionData?.q && (() => {
           const currentQ = questionData.q;
           const isTopic4 = currentQ?.topic === 4;
@@ -1896,145 +1896,193 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
           const imgBase = isImage ? `${import.meta.env.BASE_URL}/${currentQ.imagePath}`.replace("//", "/") : "";
           const chainStepNow = gameRef.current?.chainStep || 0;
           return (
-            <div className="ninja-gate-overlay">
-              <div className="ninja-gate-card" style={{ maxHeight: "90vh", overflowY: "auto" }}>
-                {/* Header */}
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-                  <div>
-                    <span style={{ color: "#7c3aed", fontWeight: 700, fontSize: 14 }}>
-                      {chainStepNow === 0 ? "❓ שאלה טסה" : `⚡ בוסט ${chainStepNow} מתוך 4`}
-                    </span>
-                  </div>
-                  <div style={{ display: "flex", gap: 4, fontSize: 18 }}>
-                    {[0, 1, 2].map(i => (
-                      <span key={i} style={{ opacity: i < hearts ? 1 : 0.2 }}>❤️</span>
-                    ))}
+            <div className="ninja-gate-overlay" style={{ alignItems: "center", justifyContent: "center", padding: "16px" }}>
+              <div style={{
+                width: "100%",
+                maxWidth: 480,
+                background: "#0f172a",
+                borderRadius: 16,
+                border: "1px solid #1e293b",
+                display: "flex",
+                flexDirection: "column",
+                maxHeight: "82vh",
+                boxShadow: "0 8px 40px rgba(0,0,0,0.7)",
+              }}>
+                {/* ── Fixed header ── */}
+                <div style={{
+                  padding: "12px 16px 8px",
+                  borderBottom: "1px solid #1e293b",
+                  flexShrink: 0,
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}>
+                  <span style={{ color: "#7c3aed", fontWeight: 700, fontSize: 14 }}>
+                    {chainStepNow === 0 ? "❓ שאלה טסה" : `⚡ בוסט ${chainStepNow} מתוך 4`}
+                  </span>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <div style={{ display: "flex", gap: 3, fontSize: 16 }}>
+                      {[0, 1, 2].map(i => (
+                        <span key={i} style={{ opacity: i < hearts ? 1 : 0.2 }}>❤️</span>
+                      ))}
+                    </div>
+                    {/* Chain steps bar */}
+                    {chainStepNow > 0 && (
+                      <div style={{ display: "flex", gap: 3 }}>
+                        {["💥","🧊","⬆️","❤️"].map((icon, i) => (
+                          <div key={i} style={{
+                            fontSize: 13, width: 26, height: 26,
+                            borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center",
+                            background: i < chainStepNow ? "rgba(124,58,237,0.4)" : "rgba(30,41,59,0.5)",
+                            border: `1px solid ${i < chainStepNow ? "#7c3aed" : "#1e293b"}`,
+                          }}>{icon}</div>
+                        ))}
+                      </div>
+                    )}
+                    {/* X close button */}
+                    <button
+                      onClick={closeQuestion}
+                      style={{
+                        background: "rgba(30,41,59,0.8)", border: "1px solid #334155",
+                        borderRadius: 8, width: 28, height: 28, cursor: "pointer",
+                        color: "#94a3b8", fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center",
+                      }}
+                    >✕</button>
                   </div>
                 </div>
 
-                {/* Chain progress */}
-                {chainStepNow > 0 && (
-                  <div style={{ display: "flex", gap: 6, justifyContent: "center", marginBottom: 10 }}>
-                    {["💥 כוח אש", "🧊 הקפאת ירי", "⬆️ נסיגת אויב", "❤️ לב"].map((label, i) => (
-                      <div key={i} style={{
-                        fontSize: 10, padding: "3px 6px", borderRadius: 6,
-                        background: i < chainStepNow ? "rgba(124,58,237,0.4)" : "rgba(30,41,59,0.5)",
-                        border: `1px solid ${i < chainStepNow ? "#7c3aed" : "#1e293b"}`,
-                        color: i < chainStepNow ? "#a78bfa" : "#475569",
-                      }}>{label}</div>
-                    ))}
+                {/* ── Scrollable content ── */}
+                <div style={{ overflowY: "auto", flex: 1, padding: "10px 16px 6px" }}>
+                  {/* Subtitle */}
+                  <div style={{ fontSize: 11, color: "#94a3b8", marginBottom: 8, textAlign: "center" }}>
+                    {chainStepNow === 0
+                      ? "יריתם על שאלה! ענו נכון לקבלת בוסט"
+                      : chainStepNow < 4
+                        ? "תשובה נכונה = בוסט נוסף! אפשר לעצור בכל שלב"
+                        : "שאלה אחרונה! ענו נכון לקבלת לב"}
                   </div>
-                )}
 
-                {/* Subtitle */}
-                <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 8, textAlign: "center" }}>
-                  {chainStepNow === 0
-                    ? "יריתם על שאלה! ענו נכון לקבלת בוסט"
-                    : chainStepNow < 4
-                      ? "תשובה נכונה = בוסט נוסף! אפשר לעצור בכל שלב"
-                      : "שאלה אחרונה! ענו נכון לקבלת לב"}
-                </div>
+                  {/* Question */}
+                  <div className="question-card" style={{ marginBottom: 10 }}>
+                    {isImage ? (
+                      <div>
+                        <p className="visual-prompt">{currentQ.question}</p>
+                        <img src={`${imgBase}/q.png`} alt="שאלה" style={{ maxWidth: "100%", borderRadius: 8 }} />
+                      </div>
+                    ) : isTopic4 && currentQ.visual ? (
+                      <div>
+                        <p className="visual-prompt">מצאו את המספר החסר (?)</p>
+                        <Topic4Visual visual={currentQ.visual} />
+                      </div>
+                    ) : isTopic5 && currentQ.visual ? (
+                      <div>
+                        <p className="visual-prompt">מה הצורה הבאה?</p>
+                        <Topic5Visual visual={currentQ.visual} />
+                      </div>
+                    ) : (
+                      <p className="question-text">{currentQ.question}</p>
+                    )}
+                  </div>
 
-                {/* Question */}
-                <div className="question-card" style={{ marginBottom: 12 }}>
-                  {isTopic4 && currentQ.visual ? (
-                    <div>
-                      <p className="visual-prompt">מצאו את המספר החסר (?)</p>
-                      <Topic4Visual visual={currentQ.visual} />
+                  {/* Options */}
+                  <div className="options-grid">
+                    {currentQ.options.map((opt, i) => {
+                      const isSelected = selectedAnswer === i;
+                      const isCorrect = feedback && i === currentQ.correct;
+                      const isWrong = feedback && isSelected && i !== currentQ.correct;
+                      let cls = "option-btn";
+                      if (isTopic5 || isImage) cls += " topic5";
+                      if (isSelected && !feedback) cls += " selected";
+                      if (isCorrect) cls += " correct";
+                      if (isWrong) cls += " wrong";
+                      return (
+                        <button
+                          key={i}
+                          onClick={() => { if (!feedback) { setSelectedAnswer(i); if (playSound) playSound("click"); } }}
+                          disabled={!!feedback}
+                          className={cls}
+                          style={{ cursor: feedback ? "default" : "pointer" }}
+                        >
+                          <span className="option-num">{i + 1}</span>
+                          {isCorrect && <span style={{ color: "#4ade80" }}>✓</span>}
+                          {isWrong && <span style={{ color: "#f87171" }}>✗</span>}
+                          {isImage
+                            ? <img src={`${imgBase}/a${i + 1}.png`} alt={`תשובה ${i + 1}`} style={{ maxWidth: "100%", maxHeight: 70, objectFit: "contain" }} />
+                            : isTopic5 && typeof opt === "object"
+                              ? <Topic5Option opt={opt} size={40} />
+                              : <span className="option-text" style={{ color: "#e2e8f0" }}>{typeof opt === "string" ? opt : opt?.label || ""}</span>}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Explanation (only shown after answer) */}
+                  {showExplanation && currentQ.explanation && (
+                    <div className="explanation-card" style={{ marginTop: 8 }}>
+                      <div className="explanation-title">💡 הסבר</div>
+                      <p className="explanation-text">{currentQ.explanation}</p>
                     </div>
-                  ) : isTopic5 && currentQ.visual ? (
-                    <div>
-                      <p className="visual-prompt">מה הצורה הבאה?</p>
-                      <Topic5Visual visual={currentQ.visual} />
+                  )}
+
+                  {/* Boost earned badge */}
+                  {showExplanation && feedback === "correct" && showChainChoice && (
+                    <div style={{ textAlign: "center", marginTop: 8, padding: "6px 10px", background: "rgba(124,58,237,0.2)", borderRadius: 8, border: "1px solid #7c3aed55" }}>
+                      <span style={{ color: "#a78bfa", fontWeight: 700, fontSize: 13 }}>
+                        {chainStepNow === 1 ? "💥 קיבלתם כוח אש!" : chainStepNow === 2 ? "🧊 ירי האויב הוקפא!" : chainStepNow === 3 ? "⬆️ האויב נסוג!" : "❤️ קיבלתם לב!"}
+                      </span>
                     </div>
-                  ) : (
-                    <p className="question-text">{currentQ.question}</p>
+                  )}
+                  {showExplanation && chainStepNow >= 4 && feedback === "correct" && (
+                    <div style={{ textAlign: "center", marginTop: 8, color: "#4ade80", fontWeight: 700, fontSize: 13 }}>
+                      🏆 קיבלתם את כל הבוסטים!
+                    </div>
                   )}
                 </div>
 
-                {/* Options */}
-                <div className="options-grid">
-                  {currentQ.options.map((opt, i) => {
-                    const isSelected = selectedAnswer === i;
-                    const isCorrect = feedback && i === currentQ.correct;
-                    const isWrong = feedback && isSelected && i !== currentQ.correct;
-                    let cls = "option-btn";
-                    if (isTopic5) cls += " topic5";
-                    if (isSelected && !feedback) cls += " selected";
-                    if (isCorrect) cls += " correct";
-                    if (isWrong) cls += " wrong";
-                    return (
-                      <button
-                        key={i}
-                        onClick={() => { if (!feedback) { setSelectedAnswer(i); if (playSound) playSound("click"); } }}
-                        disabled={!!feedback}
-                        className={cls}
-                        style={{ cursor: feedback ? "default" : "pointer" }}
-                      >
-                        <span className="option-num">{i + 1}</span>
-                        {isCorrect && <span style={{ color: "#4ade80" }}>✓</span>}
-                        {isWrong && <span style={{ color: "#f87171" }}>✗</span>}
-                        {isTopic5 && typeof opt === "object"
-                          ? <Topic5Option opt={opt} size={40} />
-                          : <span className="option-text" style={{ color: "#e2e8f0" }}>{typeof opt === "string" ? opt : opt?.label || ""}</span>}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* Action buttons */}
-                {!feedback ? (
-                  <button
-                    onClick={handleAnswer}
-                    disabled={selectedAnswer === null}
-                    className={`primary-btn w-full${selectedAnswer === null ? " disabled" : ""}`}
-                    style={{ marginTop: 8 }}
-                  >
-                    ✓ אישור תשובה
-                  </button>
-                ) : showExplanation ? (
-                  <div>
-                    {currentQ.explanation && (
-                      <div className="explanation-card" style={{ marginBottom: 10 }}>
-                        <div className="explanation-title">💡 הסבר</div>
-                        <p className="explanation-text">{currentQ.explanation}</p>
-                      </div>
-                    )}
-                    {feedback === "correct" && showChainChoice ? (
-                      <div>
-                        {/* Boost earned indicator */}
-                        <div style={{ textAlign: "center", marginBottom: 10, padding: "8px", background: "rgba(124,58,237,0.2)", borderRadius: 8, border: "1px solid #7c3aed55" }}>
-                          <span style={{ color: "#a78bfa", fontWeight: 700, fontSize: 13 }}>
-                            {chainStepNow === 1 ? "💥 קיבלתם כוח אש!" : chainStepNow === 2 ? "🧊 ירי האויב הוקפא!" : chainStepNow === 3 ? "⬆️ האויב נסוג!" : "❤️ קיבלתם לב!"}
-                          </span>
-                        </div>
-                        <div style={{ display: "flex", gap: 8, flexDirection: "column" }}>
-                          <button className="primary-btn w-full" onClick={handleChainEnd} style={{ marginTop: 0 }}>
-                            🎮 חזרה למשחק
+                {/* ── Fixed action bar ── */}
+                <div style={{
+                  flexShrink: 0,
+                  borderTop: "1px solid #1e293b",
+                  padding: "10px 14px 14px",
+                  background: "#0c1220",
+                  borderRadius: "0 0 0 0",
+                }}>
+                  {!feedback ? (
+                    <button
+                      onClick={handleAnswer}
+                      disabled={selectedAnswer === null}
+                      className={`primary-btn w-full${selectedAnswer === null ? " disabled" : ""}`}
+                      style={{ margin: 0 }}
+                    >
+                      ✓ אישור תשובה
+                    </button>
+                  ) : showExplanation ? (
+                    feedback === "correct" && showChainChoice ? (
+                      <div style={{ display: "flex", gap: 8 }}>
+                        <button
+                          className="primary-btn"
+                          onClick={handleChainEnd}
+                          style={{ flex: 1, margin: 0, fontSize: 13 }}
+                        >
+                          🎮 חזרה
+                        </button>
+                        {chainStepNow < 4 && (
+                          <button
+                            className="secondary-btn"
+                            onClick={handleChainContinue}
+                            style={{ flex: 2, margin: 0, fontSize: 13, border: "1px solid #7c3aed88", color: "#a78bfa" }}
+                          >
+                            ❓ בוסט {chainStepNow + 1}/4 →
                           </button>
-                          {chainStepNow < 4 && (
-                            <button
-                              className="secondary-btn w-full"
-                              onClick={handleChainContinue}
-                              style={{ border: "1px solid #7c3aed55", color: "#a78bfa" }}
-                            >
-                              ❓ שאלה נוספת לבוסט {chainStepNow + 1} מתוך 4
-                            </button>
-                          )}
-                          {chainStepNow >= 4 && (
-                            <div style={{ textAlign: "center", color: "#4ade80", fontSize: 13 }}>
-                              🏆 קיבלתם את כל הבוסטים!
-                            </div>
-                          )}
-                        </div>
+                        )}
                       </div>
                     ) : (
-                      <button className="primary-btn w-full" onClick={closeQuestion} style={{ marginTop: 8 }}>
+                      <button className="primary-btn w-full" onClick={closeQuestion} style={{ margin: 0 }}>
                         ← חזרה למשחק
                       </button>
-                    )}
-                  </div>
-                ) : null}
+                    )
+                  ) : null}
+                </div>
               </div>
             </div>
           );
