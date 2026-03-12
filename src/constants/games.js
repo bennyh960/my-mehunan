@@ -8,6 +8,7 @@ export const GAME_LIST = [
   { id: "space-invaders", nameHe: "פלישת הסרפנטין", icon: "🛸", color: "#7c3aed", description: "עצרו את פלישת הסרפנטין! ירו למעלה וענו על שאלות!" },
   { id: "ninjago", nameHe: "נינג'גו", icon: "🥷", color: "#22c55e", description: "קפצו בין פלטפורמות ופתרו חידות!" },
   { id: "ninja-quest", nameHe: "טורניר היסודות", icon: "🏆", color: "#a855f7", description: "קרב נינג'ות! ענו נכון כדי לתקוף ולנצח!" },
+  { id: "market", nameHe: "שוק הקלפים", icon: "🏪", color: "#e67e22", description: "קנו, מכרו וסחרו עם פוקימון ונינג'ות!" },
 ];
 
 export const DEFAULT_GAME_PROGRESS = {
@@ -19,6 +20,7 @@ export const DEFAULT_GAME_PROGRESS = {
   ninjago: {},
   quest: { currentWorld: 0, worlds: {} },
   multiplication: {},
+  market: {},
 };
 
 export const ADVENTURE_ROOM_THEMES = [

@@ -24,6 +24,7 @@ import { NinjaQuestGame } from './screens/NinjaQuestGame';
 import { SpaceInvadersGame } from './screens/SpaceInvadersGame';
 import { FractionsGame } from './screens/FractionsGame';
 import { MultiplicationGame } from './screens/MultiplicationGame';
+import { MarketGame } from './screens/MarketGame';
 import { Practices } from './screens/Practices';
 import { DEFAULT_GAME_PROGRESS } from './constants/games';
 import { SPARKS_REWARDS, ADMIN_USERNAME, isGameUnlocked } from './constants/ninjago';
@@ -411,6 +412,10 @@ export default function App() {
 
   if (screen === "multiplication-game") {
     return <MultiplicationGame settings={settings} gameProgress={gameProgress} saveGameProgress={saveGameProgress} playSound={playSound} setScreen={setScreen} addSparks={addSparks} isAdmin={isAdmin} />;
+  }
+
+  if (screen === "market-game") {
+    return <MarketGame settings={settings} gameProgress={gameProgress} saveGameProgress={saveGameProgress} playSound={playSound} setScreen={setScreen} addSparks={addSparks} isAdmin={isAdmin} sparks={sparks} />;
   }
 
   if (screen==="settings") {

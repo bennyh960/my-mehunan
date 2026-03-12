@@ -53,6 +53,7 @@ export const GAME_UNLOCKS = [
   { gameId: "space-invaders", sparksNeeded: 200 },
   { gameId: "ninjago",       sparksNeeded: 500 },
   { gameId: "ninja-quest",   sparksNeeded: 350 },
+  { gameId: "market",        sparksNeeded: 100 },
 ];
 
 // ─── Game Progression (level cap from previous game) ───
