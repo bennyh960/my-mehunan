@@ -65,24 +65,17 @@ const KILL_PTS = { skulkin: 10, serpentine: 20, stoneWarrior: 40, hypnobrai: 30,
 
 // ─── Level Definitions ───
 const LEVEL_DEFS = [
-  // ── Levels 1-5: Introduction ──
-  { rows: ["skulkin","skulkin","skulkin","skulkin"],                                    waves: 2, flyingQ: 1 },
-  { rows: ["skulkin","skulkin","skulkin","serpentine"],                                 waves: 2, flyingQ: 1 },
-  { rows: ["skulkin","skulkin","serpentine","stoneWarrior"],                            waves: 2, flyingQ: 2 },
-  { rows: ["skulkin","skulkin","serpentine","serpentine"],   extraRow: "stoneWarrior",  waves: 3, flyingQ: 2 },
-  { rows: ["skulkin","serpentine","serpentine","stoneWarrior"], extraRow: "hypnobrai",  waves: 3, flyingQ: 3 },
-  // ── Levels 6-10: Mid-game ──
-  { rows: ["skulkin","serpentine","serpentine","stoneWarrior"],                         waves: 2, flyingQ: 3 },
-  { rows: ["serpentine","serpentine","stoneWarrior","stoneWarrior"],                    waves: 2, flyingQ: 3 },
-  { rows: ["skulkin","serpentine","stoneWarrior","hypnobrai"],                          waves: 2, flyingQ: 3 },
-  { rows: ["serpentine","serpentine","stoneWarrior","hypnobrai"], extraRow: "skulkin",  waves: 3, flyingQ: 3 },
-  { rows: ["serpentine","stoneWarrior","stoneWarrior","hypnobrai"],                     waves: 3, flyingQ: 4 },
-  // ── Levels 11-15: Expert ──
-  { rows: ["serpentine","stoneWarrior","stoneWarrior","hypnobrai"], extraRow: "stoneWarrior", waves: 3, flyingQ: 4 },
-  { rows: ["stoneWarrior","stoneWarrior","hypnobrai","hypnobrai"],                      waves: 3, flyingQ: 4 },
-  { rows: ["serpentine","stoneWarrior","hypnobrai","hypnobrai"],  extraRow: "stoneWarrior",   waves: 3, flyingQ: 4 },
-  { rows: ["stoneWarrior","stoneWarrior","hypnobrai","hypnobrai"], extraRow: "hypnobrai",      waves: 3, flyingQ: 5 },
-  { rows: ["stoneWarrior","stoneWarrior","stoneWarrior","hypnobrai"], extraRow: "hypnobrai",   waves: 4, flyingQ: 5 },
+  // cols = enemies per row (fewer cols = fewer enemies when tougher)
+  { rows: ["skulkin","skulkin","skulkin","skulkin"],                                   cols: 6, waves: 2, flyingQ: 1 },
+  { rows: ["skulkin","skulkin","skulkin","serpentine"],                                cols: 6, waves: 2, flyingQ: 1 },
+  { rows: ["skulkin","skulkin","serpentine","stoneWarrior"],                           cols: 5, waves: 2, flyingQ: 2 },
+  { rows: ["skulkin","serpentine","serpentine","stoneWarrior"],                        cols: 5, waves: 2, flyingQ: 2 },
+  { rows: ["skulkin","serpentine","stoneWarrior","hypnobrai"],                         cols: 5, waves: 3, flyingQ: 3 },
+  { rows: ["serpentine","serpentine","stoneWarrior","hypnobrai"],                      cols: 5, waves: 2, flyingQ: 3 },
+  { rows: ["skulkin","serpentine","stoneWarrior","hypnobrai"],  extraRow: "stoneWarrior", cols: 4, waves: 3, flyingQ: 3 },
+  { rows: ["serpentine","stoneWarrior","stoneWarrior","hypnobrai"],                    cols: 4, waves: 3, flyingQ: 4 },
+  { rows: ["serpentine","stoneWarrior","hypnobrai","hypnobrai"], extraRow: "stoneWarrior", cols: 4, waves: 3, flyingQ: 4 },
+  { rows: ["stoneWarrior","stoneWarrior","hypnobrai","hypnobrai"], extraRow: "hypnobrai",  cols: 4, waves: 4, flyingQ: 5 },
 ];
 
 // ─── Helpers ───
@@ -112,13 +105,14 @@ function getEnemyHP(type) {
 
 function buildEnemyGrid(levelDef) {
   const enemies = [];
+  const cols = levelDef.cols || GRID_COLS;
   const allRows = [...levelDef.rows];
   if (levelDef.extraRow) allRows.push(levelDef.extraRow);
 
   allRows.forEach((type, rowIdx) => {
     const sz = getEnemySize(type);
-    const spacingX = (CANVAS_W - GRID_COLS * sz.w) / (GRID_COLS + 1);
-    for (let col = 0; col < GRID_COLS; col++) {
+    const spacingX = (CANVAS_W - cols * sz.w) / (cols + 1);
+    for (let col = 0; col < cols; col++) {
       const startX = spacingX + col * (sz.w + spacingX);
       // Bottom row (rowIdx=0) starts at y=0 (top of canvas), upper rows above screen
       const startY = -(rowIdx * 58);
@@ -908,6 +902,15 @@ function drawFlyingQuestion(ctx, fq, frame) {
   ctx.restore();
 }
 
+// Returns center-x of each ninja in the formation (left-anchored at player.x)
+function getNinjaXPositions(g) {
+  const n = Math.max(1, g.ninjas ? g.ninjas.length : 1);
+  const gap = 6;
+  return Array.from({ length: n }, (_, i) =>
+    g.player.x + PLAYER_W / 2 + i * (PLAYER_W + gap)
+  );
+}
+
 // ─── Main Component ───
 export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProgress, saveGameProgress, onExit, playSound }) {
   // ── UI state ──
@@ -978,11 +981,17 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
     const pool = [...(gradeQ || [])].sort(() => Math.random() - 0.5);
     if (pool.length === 0) pool.push({ question: "כמה זה 2+2?", options: ["3","4","5","6"], correct: 1, explanation: "2+2=4" });
 
-    const selectedNinja = unlockedNinjas[unlockedNinjas.length - 1] || NINJAS[0];
+    // Build starting ninja formation (1 ninja lvl1-2, 2 ninjas lvl3-5, 3 ninjas lvl6+)
+    const startCount = lvlNum >= 6 ? 3 : lvlNum >= 3 ? 2 : 1;
+    const pool0 = unlockedNinjas.length > 0 ? unlockedNinjas : [NINJAS[0]];
+    const ninjas = Array.from({ length: startCount }, (_, i) => pool0[i % pool0.length]);
+    // Center the formation
+    const formW = startCount * PLAYER_W + (startCount - 1) * 6;
+    const startX = Math.max(0, CANVAS_W / 2 - formW / 2);
 
     gameRef.current = {
       frame: 0,
-      player: { x: CANVAS_W / 2 - PLAYER_W / 2, speed: PLAYER_SPEED },
+      player: { x: startX, speed: PLAYER_SPEED },
       shootFlash: 0,
       bullets: [],
       enemyBullets: [],
@@ -992,8 +1001,8 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
       marchDir: 1,
       marchTimer: 0,
       marchInterval: BASE_MARCH_INTERVAL,
-      marchStep: 14 + lvlNum * 1,
-      descentSpeed: 0.15 + lvlNum * 0.08,
+      marchStep: 10 + lvlNum * 0.7,      // reduced speed
+      descentSpeed: 0.07 + lvlNum * 0.04, // reduced descent
       hearts: 3,
       maxHearts: 3,
       score: 0,
@@ -1002,8 +1011,8 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
       autoShootTimer: 0,
       boosts: [],
       shieldHits: 0,
-      selectedNinja,
-      partnerNinja: null,
+      ninjas,       // array of ninja objects (up to 4)
+      maxNinjas: 4,
       consecutiveCorrect: 0,
       maxChainReached: 0,
       enemyFireDisabled: 0,
@@ -1197,11 +1206,11 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
 
   // ── Spawn a falling ally ──
   function spawnFallingAlly(g) {
-    const others = g.benchNinjas
-      ? g.benchNinjas.filter(n => n.id !== g.selectedNinja.id)
-      : unlockedNinjas.filter(n => n.id !== g.selectedNinja.id);
-    if (others.length === 0) return;
-    const ninja = others[randInt(0, others.length - 1)];
+    const currentIds = new Set((g.ninjas || []).map(n => n.id));
+    const others = unlockedNinjas.filter(n => !currentIds.has(n.id));
+    const pool1 = others.length > 0 ? others : unlockedNinjas;
+    if (pool1.length === 0) return;
+    const ninja = pool1[randInt(0, pool1.length - 1)];
     g.fallingAlly = {
       active: true,
       x: randInt(PLAYER_W, CANVAS_W - PLAYER_W),
@@ -1264,11 +1273,12 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
       const keys = keysRef.current;
       const touch = touchRef.current;
       const effSpeed = hasLightning ? g.player.speed * 2 : g.player.speed;
+      const formationW = (g.ninjas.length) * PLAYER_W + (g.ninjas.length - 1) * 6;
       if ((keys["ArrowLeft"] || touch.left) && g.player.x > 0)
         g.player.x -= effSpeed;
-      if ((keys["ArrowRight"] || touch.right) && g.player.x + PLAYER_W < CANVAS_W)
+      if ((keys["ArrowRight"] || touch.right) && g.player.x + formationW < CANVAS_W)
         g.player.x += effSpeed;
-      g.player.x = Math.max(0, Math.min(CANVAS_W - PLAYER_W, g.player.x));
+      g.player.x = Math.max(0, Math.min(CANVAS_W - formationW, g.player.x));
 
       // Shoot cooldown
       if (g.shootCooldown > 0) g.shootCooldown--;
@@ -1279,13 +1289,10 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
         keys._shoot = false;
         touch.shooting = false;
         g.shootCooldown = shootCooldownBase;
-        const bx = g.player.x + PLAYER_W / 2;
-        g.bullets.push({ x: bx, y: PLAYER_Y, damage: bulletDamage });
-        // Partner ninja also shoots
-        if (g.partnerNinja) {
-          const px2 = Math.min(CANVAS_W - PLAYER_W / 2, g.player.x + PLAYER_W + 12 + PLAYER_W / 2);
-          g.bullets.push({ x: px2, y: PLAYER_Y, damage: bulletDamage });
-        }
+        // All ninjas shoot simultaneously
+        getNinjaXPositions(g).forEach(cx => {
+          g.bullets.push({ x: cx, y: PLAYER_Y, damage: bulletDamage });
+        });
         g.shootFlash = 8;
         if (playSound) playSound("click");
       }
@@ -1468,13 +1475,13 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
           if (Math.abs(pCx - aCx) < catchDist && vertOk) {
             const caught = ally.ninja;
             ally.active = false;
-            if (g.consecutiveCorrect >= 3 && !g.partnerNinja) {
-              g.partnerNinja = caught;
-              g.floaters.push({ x: pCx, y: PLAYER_Y - 30, text: `${caught.nameHe} מצטרף! כח אש כפול! 🔥`, life: 80 });
+            if (g.ninjas.length < g.maxNinjas) {
+              g.ninjas.push(caught);
+              g.floaters.push({ x: pCx, y: PLAYER_Y - 30, text: `${caught.nameHe} הצטרף! 🔥 (${g.ninjas.length} נינג'ות)`, life: 80 });
             } else {
-              g.selectedNinja = caught;
+              // Formation full → bonus heart instead
               if (g.hearts < g.maxHearts) { g.hearts++; setHearts(g.hearts); }
-              g.floaters.push({ x: pCx, y: PLAYER_Y - 30, text: `${caught.nameHe} הצטרף! +❤`, life: 70 });
+              g.floaters.push({ x: pCx, y: PLAYER_Y - 30, text: `${caught.nameHe} +❤`, life: 70 });
             }
             if (playSound) playSound("correct");
           }
@@ -1536,20 +1543,28 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
 
       g.bullets = g.bullets.filter((_, i) => !bulletsToRemove.has(i));
 
-      // Enemy bullets vs player
+      // Enemy bullets vs ninja formation
+      const formW2 = g.ninjas.length * PLAYER_W + (g.ninjas.length - 1) * 6;
       const pLeft = g.player.x, pTop = PLAYER_Y - PLAYER_H;
       g.enemyBullets = g.enemyBullets.filter(b => {
         if (!rectOverlap(b.x - ENEMY_BULLET_W / 2, b.y - ENEMY_BULLET_H / 2, ENEMY_BULLET_W, ENEMY_BULLET_H,
-            pLeft, pTop, PLAYER_W, PLAYER_H)) return true;
+            pLeft, pTop, formW2, PLAYER_H)) return true;
         if (hasShield && g.shieldHits > 0) {
           g.shieldHits--;
           if (g.shieldHits <= 0) g.boosts = g.boosts.filter(b => b.id !== "shield");
           if (playSound) playSound("wrong");
           return false;
         }
-        g.hearts = Math.max(0, g.hearts - 1);
-        setHearts(g.hearts);
-        if (playSound) playSound("wrong");
+        if (g.ninjas.length > 1) {
+          // Lose the last ninja before losing a heart
+          const lost = g.ninjas.pop();
+          g.floaters.push({ x: pLeft + formW2 / 2, y: PLAYER_Y - 40, text: `${lost.nameHe} נפל! 💀`, life: 60 });
+          if (playSound) playSound("wrong");
+        } else {
+          g.hearts = Math.max(0, g.hearts - 1);
+          setHearts(g.hearts);
+          if (playSound) playSound("wrong");
+        }
         return false;
       });
 
@@ -1614,14 +1629,8 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
         drawFallingAlly(ctx, g.fallingAlly, g.frame);
       }
 
-      // Partner ninja
-      if (g.partnerNinja) {
-        const px2 = Math.min(CANVAS_W - PLAYER_W / 2 - 2, g.player.x + PLAYER_W + 12 + PLAYER_W / 2);
-        drawNinjaFigure(ctx, px2, PLAYER_Y, g.partnerNinja.color, 1, g.frame, g.boosts, g.shootFlash);
-      }
-
       // Player bullets
-      const bullColor = g.selectedNinja?.shootColor || "#fbbf24";
+      const bullColor = g.ninjas[0]?.shootColor || "#fbbf24";
       g.bullets.forEach(b => {
         if (b.spin) drawSpinBullet(ctx, b, bullColor);
         else drawBullet(ctx, b, bullColor);
@@ -1630,9 +1639,11 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
       // Enemy bullets
       g.enemyBullets.forEach(b => drawEnemyBullet(ctx, b));
 
-      // Player ninja figure
-      const px = g.player.x + PLAYER_W / 2;
-      drawNinjaFigure(ctx, px, PLAYER_Y, g.selectedNinja?.color || "#ef4444", 1, g.frame, g.boosts, g.shootFlash);
+      // Ninja formation
+      const ninjaPositions = getNinjaXPositions(g);
+      g.ninjas.forEach((ninja, i) => {
+        drawNinjaFigure(ctx, ninjaPositions[i], PLAYER_Y, ninja.color, 1, g.frame, g.boosts, i === 0 ? g.shootFlash : 0);
+      });
 
       // Floaters
       g.floaters.forEach(f => {
