@@ -1892,6 +1892,8 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
           const currentQ = questionData.q;
           const isTopic4 = currentQ?.topic === 4;
           const isTopic5 = currentQ?.topic === 5;
+          const isImage = currentQ?.type === "image";
+          const imgBase = isImage ? `${import.meta.env.BASE_URL}/${currentQ.imagePath}`.replace("//", "/") : "";
           const chainStepNow = gameRef.current?.chainStep || 0;
           return (
             <div className="ninja-gate-overlay">
