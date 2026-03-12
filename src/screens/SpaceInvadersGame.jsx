@@ -54,16 +54,22 @@ const BOOST_TYPES = [
   { id: "spinjitzu", nameHe: "ספינג'יטסו",  descHe: "ירי אוטומטי לכל הכיוונים", icon: "🌀", color: "#a855f7", duration: 360 },
 ];
 
+const FLYING_Q_W = 62;
+const FLYING_Q_H = 38;
+const FLYING_Q_SPEED = 1.8;
+const FLYING_Q_LIFE = 720;
+const FIRE_FREEZE_DURATION = 420;
+
 // Points
 const KILL_PTS = { skulkin: 10, serpentine: 20, stoneWarrior: 40, hypnobrai: 30, bonus: 100 };
 
 // ─── Level Definitions ───
 const LEVEL_DEFS = [
-  { rows: ["skulkin","skulkin","skulkin","skulkin"],               mandatoryQ: 1 },
-  { rows: ["skulkin","skulkin","skulkin","serpentine"],            mandatoryQ: 1 },
-  { rows: ["skulkin","skulkin","serpentine","stoneWarrior"],       mandatoryQ: 1 },
-  { rows: ["skulkin","skulkin","serpentine","serpentine"], extraRow: "stoneWarrior", mandatoryQ: 2 },
-  { rows: ["skulkin","serpentine","serpentine","stoneWarrior"], extraRow: "hypnobrai", mandatoryQ: 2 },
+  { rows: ["skulkin","skulkin","skulkin","skulkin"],               waves: 2 },
+  { rows: ["skulkin","skulkin","skulkin","serpentine"],            waves: 2 },
+  { rows: ["skulkin","skulkin","serpentine","stoneWarrior"],       waves: 3 },
+  { rows: ["skulkin","skulkin","serpentine","serpentine"], extraRow: "stoneWarrior", waves: 3 },
+  { rows: ["skulkin","serpentine","serpentine","stoneWarrior"], extraRow: "hypnobrai", waves: 4 },
 ];
 
 // ─── Helpers ───
@@ -95,7 +101,6 @@ function buildEnemyGrid(levelDef) {
   const enemies = [];
   const allRows = [...levelDef.rows];
   if (levelDef.extraRow) allRows.push(levelDef.extraRow);
-  const rowCount = allRows.length;
 
   allRows.forEach((type, rowIdx) => {
     const sz = getEnemySize(type);
@@ -797,6 +802,7 @@ function drawEnemy(ctx, enemy, frame) {
   else if (enemy.type === "bonus")       drawBonusEnemy(ctx, enemy, frame);
 }
 
+// eslint-disable-next-line no-unused-vars
 function drawHUD(ctx, hearts, maxHearts, score, level, boosts, frame) {
   // Semi-transparent HUD band
   ctx.fillStyle = "rgba(2,6,23,0.7)";
@@ -863,6 +869,32 @@ function drawHUD(ctx, hearts, maxHearts, score, level, boosts, frame) {
   ctx.restore();
 }
 
+function drawFlyingQuestion(ctx, fq, frame) {
+  const pulse = 0.75 + Math.sin(frame * 0.09) * 0.25;
+  ctx.save();
+  ctx.shadowColor = "#7c3aed";
+  ctx.shadowBlur = 14 * pulse;
+  ctx.fillStyle = `rgba(88,28,135,${0.6 * pulse})`;
+  ctx.strokeStyle = `rgba(167,139,250,${pulse})`;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.roundRect(fq.x, fq.y, fq.w, fq.h, 8);
+  ctx.fill();
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = "#e9d5ff";
+  ctx.font = `bold ${Math.round(fq.h * 0.6)}px sans-serif`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText("?", fq.x + fq.w / 2, fq.y + fq.h / 2);
+  const pct = fq.life / FLYING_Q_LIFE;
+  ctx.fillStyle = "rgba(255,255,255,0.12)";
+  ctx.fillRect(fq.x + 2, fq.y + fq.h - 4, fq.w - 4, 3);
+  ctx.fillStyle = pct > 0.5 ? "#4ade80" : pct > 0.25 ? "#fbbf24" : "#f87171";
+  ctx.fillRect(fq.x + 2, fq.y + fq.h - 4, (fq.w - 4) * pct, 3);
+  ctx.restore();
+}
+
 // ─── Main Component ───
 export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProgress, saveGameProgress, onExit, playSound }) {
   // ── UI state ──
@@ -875,9 +907,10 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [feedback, setFeedback] = useState(null);
   const [showExplanation, setShowExplanation] = useState(false);
-  const [attemptNum, setAttemptNum] = useState(1);
+  const [, setAttemptNum] = useState(1);
   const [resultData, setResultData] = useState(null);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [showChainChoice, setShowChainChoice] = useState(false);
 
   // ── Refs ──
   const canvasRef = useRef(null);
@@ -929,15 +962,8 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
   const startLevel = useCallback((lvlNum) => {
     const levelDef = LEVEL_DEFS[Math.min(lvlNum - 1, LEVEL_DEFS.length - 1)];
     const enemies = buildEnemyGrid(levelDef);
-
     const pool = [...(gradeQ || [])].sort(() => Math.random() - 0.5);
-    const mandatoryPool = pool.filter(q => q.difficulty !== "hard");
-    const hardPool = pool.filter(q => q.difficulty === "hard");
-
-    const mandatoryQuestions = [];
-    for (let i = 0; i < (levelDef.mandatoryQ || 1); i++) {
-      mandatoryQuestions.push(mandatoryPool[i % mandatoryPool.length] || pool[i] || null);
-    }
+    if (pool.length === 0) pool.push({ question: "כמה זה 2+2?", options: ["3","4","5","6"], correct: 1, explanation: "2+2=4" });
 
     const selectedNinja = unlockedNinjas[unlockedNinjas.length - 1] || NINJAS[0];
 
@@ -949,13 +975,14 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
       enemyBullets: [],
       enemies,
       bonusEnemy: null,
-      bonusSpawnTimer: 300 + Math.random() * 300,
+      bonusSpawnTimer: 400 + Math.random() * 400,
       marchDir: 1,
       marchTimer: 0,
       marchInterval: BASE_MARCH_INTERVAL,
       marchStep: 14 + lvlNum * 1,
-      descentSpeed: 0.15 + lvlNum * 0.08,  // level 1: 0.23, level 5: 0.55 px/frame
+      descentSpeed: 0.15 + lvlNum * 0.08,
       hearts: 3,
+      maxHearts: 3,
       score: 0,
       paused: false,
       shootCooldown: 0,
@@ -963,20 +990,32 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
       boosts: [],
       shieldHits: 0,
       selectedNinja,
-      // Falling ally
-      allyTimer: 0,
-      fallingAlly: null,
-      // Questions
-      mandatoryQuestions,
-      mandatoryQIdx: 0,
-      mandatoryQTriggered: false,
-      hardPool,
-      firstAttemptCorrect: 0,
-      bonusQCorrect: 0,
-      mandatoryQCount: levelDef.mandatoryQ || 1,
+      partnerNinja: null,
+      consecutiveCorrect: 0,
+      maxChainReached: 0,
+      enemyFireDisabled: 0,
+      // Wave system
+      waveNum: 1,
+      totalWaves: levelDef.waves,
+      betweenWaves: false,
+      betweenWaveTimer: 0,
+      levelDef,
+      // Flying questions
+      flyingQuestions: [],
+      flyingQTimer: 180,
+      flyingQSpawned: 0,
+      flyingQCount: lvlNum,
+      // Chain pool
+      chainPool: [...pool].sort(() => Math.random() - 0.5),
+      chainPoolIdx: 0,
+      chainStep: 0,
+      // Stats
       levelNum: lvlNum,
       finished: false,
       floaters: [],
+      // Ally
+      allyTimer: 0,
+      fallingAlly: null,
     };
 
     setSelectedLevel(lvlNum);
@@ -989,18 +1028,19 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
     setShowExplanation(false);
     setAttemptNum(1);
     setResultData(null);
+    setShowChainChoice(false);
     setPhase("playing");
   }, [gradeQ, unlockedNinjas]);
 
   // ── Finish level ──
-  const finishLevel = useCallback((won, finalScore, finalHearts, firstAttemptCorrect, mandatoryCount, bonusQCorrect) => {
+  const finishLevel = useCallback((won, finalScore, finalHearts, maxChainReached) => {
     if (animRef.current) cancelAnimationFrame(animRef.current);
 
     let stars = 0;
     if (won) {
       stars = 1;
-      if (firstAttemptCorrect >= mandatoryCount) stars = 2;
-      if (stars === 2 && bonusQCorrect >= 1) stars = 3;
+      if ((maxChainReached || 0) >= 2) stars = 2;
+      if ((maxChainReached || 0) >= 4) stars = 3;
     }
 
     const sparksEarned = won ? (10 + (stars - 1) * 5) : 0;
@@ -1026,70 +1066,114 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
     setPhase("result");
   }, [gp, selectedLevel, gameProgress, saveGameProgress, addSparks, playSound]);
 
-  // ── Trigger question ──
-  const triggerQuestion = useCallback((type, q, onCorrect, onWrong) => {
+  // ── Trigger flying question ──
+  const triggerFlyingQuestion = useCallback((q) => {
     const g = gameRef.current;
     if (!g) return;
     g.paused = true;
-    setQuestionData({ q, type, onCorrect, onWrong });
+    setQuestionData({ q, type: "flying" });
     setShowQuestion(true);
     setSelectedAnswer(null);
     setFeedback(null);
     setShowExplanation(false);
+    setShowChainChoice(false);
     setAttemptNum(1);
   }, []);
 
   // ── Handle answer ──
   const handleAnswer = useCallback(() => {
     if (selectedAnswer === null || feedback) return;
-    const { q, type } = questionData;
+    const { q } = questionData;
     const isCorrect = selectedAnswer === q.correct;
 
     setFeedback(isCorrect ? "correct" : "wrong");
     if (playSound) playSound(isCorrect ? "correct" : "wrong");
 
-    if (isCorrect) {
-      if (type === "mandatory" && attemptNum === 1) {
-        const g = gameRef.current;
-        if (g) g.firstAttemptCorrect = (g.firstAttemptCorrect || 0) + 1;
+    const g = gameRef.current;
+    if (isCorrect && g) {
+      g.consecutiveCorrect = (g.consecutiveCorrect || 0) + 1;
+      const newStep = (g.chainStep || 0) + 1;
+      g.chainStep = newStep;
+      if (newStep > (g.maxChainReached || 0)) g.maxChainReached = newStep;
+      // Apply chain boost immediately
+      g.enemyBullets = [];
+      switch (newStep) {
+        case 1:
+          // Power boost: bigger bullets
+          { const def = BOOST_TYPES.find(b => b.id === "power");
+            if (def) { g.boosts = g.boosts.filter(b => b.id !== "power"); g.boosts.push({ id: def.id, icon: def.icon, nameHe: def.nameHe, color: def.color, remaining: def.duration, maxDuration: def.duration }); }
+            g.floaters.push({ x: CANVAS_W/2, y: 220, text: "💥 כוח אש!", life: 60 }); }
+          break;
+        case 2:
+          g.enemyFireDisabled = FIRE_FREEZE_DURATION;
+          g.floaters.push({ x: CANVAS_W/2, y: 220, text: "🧊 ירי האויב הוקפא!", life: 60 });
+          break;
+        case 3:
+          g.enemies.forEach(en => { if (en.alive) en.y -= 80; });
+          g.floaters.push({ x: CANVAS_W/2, y: 220, text: "⬆️ האויב נסוג!", life: 60 });
+          break;
+        case 4:
+          if (g.hearts < g.maxHearts) { g.hearts++; setHearts(g.hearts); }
+          g.floaters.push({ x: CANVAS_W/2, y: 220, text: "❤️ +לב!", life: 60 });
+          break;
+        default:
+          break;
       }
-      if (type === "bonus") {
-        const g = gameRef.current;
-        if (g) g.bonusQCorrect = (g.bonusQCorrect || 0) + 1;
-      }
+    } else if (g) {
+      g.consecutiveCorrect = 0;
     }
 
-    setTimeout(() => setShowExplanation(true), 500);
-  }, [selectedAnswer, feedback, questionData, attemptNum, playSound]);
+    setTimeout(() => {
+      setShowExplanation(true);
+      if (isCorrect) setShowChainChoice(true);
+    }, 500);
+  }, [selectedAnswer, feedback, questionData, playSound]);
 
-  // ── Close question ──
+  // ── Close question (wrong answer - return to game) ──
   const closeQuestion = useCallback(() => {
-    const { onCorrect, onWrong } = questionData;
-    const isCorrect = feedback === "correct";
-
     setShowQuestion(false);
     setQuestionData(null);
     setSelectedAnswer(null);
     setFeedback(null);
     setShowExplanation(false);
+    setShowChainChoice(false);
     setAttemptNum(1);
-
     const g = gameRef.current;
     if (!g) return;
     g.paused = false;
+    g.enemies.forEach(en => { en.y += 20; });
+  }, []);
 
-    if (isCorrect) {
-      if (onCorrect) onCorrect(g);
-      // Clear all enemy bullets and push enemies back up
-      g.enemyBullets = [];
-      g.enemies.forEach(en => { if (en.alive) en.y -= 80; });
-    } else {
-      if (onWrong) onWrong(g);
-      g.enemies.forEach(en => { en.y += 20; });
-    }
-  }, [questionData, feedback]);
+  // ── Chain end - user chose to return to game after correct answer ──
+  const handleChainEnd = useCallback(() => {
+    setShowQuestion(false);
+    setQuestionData(null);
+    setSelectedAnswer(null);
+    setFeedback(null);
+    setShowExplanation(false);
+    setShowChainChoice(false);
+    setAttemptNum(1);
+    const g = gameRef.current;
+    if (!g) return;
+    g.paused = false;
+  }, []);
+
+  // ── Chain continue - user wants another question ──
+  const handleChainContinue = useCallback(() => {
+    const g = gameRef.current;
+    if (!g) return;
+    const nextQ = g.chainPool[g.chainPoolIdx % g.chainPool.length];
+    g.chainPoolIdx++;
+    setQuestionData({ q: nextQ, type: "flying" });
+    setSelectedAnswer(null);
+    setFeedback(null);
+    setShowExplanation(false);
+    setShowChainChoice(false);
+    setAttemptNum(1);
+  }, []);
 
   // ── Apply boost ──
+  // eslint-disable-next-line no-unused-vars
   function applyBoost(g, boostId) {
     const def = BOOST_TYPES.find(b => b.id === boostId);
     if (!def) return;
@@ -1132,17 +1216,38 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
 
       g.frame++;
 
-      // ── Tick shoot flash ──
+      // Between-wave countdown
+      if (g.betweenWaves) {
+        g.betweenWaveTimer--;
+        starsRef.current.forEach(s => { s.y += s.speed * 1.5; if (s.y > CANVAS_H) { s.y = 0; s.x = Math.random() * CANVAS_W; } });
+        if (g.betweenWaveTimer <= 0) {
+          g.betweenWaves = false;
+          g.waveNum++;
+          g.enemies = buildEnemyGrid(g.levelDef);
+          g.marchDir = 1;
+          g.marchTimer = 0;
+          g.marchInterval = BASE_MARCH_INTERVAL;
+          g.flyingQTimer = 180;
+          g.flyingQSpawned = 0;
+          g.flyingQuestions = [];
+        }
+        return;
+      }
+
+      // Shoot flash
       if (g.shootFlash > 0) g.shootFlash--;
 
-      // ── Boost timers ──
+      // Boost timers
       g.boosts = g.boosts.filter(b => { b.remaining--; return b.remaining > 0; });
       const hasLightning = g.boosts.some(b => b.id === "lightning");
       const hasPower    = g.boosts.some(b => b.id === "power");
       const hasShield   = g.boosts.some(b => b.id === "shield");
       const hasSpinjitzu = g.boosts.some(b => b.id === "spinjitzu");
 
-      // ── Player movement ──
+      // Enemy fire disabled countdown
+      if (g.enemyFireDisabled > 0) g.enemyFireDisabled--;
+
+      // Player movement
       const keys = keysRef.current;
       const touch = touchRef.current;
       const effSpeed = hasLightning ? g.player.speed * 2 : g.player.speed;
@@ -1152,9 +1257,8 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
         g.player.x += effSpeed;
       g.player.x = Math.max(0, Math.min(CANVAS_W - PLAYER_W, g.player.x));
 
-      // ── Shoot cooldown ──
+      // Shoot cooldown
       if (g.shootCooldown > 0) g.shootCooldown--;
-
       const shootCooldownBase = hasLightning ? 8 : 15;
       const bulletDamage = hasPower ? 3 : 1;
 
@@ -1164,6 +1268,11 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
         g.shootCooldown = shootCooldownBase;
         const bx = g.player.x + PLAYER_W / 2;
         g.bullets.push({ x: bx, y: PLAYER_Y, damage: bulletDamage });
+        // Partner ninja also shoots
+        if (g.partnerNinja) {
+          const px2 = Math.min(CANVAS_W - PLAYER_W / 2, g.player.x + PLAYER_W + 12 + PLAYER_W / 2);
+          g.bullets.push({ x: px2, y: PLAYER_Y, damage: bulletDamage });
+        }
         g.shootFlash = 8;
         if (playSound) playSound("click");
       }
@@ -1182,13 +1291,13 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
         }
       }
 
-      // ── Scroll stars ──
+      // Scroll stars
       starsRef.current.forEach(s => {
         s.y += s.speed * 1.5;
         if (s.y > CANVAS_H) { s.y = 0; s.x = Math.random() * CANVAS_W; }
       });
 
-      // ── Move bullets ──
+      // Move bullets
       g.bullets = g.bullets.filter(b => {
         if (b.spin) {
           b.x += b.vx; b.y += b.vy;
@@ -1203,7 +1312,7 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
         return b.y < CANVAS_H + ENEMY_BULLET_H;
       });
 
-      // ── Enemy march ──
+      // Enemy march
       g.marchTimer += 16.67;
       const aliveEnemies = g.enemies.filter(e => e.alive);
       const marchInterval = Math.max(250, g.marchInterval - aliveEnemies.length * 6);
@@ -1220,31 +1329,19 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
           g.marchDir *= -1;
           aliveEnemies.forEach(en => { en.y += ENEMY_DROP; });
           g.marchInterval = Math.max(250, g.marchInterval - 15);
-
-          const lowestY = Math.max(...aliveEnemies.map(e => e.y + e.h));
-          if (!g.mandatoryQTriggered && lowestY >= 350 && g.mandatoryQIdx < g.mandatoryQuestions.length) {
-            g.mandatoryQTriggered = true;
-            const q = g.mandatoryQuestions[g.mandatoryQIdx];
-            g.mandatoryQIdx++;
-            if (q) {
-              triggerQuestion("mandatory", q,
-                (gg) => { applyBoost(gg, BOOST_TYPES[randInt(0, BOOST_TYPES.length - 1)].id); gg.mandatoryQTriggered = false; },
-                (gg) => { gg.mandatoryQTriggered = false; }
-              );
-            }
-          }
         } else {
           aliveEnemies.forEach(en => { en.x += stepX; });
         }
       }
 
-      // ── Continuous descent (increases with level) ──
+      // Continuous descent
       aliveEnemies.forEach(en => { en.y += g.descentSpeed; });
 
-      // ── Enemy frame & shooting ──
+      // Enemy frame & shooting (only if fire not frozen)
       g.enemies.forEach(en => {
         if (!en.alive) { if (en.deathTimer > 0) en.deathTimer--; return; }
         en.frame++;
+        if (g.enemyFireDisabled > 0) return;
         if (en.type === "serpentine" || en.type === "hypnobrai") {
           en.shootTimer--;
           if (en.shootTimer <= 0) {
@@ -1261,7 +1358,7 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
         }
       });
 
-      // ── Enemies reach bottom ──
+      // Enemies reach bottom
       aliveEnemies.forEach(en => {
         if (en.y + en.h >= PLAYER_Y - 10) {
           en.alive = false;
@@ -1271,7 +1368,42 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
         }
       });
 
-      // ── Bonus enemy ──
+      // Flying questions spawn
+      if (g.flyingQSpawned < g.flyingQCount) {
+        g.flyingQTimer--;
+        if (g.flyingQTimer <= 0) {
+          g.flyingQTimer = 90 + randInt(0, 60);
+          const q = g.chainPool[g.chainPoolIdx % g.chainPool.length];
+          g.chainPoolIdx++;
+          g.flyingQSpawned++;
+          const fromLeft = g.flyingQSpawned % 2 === 1;
+          g.flyingQuestions.push({
+            id: g.flyingQSpawned,
+            q,
+            x: fromLeft ? -FLYING_Q_W : CANVAS_W,
+            y: 100 + randInt(0, 150),
+            vx: fromLeft ? FLYING_Q_SPEED : -FLYING_Q_SPEED,
+            w: FLYING_Q_W,
+            h: FLYING_Q_H,
+            life: FLYING_Q_LIFE,
+            frame: 0,
+            active: true,
+          });
+        }
+      }
+
+      // Move flying questions
+      g.flyingQuestions = g.flyingQuestions.filter(fq => {
+        if (!fq.active) return false;
+        fq.x += fq.vx;
+        fq.frame = (fq.frame || 0) + 1;
+        fq.life--;
+        if (fq.x <= 0) { fq.x = 0; fq.vx = Math.abs(fq.vx); }
+        if (fq.x + fq.w >= CANVAS_W) { fq.x = CANVAS_W - fq.w; fq.vx = -Math.abs(fq.vx); }
+        return fq.life > 0;
+      });
+
+      // Bonus enemy
       if (g.bonusEnemy && g.bonusEnemy.alive) {
         g.bonusEnemy.x += g.bonusEnemy.vx;
         g.bonusEnemy.frame++;
@@ -1292,7 +1424,7 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
         }
       }
 
-      // ── Falling ally timer ──
+      // Falling ally timer
       if (!g.fallingAlly || !g.fallingAlly.active) {
         g.allyTimer++;
         if (g.allyTimer >= ALLY_SPAWN_INTERVAL) {
@@ -1300,11 +1432,9 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
           spawnFallingAlly(g);
         }
       } else {
-        // Move ally down
         const ally = g.fallingAlly;
         ally.y += ALLY_FALL_SPEED;
 
-        // Enemy bullets hitting ally
         g.enemyBullets = g.enemyBullets.filter(b => {
           const aLeft = ally.x - (PLAYER_W * ALLY_SCALE) / 2;
           const aTop  = ally.y - PLAYER_H * ALLY_SCALE;
@@ -1317,28 +1447,30 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
           return false;
         });
 
-        // Catch check: player overlaps ally
         if (ally.active) {
           const pCx = g.player.x + PLAYER_W / 2;
           const aCx = ally.x;
           const catchDist = (PLAYER_W / 2) + (PLAYER_W * ALLY_SCALE) / 2 + 10;
           const vertOk = Math.abs(ally.y - PLAYER_Y) < 50;
           if (Math.abs(pCx - aCx) < catchDist && vertOk) {
-            // Caught!
             const caught = ally.ninja;
             ally.active = false;
-            g.selectedNinja = caught;
-            if (g.hearts < 3) { g.hearts++; setHearts(g.hearts); }
-            g.floaters.push({ x: pCx, y: PLAYER_Y - 30, text: `${caught.nameHe} הצטרף! +❤`, life: 70 });
+            if (g.consecutiveCorrect >= 3 && !g.partnerNinja) {
+              g.partnerNinja = caught;
+              g.floaters.push({ x: pCx, y: PLAYER_Y - 30, text: `${caught.nameHe} מצטרף! כח אש כפול! 🔥`, life: 80 });
+            } else {
+              g.selectedNinja = caught;
+              if (g.hearts < g.maxHearts) { g.hearts++; setHearts(g.hearts); }
+              g.floaters.push({ x: pCx, y: PLAYER_Y - 30, text: `${caught.nameHe} הצטרף! +❤`, life: 70 });
+            }
             if (playSound) playSound("correct");
           }
         }
 
-        // Fell off screen
         if (ally.y > CANVAS_H + 20) ally.active = false;
       }
 
-      // ── Bullet vs enemies ──
+      // Bullet vs enemies
       const bulletsToRemove = new Set();
       g.enemies.forEach(en => {
         if (!en.alive) return;
@@ -1370,18 +1502,28 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
           bulletsToRemove.add(bi);
           g.bonusEnemy.alive = false;
           g.bonusEnemy = null;
-          const hardQ = g.hardPool[randInt(0, g.hardPool.length - 1)] || g.mandatoryQuestions[0];
-          if (hardQ) {
-            triggerQuestion("bonus", hardQ,
-              (gg) => { applyBoost(gg, BOOST_TYPES[randInt(0, BOOST_TYPES.length - 1)].id); gg.score += KILL_PTS.bonus; setScore(gg.score); gg.floaters.push({ x: CANVAS_W / 2, y: 200, text: `+${KILL_PTS.bonus} בונוס!`, life: 60 }); },
-              () => {}
-            );
-          }
+          g.score += KILL_PTS.bonus;
+          setScore(g.score);
+          g.floaters.push({ x: CANVAS_W / 2, y: 200, text: `+${KILL_PTS.bonus} בונוס!`, life: 60 });
+          if (playSound) playSound("correct");
         });
       }
+
+      // Bullet vs flying questions
+      g.flyingQuestions.forEach(fq => {
+        if (!fq.active) return;
+        g.bullets.forEach((b, bi) => {
+          if (!rectOverlap(b.x - BULLET_R, b.y - BULLET_R, BULLET_R * 2, BULLET_R * 2, fq.x, fq.y, fq.w, fq.h)) return;
+          bulletsToRemove.add(bi);
+          fq.active = false;
+          g.chainStep = 0;
+          triggerFlyingQuestion(fq.q);
+        });
+      });
+
       g.bullets = g.bullets.filter((_, i) => !bulletsToRemove.has(i));
 
-      // ── Enemy bullets vs player ──
+      // Enemy bullets vs player
       const pLeft = g.player.x, pTop = PLAYER_Y - PLAYER_H;
       g.enemyBullets = g.enemyBullets.filter(b => {
         if (!rectOverlap(b.x - ENEMY_BULLET_W / 2, b.y - ENEMY_BULLET_H / 2, ENEMY_BULLET_W, ENEMY_BULLET_H,
@@ -1398,39 +1540,26 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
         return false;
       });
 
-      // ── Tick floaters ──
+      // Tick floaters
       g.floaters = g.floaters.filter(f => { f.y -= 0.8; f.life--; return f.life > 0; });
 
-      // ── Wave cleared ──
+      // Wave cleared
       const stillAlive = g.enemies.filter(e => e.alive);
-      if (stillAlive.length === 0 && !g.mandatoryQTriggered && !g.paused) {
-        if (g.mandatoryQIdx < g.mandatoryQuestions.length) {
-          g.mandatoryQTriggered = true;
-          const q = g.mandatoryQuestions[g.mandatoryQIdx];
-          g.mandatoryQIdx++;
-          if (q) {
-            const onDone = (gg) => {
-              const al = gg.enemies.filter(e => e.alive);
-              if (al.length === 0 && gg.mandatoryQIdx >= gg.mandatoryQuestions.length) {
-                gg.finished = true;
-                finishLevel(true, gg.score, gg.hearts, gg.firstAttemptCorrect, gg.mandatoryQCount, gg.bonusQCorrect);
-              } else { gg.mandatoryQTriggered = false; }
-            };
-            triggerQuestion("mandatory", q,
-              (gg) => { applyBoost(gg, BOOST_TYPES[randInt(0, BOOST_TYPES.length - 1)].id); onDone(gg); },
-              onDone
-            );
-          }
+      if (stillAlive.length === 0 && !g.paused && !g.betweenWaves && !g.finished) {
+        if (g.waveNum < g.totalWaves) {
+          g.betweenWaves = true;
+          g.betweenWaveTimer = 120;
+          g.flyingQuestions = [];
         } else {
           g.finished = true;
-          finishLevel(true, g.score, g.hearts, g.firstAttemptCorrect, g.mandatoryQCount, g.bonusQCorrect);
+          finishLevel(true, g.score, g.hearts, g.maxChainReached);
         }
       }
 
-      // ── Game over ──
+      // Game over
       if (g.hearts <= 0 && !g.finished) {
         g.finished = true;
-        finishLevel(false, g.score, 0, g.firstAttemptCorrect, g.mandatoryQCount, g.bonusQCorrect);
+        finishLevel(false, g.score, 0, g.maxChainReached);
       }
     };
 
@@ -1464,9 +1593,18 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
       g.enemies.forEach(en => drawEnemy(ctx, en, g.frame));
       if (g.bonusEnemy) drawEnemy(ctx, g.bonusEnemy, g.frame);
 
+      // Flying questions
+      g.flyingQuestions.forEach(fq => { if (fq.active) drawFlyingQuestion(ctx, fq, g.frame); });
+
       // Falling ally (drawn before player so player is on top)
       if (g.fallingAlly && g.fallingAlly.active) {
         drawFallingAlly(ctx, g.fallingAlly, g.frame);
+      }
+
+      // Partner ninja
+      if (g.partnerNinja) {
+        const px2 = Math.min(CANVAS_W - PLAYER_W / 2 - 2, g.player.x + PLAYER_W + 12 + PLAYER_W / 2);
+        drawNinjaFigure(ctx, px2, PLAYER_Y, g.partnerNinja.color, 1, g.frame, g.boosts, g.shootFlash);
       }
 
       // Player bullets
@@ -1501,6 +1639,38 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
       // HUD (drawn last so it's on top)
       drawHUD(ctx, g.hearts, 3, g.score, g.levelNum, g.boosts, g.frame);
 
+      // Wave indicator
+      ctx.save();
+      ctx.textAlign = "right";
+      ctx.font = "11px sans-serif";
+      ctx.fillStyle = "#64748b";
+      ctx.fillText(`גל ${g.waveNum}/${g.totalWaves}`, CANVAS_W - 8, 40 + (g.boosts.length > 0 ? 22 : 0));
+      ctx.restore();
+
+      // Fire freeze progress bar
+      if (g.enemyFireDisabled > 0) {
+        const pct = g.enemyFireDisabled / FIRE_FREEZE_DURATION;
+        ctx.fillStyle = "rgba(6,182,212,0.25)";
+        ctx.fillRect(0, CANVAS_H - 4, CANVAS_W, 4);
+        ctx.fillStyle = "#06b6d4";
+        ctx.fillRect(0, CANVAS_H - 4, CANVAS_W * pct, 4);
+      }
+
+      // Between-wave overlay
+      if (g.betweenWaves) {
+        ctx.fillStyle = "rgba(2,6,23,0.55)";
+        ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+        ctx.save();
+        ctx.textAlign = "center";
+        ctx.font = "bold 26px sans-serif";
+        ctx.fillStyle = "#fbbf24";
+        ctx.fillText(`גל ${Math.min(g.waveNum + 1, g.totalWaves)} מגיע!`, CANVAS_W / 2, CANVAS_H / 2 - 20);
+        ctx.font = "16px sans-serif";
+        ctx.fillStyle = "#94a3b8";
+        ctx.fillText("הכינו את עצמכם...", CANVAS_W / 2, CANVAS_H / 2 + 15);
+        ctx.restore();
+      }
+
       // Paused overlay
       if (g.paused) {
         ctx.fillStyle = "rgba(2,6,23,0.55)";
@@ -1517,7 +1687,7 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
     animRef.current = requestAnimationFrame(loop);
     return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase, triggerQuestion, finishLevel, playSound]);
+  }, [phase, triggerFlyingQuestion, finishLevel, playSound]);
 
   // ── Touch handlers ──
   const handleCanvasTouchStart = useCallback((e) => {
@@ -1556,10 +1726,10 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
           </div>
 
           <div style={{ textAlign: "center", color: "#94a3b8", fontSize: 13, marginBottom: 16, lineHeight: 1.6 }}>
-            ירו על הסרפנטין המסתערים! ענו על שאלות לקבלת חיזוקים.
+            ירו על הסרפנטין! שאלות טסות ברקע — ירו עליהן לקבלת בוסטים.
             <br />
             <span style={{ color: "#fbbf24", fontSize: 12 }}>
-              כל 15 שניות נינג'ה חבר יצנח — תפסו אותו לקבלת לב נוסף!
+              4 בוסטים בשרשרת: כוח אש → הקפאת ירי → נסיגת אויב → לב נוסף
             </span>
           </div>
 
@@ -1626,10 +1796,6 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
 
   // ── RENDER: Playing ──
   if (phase === "playing") {
-    const currentQ = questionData?.q || null;
-    const isTopic4 = currentQ?.topic === 4;
-    const isTopic5 = currentQ?.topic === 5;
-
     return (
       <div className="container" style={{ padding: 0, direction: "rtl" }}>
         <Confetti active={showConfetti} />
@@ -1698,98 +1864,155 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
         </div>
 
         {/* Question overlay */}
-        {showQuestion && currentQ && (
-          <div className="ninja-gate-overlay">
-            <div className="ninja-gate-card" style={{ maxHeight: "90vh", overflowY: "auto" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-                <div>
-                  <span style={{ color: questionData.type === "bonus" ? "#fbbf24" : "#7c3aed", fontWeight: 700, fontSize: 14 }}>
-                    {questionData.type === "bonus" ? "🌀 שאלת בונוס!" : "❓ שאלת עצירה"}
-                  </span>
-                </div>
-                <div style={{ display: "flex", gap: 4, fontSize: 18 }}>
-                  {[0, 1, 2].map(i => (
-                    <span key={i} style={{ opacity: i < hearts ? 1 : 0.2 }}>❤️</span>
-                  ))}
-                </div>
-              </div>
-
-              <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 8, textAlign: "center" }}>
-                {questionData.type === "bonus"
-                  ? "ענו נכון לקבלת חיזוק + ניצוצות בונוס!"
-                  : "ענו נכון לקבלת חיזוק! טעות = הגריד יירד"}
-              </div>
-
-              <div className="question-card" style={{ marginBottom: 12 }}>
-                {isTopic4 && currentQ.visual ? (
+        {showQuestion && questionData?.q && (() => {
+          const currentQ = questionData.q;
+          const isTopic4 = currentQ?.topic === 4;
+          const isTopic5 = currentQ?.topic === 5;
+          const chainStepNow = gameRef.current?.chainStep || 0;
+          return (
+            <div className="ninja-gate-overlay">
+              <div className="ninja-gate-card" style={{ maxHeight: "90vh", overflowY: "auto" }}>
+                {/* Header */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
                   <div>
-                    <p className="visual-prompt">מצאו את המספר החסר (?)</p>
-                    <Topic4Visual visual={currentQ.visual} />
+                    <span style={{ color: "#7c3aed", fontWeight: 700, fontSize: 14 }}>
+                      {chainStepNow === 0 ? "❓ שאלה טסה" : `⚡ בוסט ${chainStepNow} מתוך 4`}
+                    </span>
                   </div>
-                ) : isTopic5 && currentQ.visual ? (
-                  <div>
-                    <p className="visual-prompt">מה הצורה הבאה?</p>
-                    <Topic5Visual visual={currentQ.visual} />
+                  <div style={{ display: "flex", gap: 4, fontSize: 18 }}>
+                    {[0, 1, 2].map(i => (
+                      <span key={i} style={{ opacity: i < hearts ? 1 : 0.2 }}>❤️</span>
+                    ))}
                   </div>
-                ) : (
-                  <p className="question-text">{currentQ.question}</p>
+                </div>
+
+                {/* Chain progress */}
+                {chainStepNow > 0 && (
+                  <div style={{ display: "flex", gap: 6, justifyContent: "center", marginBottom: 10 }}>
+                    {["💥 כוח אש", "🧊 הקפאת ירי", "⬆️ נסיגת אויב", "❤️ לב"].map((label, i) => (
+                      <div key={i} style={{
+                        fontSize: 10, padding: "3px 6px", borderRadius: 6,
+                        background: i < chainStepNow ? "rgba(124,58,237,0.4)" : "rgba(30,41,59,0.5)",
+                        border: `1px solid ${i < chainStepNow ? "#7c3aed" : "#1e293b"}`,
+                        color: i < chainStepNow ? "#a78bfa" : "#475569",
+                      }}>{label}</div>
+                    ))}
+                  </div>
                 )}
-              </div>
 
-              <div className="options-grid">
-                {currentQ.options.map((opt, i) => {
-                  const isSelected = selectedAnswer === i;
-                  const isCorrect = feedback && i === currentQ.correct;
-                  const isWrong = feedback && isSelected && i !== currentQ.correct;
-                  let cls = "option-btn";
-                  if (isTopic5) cls += " topic5";
-                  if (isSelected && !feedback) cls += " selected";
-                  if (isCorrect) cls += " correct";
-                  if (isWrong) cls += " wrong";
-                  return (
-                    <button
-                      key={i}
-                      onClick={() => { if (!feedback) { setSelectedAnswer(i); if (playSound) playSound("click"); } }}
-                      disabled={!!feedback}
-                      className={cls}
-                      style={{ cursor: feedback ? "default" : "pointer" }}
-                    >
-                      <span className="option-num">{i + 1}</span>
-                      {isCorrect && <span style={{ color: "#4ade80" }}>✓</span>}
-                      {isWrong && <span style={{ color: "#f87171" }}>✗</span>}
-                      {isTopic5 && typeof opt === "object"
-                        ? <Topic5Option opt={opt} size={40} />
-                        : <span className="option-text" style={{ color: "#e2e8f0" }}>{typeof opt === "string" ? opt : opt?.label || ""}</span>}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {!feedback ? (
-                <button
-                  onClick={handleAnswer}
-                  disabled={selectedAnswer === null}
-                  className={`primary-btn w-full${selectedAnswer === null ? " disabled" : ""}`}
-                  style={{ marginTop: 8 }}
-                >
-                  ✓ אישור תשובה
-                </button>
-              ) : showExplanation ? (
-                <div>
-                  {currentQ.explanation && (
-                    <div className="explanation-card" style={{ marginBottom: 10 }}>
-                      <div className="explanation-title">💡 הסבר</div>
-                      <p className="explanation-text">{currentQ.explanation}</p>
-                    </div>
-                  )}
-                  <button className="primary-btn w-full" onClick={closeQuestion} style={{ marginTop: 8 }}>
-                    {feedback === "correct" ? "⚡ קבלו חיזוק! המשיכו!" : "← המשיכו לשחק"}
-                  </button>
+                {/* Subtitle */}
+                <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 8, textAlign: "center" }}>
+                  {chainStepNow === 0
+                    ? "יריתם על שאלה! ענו נכון לקבלת בוסט"
+                    : chainStepNow < 4
+                      ? "תשובה נכונה = בוסט נוסף! אפשר לעצור בכל שלב"
+                      : "שאלה אחרונה! ענו נכון לקבלת לב"}
                 </div>
-              ) : null}
+
+                {/* Question */}
+                <div className="question-card" style={{ marginBottom: 12 }}>
+                  {isTopic4 && currentQ.visual ? (
+                    <div>
+                      <p className="visual-prompt">מצאו את המספר החסר (?)</p>
+                      <Topic4Visual visual={currentQ.visual} />
+                    </div>
+                  ) : isTopic5 && currentQ.visual ? (
+                    <div>
+                      <p className="visual-prompt">מה הצורה הבאה?</p>
+                      <Topic5Visual visual={currentQ.visual} />
+                    </div>
+                  ) : (
+                    <p className="question-text">{currentQ.question}</p>
+                  )}
+                </div>
+
+                {/* Options */}
+                <div className="options-grid">
+                  {currentQ.options.map((opt, i) => {
+                    const isSelected = selectedAnswer === i;
+                    const isCorrect = feedback && i === currentQ.correct;
+                    const isWrong = feedback && isSelected && i !== currentQ.correct;
+                    let cls = "option-btn";
+                    if (isTopic5) cls += " topic5";
+                    if (isSelected && !feedback) cls += " selected";
+                    if (isCorrect) cls += " correct";
+                    if (isWrong) cls += " wrong";
+                    return (
+                      <button
+                        key={i}
+                        onClick={() => { if (!feedback) { setSelectedAnswer(i); if (playSound) playSound("click"); } }}
+                        disabled={!!feedback}
+                        className={cls}
+                        style={{ cursor: feedback ? "default" : "pointer" }}
+                      >
+                        <span className="option-num">{i + 1}</span>
+                        {isCorrect && <span style={{ color: "#4ade80" }}>✓</span>}
+                        {isWrong && <span style={{ color: "#f87171" }}>✗</span>}
+                        {isTopic5 && typeof opt === "object"
+                          ? <Topic5Option opt={opt} size={40} />
+                          : <span className="option-text" style={{ color: "#e2e8f0" }}>{typeof opt === "string" ? opt : opt?.label || ""}</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Action buttons */}
+                {!feedback ? (
+                  <button
+                    onClick={handleAnswer}
+                    disabled={selectedAnswer === null}
+                    className={`primary-btn w-full${selectedAnswer === null ? " disabled" : ""}`}
+                    style={{ marginTop: 8 }}
+                  >
+                    ✓ אישור תשובה
+                  </button>
+                ) : showExplanation ? (
+                  <div>
+                    {currentQ.explanation && (
+                      <div className="explanation-card" style={{ marginBottom: 10 }}>
+                        <div className="explanation-title">💡 הסבר</div>
+                        <p className="explanation-text">{currentQ.explanation}</p>
+                      </div>
+                    )}
+                    {feedback === "correct" && showChainChoice ? (
+                      <div>
+                        {/* Boost earned indicator */}
+                        <div style={{ textAlign: "center", marginBottom: 10, padding: "8px", background: "rgba(124,58,237,0.2)", borderRadius: 8, border: "1px solid #7c3aed55" }}>
+                          <span style={{ color: "#a78bfa", fontWeight: 700, fontSize: 13 }}>
+                            {chainStepNow === 1 ? "💥 קיבלתם כוח אש!" : chainStepNow === 2 ? "🧊 ירי האויב הוקפא!" : chainStepNow === 3 ? "⬆️ האויב נסוג!" : "❤️ קיבלתם לב!"}
+                          </span>
+                        </div>
+                        <div style={{ display: "flex", gap: 8, flexDirection: "column" }}>
+                          <button className="primary-btn w-full" onClick={handleChainEnd} style={{ marginTop: 0 }}>
+                            🎮 חזרה למשחק
+                          </button>
+                          {chainStepNow < 4 && (
+                            <button
+                              className="secondary-btn w-full"
+                              onClick={handleChainContinue}
+                              style={{ border: "1px solid #7c3aed55", color: "#a78bfa" }}
+                            >
+                              ❓ שאלה נוספת לבוסט {chainStepNow + 1} מתוך 4
+                            </button>
+                          )}
+                          {chainStepNow >= 4 && (
+                            <div style={{ textAlign: "center", color: "#4ade80", fontSize: 13 }}>
+                              🏆 קיבלתם את כל הבוסטים!
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <button className="primary-btn w-full" onClick={closeQuestion} style={{ marginTop: 8 }}>
+                        ← חזרה למשחק
+                      </button>
+                    )}
+                  </div>
+                ) : null}
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
       </div>
     );
   }
@@ -1837,8 +2060,8 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
             {won && (
               <div style={{ fontSize: 12, color: "#64748b", marginBottom: 16, lineHeight: 1.8, textAlign: "right" }}>
                 <div>⭐ כוכב 1: ניצחון</div>
-                <div style={{ opacity: stars >= 2 ? 1 : 0.4 }}>⭐ כוכב 2: כל השאלות נכון בניסיון ראשון</div>
-                <div style={{ opacity: stars >= 3 ? 1 : 0.4 }}>⭐ כוכב 3: שאלת הבונוס נכון</div>
+                <div style={{ opacity: stars >= 2 ? 1 : 0.4 }}>⭐ כוכב 2: ענו נכון על 2+ שאלות בשרשרת</div>
+                <div style={{ opacity: stars >= 3 ? 1 : 0.4 }}>⭐ כוכב 3: השלמתם שרשרת שאלות מלאה (4 בוסטים)</div>
               </div>
             )}
 
