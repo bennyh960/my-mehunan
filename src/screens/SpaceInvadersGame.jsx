@@ -65,11 +65,24 @@ const KILL_PTS = { skulkin: 10, serpentine: 20, stoneWarrior: 40, hypnobrai: 30,
 
 // ─── Level Definitions ───
 const LEVEL_DEFS = [
-  { rows: ["skulkin","skulkin","skulkin","skulkin"],               waves: 2 },
-  { rows: ["skulkin","skulkin","skulkin","serpentine"],            waves: 2 },
-  { rows: ["skulkin","skulkin","serpentine","stoneWarrior"],       waves: 3 },
-  { rows: ["skulkin","skulkin","serpentine","serpentine"], extraRow: "stoneWarrior", waves: 3 },
-  { rows: ["skulkin","serpentine","serpentine","stoneWarrior"], extraRow: "hypnobrai", waves: 4 },
+  // ── Levels 1-5: Introduction ──
+  { rows: ["skulkin","skulkin","skulkin","skulkin"],                                    waves: 2, flyingQ: 1 },
+  { rows: ["skulkin","skulkin","skulkin","serpentine"],                                 waves: 2, flyingQ: 1 },
+  { rows: ["skulkin","skulkin","serpentine","stoneWarrior"],                            waves: 2, flyingQ: 2 },
+  { rows: ["skulkin","skulkin","serpentine","serpentine"],   extraRow: "stoneWarrior",  waves: 3, flyingQ: 2 },
+  { rows: ["skulkin","serpentine","serpentine","stoneWarrior"], extraRow: "hypnobrai",  waves: 3, flyingQ: 3 },
+  // ── Levels 6-10: Mid-game ──
+  { rows: ["skulkin","serpentine","serpentine","stoneWarrior"],                         waves: 2, flyingQ: 3 },
+  { rows: ["serpentine","serpentine","stoneWarrior","stoneWarrior"],                    waves: 2, flyingQ: 3 },
+  { rows: ["skulkin","serpentine","stoneWarrior","hypnobrai"],                          waves: 2, flyingQ: 3 },
+  { rows: ["serpentine","serpentine","stoneWarrior","hypnobrai"], extraRow: "skulkin",  waves: 3, flyingQ: 3 },
+  { rows: ["serpentine","stoneWarrior","stoneWarrior","hypnobrai"],                     waves: 3, flyingQ: 4 },
+  // ── Levels 11-15: Expert ──
+  { rows: ["serpentine","stoneWarrior","stoneWarrior","hypnobrai"], extraRow: "stoneWarrior", waves: 3, flyingQ: 4 },
+  { rows: ["stoneWarrior","stoneWarrior","hypnobrai","hypnobrai"],                      waves: 3, flyingQ: 4 },
+  { rows: ["serpentine","stoneWarrior","hypnobrai","hypnobrai"],  extraRow: "stoneWarrior",   waves: 3, flyingQ: 4 },
+  { rows: ["stoneWarrior","stoneWarrior","hypnobrai","hypnobrai"], extraRow: "hypnobrai",      waves: 3, flyingQ: 5 },
+  { rows: ["stoneWarrior","stoneWarrior","stoneWarrior","hypnobrai"], extraRow: "hypnobrai",   waves: 4, flyingQ: 5 },
 ];
 
 // ─── Helpers ───
@@ -1004,7 +1017,7 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
       flyingQuestions: [],
       flyingQTimer: 180,
       flyingQSpawned: 0,
-      flyingQCount: lvlNum,
+      flyingQCount: levelDef.flyingQ || Math.min(lvlNum, 5),
       // Chain pool
       chainPool: [...pool].sort(() => Math.random() - 0.5),
       chainPoolIdx: 0,
