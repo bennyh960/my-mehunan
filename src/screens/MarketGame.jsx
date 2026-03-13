@@ -510,7 +510,7 @@ export function MarketGame({ settings, gameProgress, saveGameProgress, playSound
           <button style={MS.backBtn} onClick={() => setScreen("practice-games")}>
             → חזרה
           </button>
-          <h2 style={MS.title}>🏪 שוק הקלפים</h2>
+          <h2 style={MS.title}>⚔️ קרב הקלפים</h2>
           <div style={{ fontSize: 15, fontWeight: 700, color: "#fbbf24" }}>⚡ {sparks}</div>
         </div>
 

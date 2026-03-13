@@ -20,7 +20,6 @@ import { AdventureGame } from './screens/AdventureGame';
 import { ClockGame } from './screens/ClockGame';
 import { NinjaGame } from './screens/NinjaGame';
 // import { DungeonGame } from './screens/DungeonGame';
-import { NinjaQuestGame } from './screens/NinjaQuestGame';
 import { SpaceInvadersGame } from './screens/SpaceInvadersGame';
 import { FractionsGame } from './screens/FractionsGame';
 import { MultiplicationGame } from './screens/MultiplicationGame';
@@ -28,9 +27,12 @@ import { MarketGame } from './screens/MarketGame';
 import { Practices } from './screens/Practices';
 import { DEFAULT_GAME_PROGRESS } from './constants/games';
 import { SPARKS_REWARDS, ADMIN_USERNAME, isGameUnlocked } from './constants/ninjago';
+import { GAME_LIST } from './constants/games';
+import { STORY_EVENTS } from './constants/story';
+import { StoryModal } from './components/ui/StoryModal';
 
 export default function App() {
-  const [screen, setScreen] = useState("home");
+  const [screen, _setScreen] = useState("home");
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [customQuestions, setCustomQuestions] = useState([]);
   const [progress, setProgress] = useState(DEFAULT_PROGRESS);
@@ -60,6 +62,9 @@ export default function App() {
   const qStatesRef = useRef({});
   qStatesRef.current = qStates;
 
+  const seenStoryRef = useRef(new Set());
+  const [pendingStory, setPendingStory] = useState(null);
+
   const [masteryData, setMasteryData] = useState({});
   const masteryRef = useRef({});
   masteryRef.current = masteryData;
@@ -74,6 +79,7 @@ export default function App() {
     try { const q = localStorage.getItem("gp_questions"); if (q) setCustomQuestions(JSON.parse(q)); } catch {}
     try { const g = localStorage.getItem("gp_games"); if (g) setGameProgress(JSON.parse(g)); } catch {}
     try { const sp = localStorage.getItem("gp_sparks"); if (sp) setSparks(JSON.parse(sp)); } catch {}
+    try { const st = localStorage.getItem("gp_story"); if (st) seenStoryRef.current = new Set(JSON.parse(st)); } catch {}
     try {
       const m = localStorage.getItem("gp_mastery");
       if (m) {
@@ -102,6 +108,34 @@ export default function App() {
       return next;
     });
   }, []);
+
+  const triggerStory = useCallback((eventId) => {
+    if (seenStoryRef.current.has(eventId)) return;
+    const ev = STORY_EVENTS[eventId];
+    if (!ev) return;
+    seenStoryRef.current.add(eventId);
+    try { localStorage.setItem("gp_story", JSON.stringify([...seenStoryRef.current])); } catch {}
+    setPendingStory(ev);
+  }, []);
+
+  const currentTopicRef = useRef(null);
+  useEffect(() => { currentTopicRef.current = currentTopic; }, [currentTopic]);
+
+  const setScreen = useCallback((newScreen) => {
+    _setScreen(newScreen);
+    if (newScreen === "topic-done") {
+      triggerStory(`topic_done_${currentTopicRef.current}`);
+    } else if (newScreen === "test-results") {
+      triggerStory("test_done");
+    } else {
+      const gameIdx = GAME_LIST.findIndex(g => `${g.id}-game` === newScreen);
+      if (gameIdx >= 0) triggerStory(`game_intro_${gameIdx}`);
+    }
+  }, [triggerStory]);
+
+  useEffect(() => {
+    if (gradeSelected && loaded) triggerStory("intro");
+  }, [gradeSelected, loaded, triggerStory]);
 
   const saveMastery = useCallback((data) => {
     setMasteryData(data);
@@ -339,12 +373,14 @@ export default function App() {
     return <GradeSelection settings={settings} setSettings={setSettings} setGradeSelected={setGradeSelected} saveSettings={saveSettings} playSound={playSound} />;
   }
 
+  let content = <div className="container"><button onClick={goHome} className="primary-btn">🏠 חזרה</button></div>;
+
   if (screen === "home") {
-    return <Home settings={settings} progress={progress} getTopicStats={getTopicStats} startTopic={startTopic} startTest={startTest} setScreen={setScreen} sparks={sparks} isAdmin={isAdmin} />;
+    content = <Home settings={settings} progress={progress} getTopicStats={getTopicStats} startTopic={startTopic} startTest={startTest} setScreen={setScreen} sparks={sparks} isAdmin={isAdmin} />;
   }
 
   if ((screen==="practice"||screen==="test") && currentQuestion) {
-    return <Practice
+    content = <Practice
       currentQuestion={currentQuestion} currentQuestionIdx={currentQuestionIdx} totalQs={totalQs} testMode={testMode}
       selectedAnswer={selectedAnswer} setSelectedAnswer={setSelectedAnswer} showResult={showResult} showExplanation={showExplanation} showConfetti={showConfetti}
       attemptNum={attemptNum} wrongFirstChoice={wrongFirstChoice} settings={settings} playSound={playSound}
@@ -355,80 +391,77 @@ export default function App() {
   }
 
   if (screen === "test-instructions" && testInstructionTopic) {
-    return <TestInstructions testInstructionTopic={testInstructionTopic} testQuestions={testQuestions} setScreen={setScreen} />;
+    content = <TestInstructions testInstructionTopic={testInstructionTopic} testQuestions={testQuestions} setScreen={setScreen} />;
   }
 
   if (screen==="topic-done") {
-    return <TopicDone currentTopic={currentTopic} getTopicStats={getTopicStats} startTopic={startTopic} goHome={goHome} />;
+    content = <TopicDone currentTopic={currentTopic} getTopicStats={getTopicStats} startTopic={startTopic} goHome={goHome} />;
   }
 
   if (screen==="test-results") {
-    return <TestResults testAnswers={testAnswers} testQuestions={testQuestions} testStartTime={testStartTime} saveProgress={saveProgress} progress={progress} goHome={goHome} />;
+    content = <TestResults testAnswers={testAnswers} testQuestions={testQuestions} testStartTime={testStartTime} saveProgress={saveProgress} progress={progress} goHome={goHome} />;
   }
 
   if (screen==="progress") {
-    return <Progress progress={progress} getTopicStats={getTopicStats} goHome={goHome} />;
+    content = <Progress progress={progress} getTopicStats={getTopicStats} goHome={goHome} />;
   }
 
   if (screen === "practice-games") {
-    return <PracticeGames settings={settings} gameProgress={gameProgress} setScreen={setScreen} sparks={sparks} isAdmin={isAdmin} />;
+    content = <PracticeGames settings={settings} gameProgress={gameProgress} setScreen={setScreen} sparks={sparks} isAdmin={isAdmin} />;
   }
 
   if (screen === "arithmetic-game") {
-    return <ArithmeticGame settings={settings} gameProgress={gameProgress} saveGameProgress={saveGameProgress} playSound={playSound} setScreen={setScreen} addSparks={addSparks} isAdmin={isAdmin} />;
+    content = <ArithmeticGame settings={settings} gameProgress={gameProgress} saveGameProgress={saveGameProgress} playSound={playSound} setScreen={setScreen} addSparks={addSparks} isAdmin={isAdmin} />;
   }
 
   if (screen === "adventure-game") {
-    return <AdventureGame settings={settings} gradeQ={gradeQ} gameProgress={gameProgress} saveGameProgress={saveGameProgress} playSound={playSound} setScreen={setScreen} addSparks={addSparks} isAdmin={isAdmin} />;
+    content = <AdventureGame settings={settings} gradeQ={gradeQ} gameProgress={gameProgress} saveGameProgress={saveGameProgress} playSound={playSound} setScreen={setScreen} addSparks={addSparks} isAdmin={isAdmin} />;
   }
 
   if (screen === "clock-game") {
-    return <ClockGame settings={settings} gameProgress={gameProgress} saveGameProgress={saveGameProgress} playSound={playSound} setScreen={setScreen} addSparks={addSparks} isAdmin={isAdmin} />;
+    content = <ClockGame settings={settings} gameProgress={gameProgress} saveGameProgress={saveGameProgress} playSound={playSound} setScreen={setScreen} addSparks={addSparks} isAdmin={isAdmin} />;
   }
 
   if (screen === "ninja-game" || screen === "ninjago-game") {
-    return <NinjaGame settings={settings} gradeQ={gradeQ} gameProgress={gameProgress} saveGameProgress={saveGameProgress} playSound={playSound} setScreen={setScreen} addSparks={addSparks} isAdmin={isAdmin} sparks={sparks} />;
-  }
-
-  // if (screen === "dungeon-game") {
-  //   return <DungeonGame settings={settings} gradeQ={gradeQ} gameProgress={gameProgress} saveGameProgress={saveGameProgress} playSound={playSound} setScreen={setScreen} addSparks={addSparks} isAdmin={isAdmin} sparks={sparks} />;
-  // }
-
-  if (screen === "ninja-quest-game") {
-    return <NinjaQuestGame settings={settings} gradeQ={gradeQ} gameProgress={gameProgress} saveGameProgress={saveGameProgress} playSound={playSound} setScreen={setScreen} addSparks={addSparks} isAdmin={isAdmin} sparks={sparks} />;
+    content = <NinjaGame settings={settings} gradeQ={gradeQ} gameProgress={gameProgress} saveGameProgress={saveGameProgress} playSound={playSound} setScreen={setScreen} addSparks={addSparks} isAdmin={isAdmin} sparks={sparks} />;
   }
 
   if (screen === "space-invaders-game") {
-    return <SpaceInvadersGame gradeQ={gradeQ} sparks={sparks} isAdmin={isAdmin} addSparks={addSparks} gameProgress={gameProgress} saveGameProgress={saveGameProgress} onExit={() => setScreen("practice-games")} playSound={playSound} />;
+    content = <SpaceInvadersGame gradeQ={gradeQ} sparks={sparks} isAdmin={isAdmin} addSparks={addSparks} gameProgress={gameProgress} saveGameProgress={saveGameProgress} onExit={() => setScreen("practice-games")} playSound={playSound} />;
   }
 
   if (screen === "practices") {
-    return <Practices settings={settings} gameProgress={gameProgress} setScreen={setScreen} />;
+    content = <Practices settings={settings} gameProgress={gameProgress} setScreen={setScreen} />;
   }
 
   if (screen === "fractions-game") {
-    return <FractionsGame settings={settings} gameProgress={gameProgress} saveGameProgress={saveGameProgress} playSound={playSound} setScreen={setScreen} addSparks={addSparks} isAdmin={isAdmin} />;
+    content = <FractionsGame settings={settings} gameProgress={gameProgress} saveGameProgress={saveGameProgress} playSound={playSound} setScreen={setScreen} addSparks={addSparks} isAdmin={isAdmin} />;
   }
 
   if (screen === "multiplication-game") {
-    return <MultiplicationGame settings={settings} gameProgress={gameProgress} saveGameProgress={saveGameProgress} playSound={playSound} setScreen={setScreen} addSparks={addSparks} isAdmin={isAdmin} />;
+    content = <MultiplicationGame settings={settings} gameProgress={gameProgress} saveGameProgress={saveGameProgress} playSound={playSound} setScreen={setScreen} addSparks={addSparks} isAdmin={isAdmin} />;
   }
 
   if (screen === "market-game") {
-    return <MarketGame settings={settings} gameProgress={gameProgress} saveGameProgress={saveGameProgress} playSound={playSound} setScreen={setScreen} addSparks={addSparks} isAdmin={isAdmin} sparks={sparks} />;
+    content = <MarketGame settings={settings} gameProgress={gameProgress} saveGameProgress={saveGameProgress} playSound={playSound} setScreen={setScreen} addSparks={addSparks} isAdmin={isAdmin} sparks={sparks} />;
   }
 
   if (screen==="settings") {
-    return <Settings settings={settings} saveSettings={saveSettings} resetProgress={resetProgress} goHome={goHome} />;
+    content = <Settings settings={settings} saveSettings={saveSettings} resetProgress={resetProgress} goHome={goHome} />;
   }
 
   if (screen==="admin-login") {
-    return <AdminLogin adminPwInput={adminPwInput} setAdminPwInput={setAdminPwInput} settings={settings} setAdminAuth={setAdminAuth} setScreen={setScreen} goHome={goHome} />;
+    content = <AdminLogin adminPwInput={adminPwInput} setAdminPwInput={setAdminPwInput} settings={settings} setAdminAuth={setAdminAuth} setScreen={setScreen} goHome={goHome} />;
   }
 
   if (screen==="admin"&&adminAuth) {
-    return <Admin adminAuth={adminAuth} editingQ={editingQ} setEditingQ={setEditingQ} allQ={allQ} customQuestions={customQuestions} saveCQ={saveCQ} adminTopic={adminTopic} setAdminTopic={setAdminTopic} settings={settings} setAdminAuth={setAdminAuth} goHome={goHome} />;
+    content = <Admin adminAuth={adminAuth} editingQ={editingQ} setEditingQ={setEditingQ} allQ={allQ} customQuestions={customQuestions} saveCQ={saveCQ} adminTopic={adminTopic} setAdminTopic={setAdminTopic} settings={settings} setAdminAuth={setAdminAuth} goHome={goHome} />;
   }
 
-  return <div className="container"><button onClick={goHome} className="primary-btn">🏠 חזרה</button></div>;
+  return (
+    <>
+      {content}
+      {pendingStory && <StoryModal event={pendingStory} onClose={() => setPendingStory(null)} />}
+    </>
+  );
 }

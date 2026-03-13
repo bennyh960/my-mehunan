@@ -5,10 +5,9 @@ export const GAME_LIST = [
   { id: "arithmetic", nameHe: "חשבון מהיר", icon: "🧮", color: "#818cf8", description: "תרגול פעולות חשבון בזמן מוגבל" },
   { id: "clock", nameHe: "לימוד השעון", icon: "🕐", color: "#06b6d4", description: "תרגול קריאת שעון וחישובי זמן" },
   { id: "adventure", nameHe: "הרפתקת החשיבה", icon: "🏰", color: "#f59e0b", description: "פתרו חידות בחדרים מסתוריים" },
-  { id: "space-invaders", nameHe: "פלישת הסרפנטין", icon: "🛸", color: "#7c3aed", description: "עצרו את פלישת הסרפנטין! ירו למעלה וענו על שאלות!" },
+  { id: "market", nameHe: "קרב הקלפים", icon: "⚔️", color: "#e67e22", description: "קנו, מכרו וסחרו עם פוקימון ונינג'ות!", totalLevels: 3 },
   { id: "ninjago", nameHe: "נינג'גו", icon: "🥷", color: "#22c55e", description: "קפצו בין פלטפורמות ופתרו חידות!" },
-  { id: "ninja-quest", nameHe: "טורניר היסודות", icon: "🏆", color: "#a855f7", description: "קרב נינג'ות! ענו נכון כדי לתקוף ולנצח!" },
-  { id: "market", nameHe: "שוק הקלפים", icon: "🏪", color: "#e67e22", description: "קנו, מכרו וסחרו עם פוקימון ונינג'ות!" },
+  { id: "space-invaders", nameHe: "פלישת הסרפנטין", icon: "🛸", color: "#7c3aed", description: "עצרו את פלישת הסרפנטין! ירו למעלה וענו על שאלות!" },
 ];
 
 export const DEFAULT_GAME_PROGRESS = {
@@ -18,7 +17,6 @@ export const DEFAULT_GAME_PROGRESS = {
   "space-invaders": {},
   ninja: {},
   ninjago: {},
-  quest: { currentWorld: 0, worlds: {} },
   multiplication: {},
   market: {},
 };

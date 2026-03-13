@@ -1,3 +1,5 @@
+import { GAME_LIST } from './games';
+
 // ─── Ninjago Progression System ───
 
 // Currency: Spinjitzu Sparks (ניצוצות ספינג'יטסו)
@@ -52,21 +54,16 @@ export const GAME_UNLOCKS = [
   { gameId: "clock",         sparksNeeded: 150 },
   { gameId: "space-invaders", sparksNeeded: 200 },
   { gameId: "ninjago",       sparksNeeded: 500 },
-  { gameId: "ninja-quest",   sparksNeeded: 350 },
   { gameId: "market",        sparksNeeded: 100 },
 ];
 
 // ─── Game Progression (level cap from previous game) ───
-// Order matches GAME_LIST display: arithmetic → clock → adventure → ninjago
-// prevGameId: which game's progress caps levels in this game
-// prevGameName: Hebrew name for lock messages
-// levelCapMultiplier: cap = prevGameCompleted * multiplier (ninjago has 20 levels vs 10)
-export const GAME_PROGRESSION = [
-  { gameId: "arithmetic", prevGameId: null,         prevGameName: null,               levelCapMultiplier: 1 },
-  { gameId: "clock",      prevGameId: "arithmetic", prevGameName: "חשבון מהיר",       levelCapMultiplier: 1 },
-  { gameId: "adventure",  prevGameId: "clock",      prevGameName: "לימוד השעון",      levelCapMultiplier: 1 },
-  { gameId: "ninjago",    prevGameId: "adventure",  prevGameName: "הרפתקת החשיבה",    levelCapMultiplier: 2 },
-];
+// Index-based: game at GAME_LIST[i] is capped by GAME_LIST[i-1]'s progress
+// levelCapMultiplier overrides for games with more levels than the previous (e.g. ninjago=20 vs market=3)
+// Special: if prev game has totalLevels defined and prevCompleted >= totalLevels → fully unlocked (cap=Infinity)
+const GAME_LEVEL_MULTIPLIERS = {
+  ninjago: 7, // market has 3 levels × 7 = 21 ≥ 20 ninjago levels when fully done
+};
 
 // ─── Ninja Stats (unique per character) ───
 // All values are multipliers (1.0 = base)
@@ -145,23 +142,29 @@ export const isGameUnlocked = (gameId, sparks, isAdmin) => {
 export const getGameUnlockInfo = (gameId) =>
   GAME_UNLOCKS.find(g => g.gameId === gameId) || null;
 
-// Returns max level accessible in a game based on previous game progress
-// Level N requires level ceil(N / multiplier) completed in prev game
+// Returns max level accessible in a game based on previous game progress.
+// Lookup is index-based: game[i] requires game[i-1].
+// If prevGame.totalLevels is defined and all completed → fully unlocked (Infinity).
 export const getGameLevelCap = (gameId, gameProgress, isAdmin) => {
   if (isAdmin) return Infinity;
-  const prog = GAME_PROGRESSION.find(g => g.gameId === gameId);
-  if (!prog || !prog.prevGameId) return Infinity;
-  const prevGp = gameProgress[prog.prevGameId] || {};
+  const gameIndex = GAME_LIST.findIndex(g => g.id === gameId);
+  if (gameIndex <= 0) return Infinity;
+  const prevGame = GAME_LIST[gameIndex - 1];
+  const prevGp = gameProgress[prevGame.id] || {};
   const prevCompleted = Object.keys(prevGp).filter(k => prevGp[k]?.stars > 0).length;
-  return Math.max(1, prevCompleted * prog.levelCapMultiplier);
+  if (prevGame.totalLevels !== undefined && prevCompleted >= prevGame.totalLevels) return Infinity;
+  const multiplier = GAME_LEVEL_MULTIPLIERS[gameId] || 1;
+  return Math.max(1, prevCompleted * multiplier);
 };
 
-// Returns Hebrew message explaining why a level is locked due to prev game requirement
+// Returns Hebrew message explaining why a level is locked
 export const getLevelLockReason = (gameId, level) => {
-  const prog = GAME_PROGRESSION.find(g => g.gameId === gameId);
-  if (!prog || !prog.prevGameId) return null;
-  const requiredPrevLevel = Math.ceil(level / prog.levelCapMultiplier);
-  return `סיימו שלב ${requiredPrevLevel} ב${prog.prevGameName} כדי לפתוח`;
+  const gameIndex = GAME_LIST.findIndex(g => g.id === gameId);
+  if (gameIndex <= 0) return null;
+  const prevGame = GAME_LIST[gameIndex - 1];
+  const multiplier = GAME_LEVEL_MULTIPLIERS[gameId] || 1;
+  const requiredPrevLevel = Math.ceil(level / multiplier);
+  return `סיימו שלב ${requiredPrevLevel} ב${prevGame.nameHe} כדי לפתוח`;
 };
 
 export const getNinjaById = (id) =>
