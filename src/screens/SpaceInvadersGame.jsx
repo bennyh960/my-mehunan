@@ -1468,11 +1468,13 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
         });
 
         if (ally.active) {
-          const pCx = g.player.x + PLAYER_W / 2;
           const aCx = ally.x;
           const catchDist = (PLAYER_W / 2) + (PLAYER_W * ALLY_SCALE) / 2 + 10;
           const vertOk = Math.abs(ally.y - PLAYER_Y) < 50;
-          if (Math.abs(pCx - aCx) < catchDist && vertOk) {
+          const ninjaPositions = getNinjaXPositions(g);
+          const anyCatch = vertOk && ninjaPositions.some(cx => Math.abs(cx - aCx) < catchDist);
+          const pCx = ninjaPositions[Math.floor(ninjaPositions.length / 2)] || (g.player.x + PLAYER_W / 2);
+          if (anyCatch) {
             const caught = ally.ninja;
             ally.active = false;
             if (g.ninjas.length < g.maxNinjas) {
