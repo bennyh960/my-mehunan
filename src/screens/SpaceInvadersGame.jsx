@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { NINJAS, getUnlockedNinjas } from '../constants/ninjago';
+import { NINJAS, getUnlockedNinjas, getGameLevelCap, getLevelLockReason } from '../constants/ninjago';
 import { Topic4Visual } from '../components/visuals/Topic4Visual';
 import { Topic5Visual } from '../components/visuals/Topic5Visual';
 import { Topic5Option } from '../components/visuals/Topic5Option';
@@ -943,7 +943,8 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
 
   const getStars = (lvl) => gp[lvl]?.stars || 0;
   const getStarsDisplay = (stars) => "⭐".repeat(stars) + "☆".repeat(3 - stars);
-  const isLevelUnlocked = (lvl) => isAdmin || lvl === 1 || gp[lvl - 1]?.stars > 0;
+  const levelCap = getGameLevelCap("space-invaders", gameProgress, isAdmin);
+  const isLevelUnlocked = (lvl) => isAdmin || (lvl <= levelCap && (lvl === 1 || gp[lvl - 1]?.stars > 0));
 
   // Init stars
   useEffect(() => {
@@ -1779,6 +1780,7 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
               const lvl = i + 1;
               const unlocked = isLevelUnlocked(lvl);
               const stars = getStars(lvl);
+              const lockReason = !unlocked && lvl > levelCap ? getLevelLockReason("space-invaders", lvl) : null;
               return (
                 <button
                   key={lvl}
@@ -1798,12 +1800,16 @@ export function SpaceInvadersGame({ gradeQ, sparks, isAdmin, addSparks, gameProg
                   <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: 700, fontSize: 15 }}>שלב {lvl}</div>
                     <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>
-                      {LEVEL_DEFS[i].rows.map(r =>
-                        r === "skulkin" ? "גולגולות" :
-                        r === "serpentine" ? "סרפנטין" :
-                        r === "stoneWarrior" ? "לוחמי אבן" : "היפנוברי"
-                      ).join(" · ")}
-                      {LEVEL_DEFS[i].extraRow ? ` · ${LEVEL_DEFS[i].extraRow === "stoneWarrior" ? "לוחמי אבן" : "היפנוברי"}` : ""}
+                      {lockReason ? lockReason : (
+                        <>
+                          {LEVEL_DEFS[i].rows.map(r =>
+                            r === "skulkin" ? "גולגולות" :
+                            r === "serpentine" ? "סרפנטין" :
+                            r === "stoneWarrior" ? "לוחמי אבן" : "היפנוברי"
+                          ).join(" · ")}
+                          {LEVEL_DEFS[i].extraRow ? ` · ${LEVEL_DEFS[i].extraRow === "stoneWarrior" ? "לוחמי אבן" : "היפנוברי"}` : ""}
+                        </>
+                      )}
                     </div>
                   </div>
                   {unlocked && (

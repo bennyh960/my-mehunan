@@ -49,12 +49,12 @@ export const NINJA_RANKS = [
 // ─── Game Unlock Thresholds ───
 // Dynamic: games are ordered, each has a sparks requirement
 export const GAME_UNLOCKS = [
-  { gameId: "arithmetic",    sparksNeeded: 0 },
-  { gameId: "adventure",     sparksNeeded: 50 },
-  { gameId: "clock",         sparksNeeded: 150 },
-  { gameId: "space-invaders", sparksNeeded: 200 },
-  { gameId: "ninjago",       sparksNeeded: 500 },
-  { gameId: "market",        sparksNeeded: 100 },
+  { gameId: "arithmetic",     sparksNeeded: 0 },
+  { gameId: "clock",          sparksNeeded: 50 },
+  { gameId: "adventure",      sparksNeeded: 150 },
+  { gameId: "market",         sparksNeeded: 250 },
+  { gameId: "ninjago",        sparksNeeded: 500 },
+  { gameId: "space-invaders", sparksNeeded: 700 },
 ];
 
 // ─── Game Progression (level cap from previous game) ───
@@ -62,7 +62,8 @@ export const GAME_UNLOCKS = [
 // levelCapMultiplier overrides for games with more levels than the previous (e.g. ninjago=20 vs market=3)
 // Special: if prev game has totalLevels defined and prevCompleted >= totalLevels → fully unlocked (cap=Infinity)
 const GAME_LEVEL_MULTIPLIERS = {
-  ninjago: 7, // market has 3 levels × 7 = 21 ≥ 20 ninjago levels when fully done
+  ninjago: 7,          // market has 3 levels × 7 = 21 ≥ 20 ninjago levels when fully done
+  "space-invaders": 0.5, // ninjago has 20 levels × 0.5 = 10 space-invaders levels
 };
 
 // ─── Ninja Stats (unique per character) ───
