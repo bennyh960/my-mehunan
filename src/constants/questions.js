@@ -154,7 +154,7 @@ export const QUESTIONS = [
     options:["6","7","12","16"], correct:1,
     explanation:"14 ÷ 2 = 7 בני משפחה." },
   { id:"3-7",topic:3,grades:[3, 4],difficulty:"medium",
-    question:"אורי קנה 3 מחברות ב-12 ₪ כל אחת ו-2 עטים ב-5 ₪. שילם 100 ₪. כמה עודף?",
+    question:"אורי קנה 3 מחברות ב-12 ₪ כל אחת ו-2 עטים ב-5 ₪ לעט. שילם 100 ₪. כמה עודף?",
     options:["46","54","64","83"], correct:1,
     explanation:"3×12=36, 2×5=10. סה\"כ 46. עודף: 100-46=54." },
   { id:"3-8",topic:3,grades:[3, 4],difficulty:"hard",
